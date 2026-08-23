@@ -1,11 +1,307 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Portafolio de Larz</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portafolio · Seguridad Informática</title>
+<meta name="description" content="Portafolio digital de evidencias académicas — CNO IV, Seguridad Informática.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1>¡Hola, mundo!</h1>
-    <p>Bienvenido a mi portafolio de Tecnologías de la Información.</p>
+
+<!-- ============================================================
+     BARRA DE ESTADO (elemento distintivo tipo "consola de acceso")
+     ============================================================ -->
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">BUILD: <span data-build-version>v0.1 · Entrega 1 — ACT-02 · Inicio</span></span>
+  </div>
+</div>
+
+<!-- ============================================================
+     ENCABEZADO / NAVEGACIÓN
+     ============================================================ -->
+<header class="site-header" id="inicio">
+  <div class="site-header__bar">
+    <a href="#inicio" class="brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span class="brand__text">
+        <span class="brand__name" data-student-name>Luis Arturo Rocha Zarazúa</span>
+        <span class="brand__alias">alias: <span data-student-alias>@larz</span></span>
+      </span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Abrir menú de navegación">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="primary-nav" id="primaryNav">
+      <a href="#inicio">Inicio</a>
+      <a href="#presentacion">Portafolio</a>
+      <a href="#perfil">Perfil</a>
+      <a href="#tecnico">Ficha técnica</a>
+      <a href="#parciales">Parciales</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </div>
+
+  <div class="site-header__meta">
+    <div class="meta-grid">
+      <div class="meta-item">
+        <span class="meta-item__label">Asignatura</span>
+        <span class="meta-item__value" data-course-name>CNO IV — Seguridad Informática</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-item__label">Institución</span>
+        <span class="meta-item__value" data-institution>Universidad Politécnica de San Luis Potosí</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-item__label">Programa</span>
+        <span class="meta-item__value" data-program>Ing. en Tecnologías de la Información</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-item__label">Periodo</span>
+        <span class="meta-item__value" data-period>7mo Semestre — 2026S3</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============================================================
+       PRESENTACIÓN DEL PORTAFOLIO
+       ============================================================ -->
+  <section class="section" id="presentacion">
+    <div class="section__head">
+      <span class="eyebrow">01 · Portada técnica</span>
+      <h2>Presentación del portafolio</h2>
+    </div>
+
+    <div class="presentation-grid">
+      <article class="card card--pad">
+        <h3 class="card__title">Propósito</h3>
+        <p data-purpose-text>
+          El portafolio digital constituye el comprendio integral de las
+          actividades, practicas y proyectos desarrollados por el estudiante a
+          lo largo de la asignatura.
+          Su finalidad es documentar de manera estructurada y sistematica 
+          el proceso de aprendizaje, asi como las competencias tecnicas
+          adquiridas en materia de seguridad informatica.
+        </p>
+      </article>
+
+      <article class="card card--pad">
+        <h3 class="card__title">Enfoque del curso</h3>
+        <p data-focus-text>
+          Esta asignatura aborda de manera integral los principios y prácticas 
+          fundamentales de la Seguridad Informática, centrándose en la 
+          identificación, evaluación y mitigación de riesgos en entornos 
+          tecnológicos. A lo largo del curso, los ejes temáticos se enfocan en 
+          el análisis sistemático de vulnerabilidades, la ejecución de pruebas 
+          de penetración (pentesting) y la implementación de controles de 
+          seguridad en sistemas y redes. El propósito de este apartado es 
+          evidenciar las competencias adquiridas para diagnosticar fallos, 
+          simular escenarios de riesgo y diseñar soluciones que garanticen la 
+          confidencialidad, integridad y disponibilidad de la información.
+        </p>
+      </article>
+
+      <article class="card card--pad">
+        <h3 class="card__title">Evidencia de aprendizaje</h3>
+        <p data-evidence-text>
+          El portafolio integra ejercicios prácticos de pruebas de
+          penetración, análisis de vulnerabilidades, uso y documentación de
+          herammientas especializadas, evidencias audivisuales (videos 
+          demostrativos) y resultados obtenidos durante el curso.
+          Asimismo, permite reflejar mi capacidad para
+          organizar, comunicar y presentar información tecnica de forma
+          profesional.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PERFIL DEL ESTUDIANTE
+       ============================================================ -->
+  <section class="section section--alt" id="perfil">
+    <div class="section__head">
+      <span class="eyebrow">02 · Identidad</span>
+      <h2>Perfil del estudiante</h2>
+    </div>
+
+    <div class="profile-grid">
+      <div class="profile-photo" aria-hidden="true">
+        <img src="assets/perfil/FotoP.jfif" alt="Foto de Larz">
+      </div>
+
+      <div class="profile-copy">
+        <p data-profile-bio>
+          Soy Larz, estudiante de Ingeniería en Tecnologías de la Información 
+          en la Universidad Politécnica de San Luis Potosí. Durante mi trayectoria 
+          académica, he desarrollado un gran interés por la infraestructura 
+          tecnológica, enfocándome en el diseño de redes y el desarrollo de sistemas 
+          embebidos. Cuento con experiencia práctica en la configuración de 
+          topologías de red, implementación de protocolos de seguridad y programación 
+          de microcontroladores para proyectos de automatización. Mi principal 
+          motivación en el área de TI es comprender a fondo cómo se conectan y 
+          protegen los sistemas a nivel global, con el objetivo de desarrollarme 
+          profesionalmente en las áreas de administración de redes y ciberseguridad.
+        </p>
+
+        <h3 class="profile-copy__subtitle">Intereses relacionados</h3>
+        <ul class="tag-list" data-interest-list>
+          <li class="tag">Seguridad informática</li>
+          <li class="tag">Ciberseguridad</li>
+          <li class="tag">Investigación</li>
+          <li class="tag">Pruebas de penetración</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       INFORMACIÓN TÉCNICA BÁSICA
+       ============================================================ -->
+  <section class="section" id="tecnico">
+    <div class="section__head">
+      <span class="eyebrow">03 · Ficha técnica</span>
+      <h2>Información técnica básica</h2>
+    </div>
+
+    <dl class="tech-grid" data-tech-grid>
+      <div class="tech-item">
+        <dt>Lenguaje(s) / tecnología(s)</dt>
+        <dd data-tech-languages>HTML · CSS · JavaScript</dd>
+      </div>
+      <div class="tech-item">
+        <dt>Plataforma de publicación</dt>
+        <dd data-tech-platform>GitHub Pages</dd>
+      </div>
+      <div class="tech-item">
+        <dt>Control de versiones</dt>
+        <dd data-tech-vcs>Git / GitHub</dd>
+      </div>
+      <div class="tech-item">
+        <dt>Última actualización</dt>
+        <dd data-tech-updated>Completar al publicar</dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ============================================================
+       PARCIALES / ACTIVIDADES
+       ============================================================ -->
+  <section class="section section--alt" id="parciales">
+    <div class="section__head">
+      <span class="eyebrow">04 · Bitácora de evidencias</span>
+      <h2>Parciales</h2>
+      <p class="section__intro">
+        Selecciona un parcial para consultar sus actividades. Cada actividad se
+        habilita conforme se va entregando; las que aún no están disponibles se
+        muestran bloqueadas.
+      </p>
+    </div>
+
+    <div class="partial-tabs" role="tablist" aria-label="Selección de parcial" id="partialTabs">
+      <!-- generado por js/script.js a partir de PARCIALES -->
+    </div>
+
+    <div class="partial-panels" id="partialPanels">
+      <!-- generado por js/script.js a partir de PARCIALES -->
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONTACTO
+       ============================================================ -->
+  <section class="section" id="contacto">
+    <div class="section__head">
+      <span class="eyebrow">05 · Enlace directo</span>
+      <h2>Contacto</h2>
+      <p class="section__intro">
+        ¿Dudas sobre alguna evidencia del portafolio? Escribe un mensaje y
+        recibirás una confirmación automática de recepción.
+      </p>
+    </div>
+
+    <form class="contact-form" id="contactForm" novalidate>
+      <!--
+        Este formulario es solo de estructura (front-end).
+        Para que envíe correos reales sin backend propio, conéctalo a un
+        servicio como Formspree / EmailJS / Web3Forms y coloca su endpoint
+        en el atributo action de este <form>, o gestiona el envío en
+        js/script.js dentro de handleContactSubmit().
+      -->
+      <div class="form-row">
+        <label for="contactName">Nombre</label>
+        <input type="text" id="contactName" name="name" required autocomplete="name">
+      </div>
+
+      <div class="form-row">
+        <label for="contactEmail">Correo electrónico</label>
+        <input type="email" id="contactEmail" name="email" required autocomplete="email">
+      </div>
+
+      <div class="form-row">
+        <label for="contactSubject">Asunto</label>
+        <input type="text" id="contactSubject" name="subject" required>
+      </div>
+
+      <div class="form-row">
+        <label for="contactMessage">Mensaje</label>
+        <textarea id="contactMessage" name="message" rows="5" required></textarea>
+      </div>
+
+      <button type="submit" class="btn btn--primary">Enviar mensaje</button>
+
+      <p class="form-feedback" id="formFeedback" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+</main>
+
+<!-- ============================================================
+     PIE DE PÁGINA
+     ============================================================ -->
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+
+    <div class="footer-badges">
+      <span class="badge badge--secure">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.5 12 2.4 2.4L15.5 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Conexión segura (HTTPS)
+      </span>
+      <span class="badge">CNO IV · Seguridad Informática</span>
+    </div>
+
+    <nav class="footer-nav">
+      <a href="#inicio">Inicio</a>
+      <a href="#parciales">Parciales</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="js/script.js"></script>
 </body>
 </html>
+
