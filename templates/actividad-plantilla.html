@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-XX · Título de la actividad — Portafolio</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Ruta relativa: si mueves esta copia a otra carpeta, ajusta "../css/styles.css" -->
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<!--
+  ============================================================
+  CÓMO USAR ESTA PLANTILLA
+  ============================================================
+  1. Duplica este archivo y renómbralo, ej: act-03-parcial1.html
+  2. Cambia el <title> arriba y todos los textos marcados como
+     placeholder (los que dicen "Escribe aquí…", "Título…", etc).
+  3. Agrega o quita <section> según lo que pida la actividad
+     (no todas necesitan tabla, o imagen, o varias secciones).
+  4. Sube tu PDF ya elaborado a assets/parcial-X/ y actualiza
+     el href del botón "Descargar PDF" al final del archivo.
+  5. En js/script.js, agrega esta actividad al arreglo PARCIALES
+     con status: "disponible" y el href apuntando a este archivo.
+  ============================================================
+-->
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../index.html#parciales">&larr; Volver al portafolio</a>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 1</span>
+    <span class="tag">ACT-XX</span>
+  </div>
+  <h1>Título de la actividad</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> dd/mm/aaaa</span>
+    <span><strong>Estudiante:</strong> Nombre del estudiante</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Escribe aquí, en un párrafo breve, qué se buscaba lograr con esta
+      actividad y qué tema de seguridad informática aborda.
+    </p>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <h3>Subtítulo de la primera parte</h3>
+    <p>
+      Texto de desarrollo. Puedes usar tantos párrafos como necesites bajo
+      cada subtítulo. Este bloque está pensado para explicaciones, análisis
+      o procedimientos.
+    </p>
+
+    <div class="activity-callout">
+      Usa este recuadro para resaltar un dato técnico importante, una
+      advertencia o un hallazgo clave (opcional — elimínalo si no lo necesitas).
+    </div>
+
+    <h3>Subtítulo de la segunda parte</h3>
+    <p>
+      Más texto de desarrollo. Agrega o elimina bloques &lt;h3&gt; según la
+      cantidad de subtemas que tenga tu actividad.
+    </p>
+
+    <!-- Imagen de ejemplo -->
+    <figure class="activity-figure">
+      <img src="../assets/parcial-1/imagen-ejemplo.png" alt="Descripción de la imagen">
+      <figcaption>Figura 1. Descripción o pie de imagen.</figcaption>
+    </figure>
+
+    <!-- Tabla de ejemplo -->
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 1. Descripción de la tabla.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Columna 1</th>
+            <th scope="col">Columna 2</th>
+            <th scope="col">Columna 3</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dato</td>
+            <td>Dato</td>
+            <td>Dato</td>
+          </tr>
+          <tr>
+            <td>Dato</td>
+            <td>Dato</td>
+            <td>Dato</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="conclusion">
+    <h2>Conclusión</h2>
+    <p>
+      Cierra la actividad con una breve reflexión: qué se aprendió, cómo se
+      relaciona con la asignatura y, si aplica, próximos pasos.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>Apellido, N. (Año). <em>Título de la fuente</em>. Editorial/Sitio. URL</li>
+      <li>Apellido, N. (Año). <em>Título de la fuente</em>. Editorial/Sitio. URL</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+  <!--
+    Este enlace apunta directamente al archivo PDF que tú generas y subes
+    a la carpeta assets/parcial-X/. No se genera nada automáticamente aquí.
+  -->
+  <a class="btn btn--pdf" href="../assets/parcial-1/act-xx.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Nombre del Estudiante</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../index.html#inicio">Inicio</a>
+      <a href="../index.html#parciales">Parciales</a>
+      <a href="../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script>
+  document.querySelector("[data-ssl-check]").textContent =
+    window.location.protocol === "https:" ? "VERIFICADO" : "SIN VERIFICAR (local)";
+  document.querySelector("[data-current-year]").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
