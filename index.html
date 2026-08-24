@@ -14,9 +14,6 @@
 </head>
 <body>
 
-<!-- ============================================================
-     BARRA DE ESTADO (elemento distintivo tipo "consola de acceso")
-     ============================================================ -->
 <div class="statusbar" role="status" aria-label="Estado del sitio">
   <div class="statusbar__inner">
     <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
@@ -29,9 +26,6 @@
   </div>
 </div>
 
-<!-- ============================================================
-     ENCABEZADO / NAVEGACIÓN
-     ============================================================ -->
 <header class="site-header" id="inicio">
   <div class="site-header__bar">
     <a href="#inicio" class="brand">
@@ -72,7 +66,7 @@
       </div>
       <div class="meta-item">
         <span class="meta-item__label">Periodo</span>
-        <span class="meta-item__value" data-period>7mo Semestre — 2026S3</span>
+        <span class="meta-item__value" data-period>7mo Semestre</span>
       </div>
     </div>
   </div>
@@ -80,9 +74,7 @@
 
 <main>
 
-  <!-- ============================================================
-       PRESENTACIÓN DEL PORTAFOLIO
-       ============================================================ -->
+     
   <section class="section" id="presentacion">
     <div class="section__head">
       <span class="eyebrow">01 · Portada técnica</span>
@@ -132,10 +124,8 @@
       </article>
     </div>
   </section>
+     
 
-  <!-- ============================================================
-       PERFIL DEL ESTUDIANTE
-       ============================================================ -->
   <section class="section section--alt" id="perfil">
     <div class="section__head">
       <span class="eyebrow">02 · Identidad</span>
@@ -172,9 +162,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       INFORMACIÓN TÉCNICA BÁSICA
-       ============================================================ -->
+
   <section class="section" id="tecnico">
     <div class="section__head">
       <span class="eyebrow">03 · Ficha técnica</span>
@@ -201,9 +189,7 @@
     </dl>
   </section>
 
-  <!-- ============================================================
-       PARCIALES / ACTIVIDADES
-       ============================================================ -->
+     
   <section class="section section--alt" id="parciales">
     <div class="section__head">
       <span class="eyebrow">04 · Bitácora de evidencias</span>
@@ -216,17 +202,13 @@
     </div>
 
     <div class="partial-tabs" role="tablist" aria-label="Selección de parcial" id="partialTabs">
-      <!-- generado por js/script.js a partir de PARCIALES -->
     </div>
 
     <div class="partial-panels" id="partialPanels">
-      <!-- generado por js/script.js a partir de PARCIALES -->
     </div>
   </section>
 
-  <!-- ============================================================
-       CONTACTO
-       ============================================================ -->
+
   <section class="section" id="contacto">
     <div class="section__head">
       <span class="eyebrow">05 · Enlace directo</span>
@@ -238,13 +220,7 @@
     </div>
 
     <form class="contact-form" id="contactForm" novalidate>
-      <!--
-        Este formulario es solo de estructura (front-end).
-        Para que envíe correos reales sin backend propio, conéctalo a un
-        servicio como Formspree / EmailJS / Web3Forms y coloca su endpoint
-        en el atributo action de este <form>, o gestiona el envío en
-        js/script.js dentro de handleContactSubmit().
-      -->
+
       <div class="form-row">
         <label for="contactName">Nombre</label>
         <input type="text" id="contactName" name="name" required autocomplete="name">
@@ -273,9 +249,7 @@
 
 </main>
 
-<!-- ============================================================
-     PIE DE PÁGINA
-     ============================================================ -->
+
 <footer class="site-footer">
   <div class="site-footer__inner">
     <div class="footer-brand">
