@@ -25,7 +25,7 @@ const PARCIALES = [
       { code: "ACT-03", 
         title: "No presiones Esc… todavía", 
         status: "disponible", 
-        href: "../templates/parcial-1/act03-P1.html" 
+        href: "templates/parcial-1/act03-P1.html" 
       },
     ],
   },
