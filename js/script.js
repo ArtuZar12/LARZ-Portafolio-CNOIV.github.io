@@ -32,7 +32,7 @@ const PARCIALES = [
   {
     id: "parcial-2",
     label: "Parcial 2",
-    meta: "Por definir",
+    meta: "Sistemas de gestión de la seguridad",
     activities: [
       { code: "ACT-01", title: "Actividad pendiente", status: "proximamente", href: "#" },
     ],
@@ -40,7 +40,7 @@ const PARCIALES = [
   {
     id: "parcial-3",
     label: "Parcial 3",
-    meta: "Por definir",
+    meta: "Temas actuales en seguridad informática",
     activities: [
       { code: "ACT-01", title: "Actividad pendiente", status: "proximamente", href: "#" },
     ],
