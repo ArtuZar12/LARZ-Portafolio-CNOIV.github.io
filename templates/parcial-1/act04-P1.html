@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-04 · Una página demasiado convincente — Portafolio</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../index.html#parciales">&larr; Volver al portafolio</a>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 1</span>
+    <span class="tag">ACT-04</span>
+  </div>
+  <h1>Una página demasiado convincente</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 31/08/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Implementar y analizar, en un entorno de laboratorio controlado, una 
+      simulación de ingeniería social mediante Social-Engineer Toolkit (SET), 
+      utilizando una página web ficticia para comprender el funcionamiento de 
+      una técnica de captura de información y reconocer los elementos que permiten 
+      identificar un intento de phishing.
+    </p>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Descripcion del escenario</h2>
+    <p>
+      El área de seguridad informática de una organización ha recibido varios reportes 
+      de empleados que aseguran haber recibido un mensaje relacionado con una supuesta 
+      actualización de sus credenciales. El mensaje contiene un enlace que dirige a un 
+      portal aparentemente institucional. La página incluye logotipo, campos de usuario 
+      y contraseña y un mensaje indicando: “Su sesión ha expirado. Inicie sesión nuevamente 
+      para continuar.” A primera vista, nada parece fuera de lo común. Sin embargo, el 
+      portal no pertenece a la organización.
+    </p>
+
+    <h3>¿Qué es un Credential Harvester y cuál es su función dentro de una campaña de phishing?</h3>
+    <p>
+      Un Credential Harvester (o recolector de datos) es un programa o sitio web falso 
+      diseñado específicamente para robar nombres de usuario, contraseñas y otros datos 
+      de acceso de las personas. Dentro de una campaña de phishing (estafa para robar 
+      datos mediante engaños), esta herramienta cumple la función de trampa final.
+    </p>
+    <p>
+      El proceso sigue estos pasos:
+    </p>
+    <ol>
+      <li>El anzuelo (El correo o mensaje): El atacante envía un mensaje masivo que parece legítimo (por ejemplo, un aviso de tu banco o de tu correo electrónico).</li>
+      <li>El enlace trampa: El mensaje te pide hacer clic en un enlace porque hay un "problema urgente" con tu cuenta.</li>
+      <li>La página falsa: El enlace te lleva a un sitio web falso que se ve idéntico al real (como la página de inicio de sesión de Microsoft, Google o un banco).</li>
+      <li>La recolección: Detrás de esa página opera el credential harvester. Cuando escribes tus datos y haces clic en "Entrar", el sistema captura esa información de inmediato.</li>
+      <li>El robo: Los datos viajan de inmediato al servidor del atacante. El usuario suele ver un error o es redirigido a la página real, pero el daño ya está hecho.</li>
+    </ol>
+    <p>
+      Entre los datos que un Credential Harvester puede robar se encuentran:
+    </p>
+    <ul>
+      <li>Nombres de usuario o correos electrónicos.</li>
+      <li>Contraseñas de acceso.</li>
+      <li>Códigos de verificación temporal (en ataques más avanzados).</li>
+      <li>Datos de tarjetas de crédito.</li>
+    </ul>
+    <h2>Configuración del laboratorio</h2>
+    <p>
+      Para esta actividad se utilizó la herramienta Social-Engineer Toolkit (SET) desde 
+      Kali Linux, localizando el módulo Credential Harvester Attack Method dentro del menú 
+      de Website Attack Vectors.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-1.PNG" alt="Localización del módulo Credential Harvester Attack Method dentro de SET.">
+      <figcaption>Figura 1. Localización del módulo Credential Harvester Attack Method dentro de SET.</figcaption>
+    </figure>
+    <p>
+      Se diseñó una página web ficticia que simula un sistema institucional de autenticación, 
+      con los siguientes elementos: nombre del sistema, campo de usuario, campo de contraseña, 
+      botón de ingreso y un mensaje relacionado con la expiración de la sesión. Antes de 
+      trasladar los archivos a Kali Linux, se verificó su funcionamiento de forma local, 
+      abriéndolos directamente en el navegador del equipo host:
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-2.jpg" alt="Vista previa local de index.html, la página de inicio de sesión ficticia.">
+      <figcaption>Figura 2. Vista previa local de index.html, la página de inicio de sesión ficticia.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-10.jpg" alt="Vista previa local de bienvenida.html, la página de confirmación diseñada para el redireccionamiento.">
+      <figcaption>Figura 3. Vista previa local de bienvenida.html, la página de confirmación diseñada para el redireccionamiento.</figcaption>
+    </figure>
+    <p>
+      Posteriormente, los archivos index.html y bienvenida.html se copiaron a una carpeta dentro 
+      del escritorio de la máquina virtual de Kali Linux (Desktop/Act04/):
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-3.jpg" alt="Archivos index.html y bienvenida.html copiados a la carpeta Act04 del escritorio de Kali Linux.">
+      <figcaption>Figura 4. Archivos index.html y bienvenida.html copiados a la carpeta Act04 del escritorio de Kali Linux.</figcaption>
+    </figure>
+    <p>
+      Dentro de SET, se seleccionó la opción 3) Custom Import del módulo Credential Harvester, 
+      la cual permite importar un sitio propio en lugar de clonar una página real o una 
+      plantilla predefinida ambas opciones prohibidas para esta actividad. Se configuró la 
+      dirección IP local de la máquina Kali (10.0.2.15) para el reporte de capturas, así 
+      como la ruta de la carpeta del sitio (/home/kali/Desktop/Act04/):
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-4.jpg" alt="Configuración de Custom Import: IP local para el reporte de capturas y ruta de la carpeta del sitio.">
+      <figcaption>Figura 5. Configuración de Custom Import: IP local para el reporte de capturas y ruta de la carpeta del sitio.</figcaption>
+    </figure>
+    <p>
+      Se eligió copiar la carpeta completa, para incluir también bienvenida.html, y se 
+      indicó como URL de redirección posterior al envío del formulario la dirección 
+      http://10.0.2.15/bienvenida.html, evitando así el uso de dominios o sitios reales, 
+      tal como lo exige la actividad. Con esto, el servidor del Credential Harvester quedó 
+      activo en el puerto 80, a la espera de capturas:
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-5.jpg" alt="Selección de copia de carpeta completa, configuración de la URL de redirección y servidor Credential Harvester activo en el puerto 80.">
+      <figcaption>Figura 6. Selección de copia de carpeta completa, configuración de la URL de redirección y servidor Credential Harvester activo en el puerto 80.</figcaption>
+    </figure>
+    <h2>Evidencias y descripción del funcionamiento</h2>
+    <p>
+      Para simular el ataque de ingeniería social, se abrió el navegador dentro de la propia 
+      máquina de Kali Linux y se accedió a la dirección local http://10.0.2.15, donde se 
+      cargó la página de inicio de sesión ficticia:
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-6.jpg" alt="Página de login falsa cargada desde el servidor local de Kali Linux (http://10.0.2.15).">
+      <figcaption>Figura 7. Página de login falsa cargada desde el servidor local de Kali Linux (http://10.0.2.15).</figcaption>
+    </figure>
+    <p>
+      Se ingresaron credenciales de prueba usuario: JuanPe12, contraseña: Prueba1234 y 
+      se envió el formulario:
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-7.jpg" alt="Envío de credenciales de prueba a través del formulario ficticio.">
+      <figcaption>Figura 8. Envío de credenciales de prueba a través del formulario ficticio.</figcaption>
+    </figure>
+    <p>
+      Tras dar clic en “Iniciar sesión”, el navegador intentó redirigir a la página 
+      bienvenida.html; sin embargo, se mostró una pantalla en blanco en lugar del mensaje 
+      de confirmación esperado:
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-8.jpg" alt="Resultado tras el envío del formulario: bienvenida.html se carga en blanco pese a la redirección.">
+      <figcaption>Figura 9. Resultado tras el envío del formulario: bienvenida.html se carga en blanco pese a la redirección.</figcaption>
+    </figure>
+    <p>
+      Al revisar la terminal donde se ejecutaba SET, se confirmó que las credenciales 
+      sí fueron capturadas correctamente, ¡mostrando el mensaje “WE GOT A HIT!” 
+      junto con los valores enviados (usuario=JuanPe12, password=Prueba1234), por 
+      lo que la prueba de laboratorio se consideró exitosa:
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-9.jpg" alt="Terminal de SET mostrando la captura exitosa de las credenciales de prueba.">
+      <figcaption>Figura 10. Terminal de SET mostrando la captura exitosa de las credenciales de prueba.</figcaption>
+    </figure>
+    <p>
+      Adicionalmente, al finalizar la ejecución (Ctrl+C) SET generó un reporte que conserva 
+      el registro de la captura incluso después de terminar el proceso. Dado que SET 
+      se ejecutó con privilegios de superusuario, dicho reporte se guardó dentro de 
+      /root/.set/reports/; se copió a /home/kali/Desktop/Act04/Reporte/ para poder 
+      consultarlo. El archivo XML resultante confirma, de forma persistente, la URL 
+      utilizada y los parámetros capturados (usuario y password):
+    </p>
+     <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-11.jpg" alt="Reporte XML generado y conservado por SET en un archivo local tras finalizar la ejecución, confirmando la persistencia del registro de la captura.">
+      <figcaption>Figura 11. Reporte XML generado y conservado por SET en un archivo local tras finalizar la ejecución, confirmando la persistencia del registro de la captura.</figcaption>
+    </figure>
+
+    <h2>Explicación del flujo de captura de información</h2>
+    <p>
+      El flujo que sigue la información dentro de este laboratorio es el siguiente:
+    </p>
+    <ol>
+      <li>El usuario accede a la página ficticia (index.html) servida por el módulo Credential Harvester de SET.</li>
+      <li>Al completar el formulario y presionar “Iniciar sesión”, los datos se envían mediante una solicitud HTTP POST hacia ese mismo servidor.</li>
+      <li>El servidor Python que levanta SET intercepta la solicitud POST, identifica los campos del formulario (usuario, password) y los muestra en texto plano en la terminal, quedando registrados como evidencia de la captura.</li>
+      <li>Finalmente, el servidor intenta redirigir al navegador hacia la URL configurada (bienvenida.html) para simular una experiencia de inicio de sesión normal y evitar levantar sospechas en la víctima.</li>
+    </ol>
+     <figure class="activity-figure">
+      <img src="../../assets/parcial-1/act04-12.jpg" alt="Diagrama del flujo de captura de información-Credential Harvester (SET).">
+      <figcaption>Figura 12. Diagrama del flujo de captura de información-Credential Harvester (SET).</figcaption>
+    </figure>
+    <H3>Captura de credenciales vs. vulneración de una contraseña</H3>
+    <p>
+      Es importante distinguir estos dos conceptos, ya que suelen confundirse. 
+      La captura de credenciales mediante Credential Harvester lo realizado en 
+      este laboratorio no rompe ni descifra ninguna contraseña: la víctima la 
+      entrega voluntariamente al creer que está iniciando sesión en un sistema 
+      legítimo, y el atacante simplemente la recibe en texto plano a través del 
+      formulario. La vulneración de una contraseña, en cambio, es un proceso 
+      distinto en el que el atacante ya posee un dato cifrado o protegido 
+      (por ejemplo, un hash de contraseña obtenido de una base de datos filtrada) 
+      y aplica técnicas como fuerza bruta, diccionarios o ataques de rainbow table 
+      para intentar revertirlo hasta obtener el valor original. En resumen: el 
+      Credential Harvester ataca al usuario mediante el engaño (ingeniería social), 
+      mientras que la vulneración de contraseñas ataca al dato mediante cómputo.
+    </p>
+    <div class="activity-callout">
+      En el registro de SET se observa la línea 10.0.2.15 - - 
+      [30/Aug/2026] “GET /bienvenida.html HTTP/1.1” 200 -, lo que confirma que la solicitud 
+      sí llegó al servidor y este respondió con código 200 (OK). Sin embargo, el navegador 
+      mostró una página en blanco. Esto se debe a que el servidor web ligero integrado en 
+      el módulo Credential Harvester está diseñado únicamente para servir el formulario de 
+      captura (index.html) y procesar el POST recibido; no funciona como un servidor de 
+      archivos estáticos completo, por lo que no entrega correctamente el contenido HTML de 
+      páginas adicionales, aunque responda con un código de éxito. Se trata de una limitación 
+      propia de la herramienta y no de un error en el diseño de la página ni en la configuración 
+      del escenario.
+    </div>
+    <h2>Controles de seguridad</h2>
+    <h3>6.1 Indicadores de phishing identificados en el escenario</h3>
+    <p>
+      A partir del portal ficticio construido para esta práctica, se identificaron los 
+      siguientes indicadores que, en un caso real, deberían levantar sospecha en cualquier 
+      usuario capacitado:
+    </p>
+    <ul>
+      <li>Dirección con IP en lugar de dominio: el portal se accede mediante http://10.0.2.15, una dirección IP cruda, en vez de un dominio oficial reconocible de la organización (por ejemplo, portal.empresa.com).</li>
+      <li>Ausencia de HTTPS: la conexión se realiza por HTTP sin cifrar (“Not Secure” en la barra del navegador), sin candado ni certificado que valide la identidad del sitio.</li>
+      <li>Mensaje de urgencia no solicitado: el aviso “Su sesión ha expirado. Inicie sesión nuevamente para continuar.” aparece sin que el usuario haya realizado ninguna acción previa que lo justifique.</li>
+      <li>Falta de identidad visual verificable: el portal usa un logotipo genérico (“SI”) y ningún elemento que confirme de forma inequívoca que pertenece a la organización real.</li>
+      <li>Origen inesperado del enlace: según el escenario, el mensaje llega por un canal no habitual (correo/mensaje no solicitado) y no a través de un acceso ya conocido o guardado por el usuario (favorito, aplicación oficial, etc.).</li>
+    </ul>
+    <h3>Controles de seguridad propuestos</h3>
+    <p>
+      A partir de lo observado en el laboratorio, se proponen los siguientes controles para 
+      prevenir o reducir el impacto de ataques de phishing basados en Credential Harvester 
+      dentro de una organización. Para cada uno se indica también su alcance y sus 
+      limitaciones, ya que ningún control por sí solo elimina el riesgo por completo:
+    </p>
+    <ol>
+      <li>Autenticación multifactor (MFA): aunque un atacante logre robar el usuario y la contraseña de una persona, exigir un segundo factor de verificación (token, aplicación autenticadora o biometría) reduce drásticamente la probabilidad de que pueda acceder a la cuenta.</li>
+      <p><em>Alcance: protege incluso si la contraseña ya fue robada. Limitación: no impide el robo de la contraseña en sí, y algunos ataques avanzados (phishing en tiempo real / adversary-in-the-middle) pueden interceptar también el segundo factor.</em></p>
+      <li>Capacitación y concienciación del personal: entrenar a los empleados para reconocer mensajes de “sesión expirada” no solicitados, remitentes sospechosos y enlaces que no coinciden con los dominios oficiales de la organización.</li>
+      <p><em>Alcance: reduce la probabilidad de que el usuario llegue a introducir sus datos en el portal falso. Limitación: depende del factor humano; un mensaje de phishing bien elaborado o un momento de distracción puede evadir la capacitación recibida.</em></p>
+      <li>Verificación de la URL y del certificado: fomentar el hábito de confirmar el dominio real y el candado de seguridad (HTTPS) antes de introducir credenciales, desconfiando de portales que usan una dirección IP en lugar del dominio institucional.</li>
+      <p><em>Alcance: es un indicador rápido y accesible para cualquier usuario. Limitación: existen ataques que sí logran certificados HTTPS válidos para dominios muy similares al real (typosquatting), por lo que no es una garantía absoluta.</em></p>
+      <li>Filtrado de correo y gestores de contraseñas: implementar filtros anti-phishing a nivel corporativo y promover el uso de gestores de contraseñas, ya que estos no autocompletan credenciales en dominios distintos al legítimo, lo que ayuda a detectar portales falsos.</li>
+      <p><em>Alcance: bloquea buena parte de los intentos antes de que lleguen al usuario y añade una verificación técnica automática del dominio. Limitación: ningún filtro es perfecto; mensajes nuevos o muy dirigidos (spear phishing) pueden pasar el filtro igualmente.</em></p>
+      <li>Canal de reporte y monitoreo de accesos: contar con un canal claro para que el personal reporte mensajes o portales sospechosos, y revisar periódicamente los registros de acceso en busca de patrones anómalos.</li>
+      <p><em>Alcance: permite reaccionar rápido y contener campañas activas antes de que afecten a más personas. Limitación: es un control reactivo/detectivo, no preventivo: actúa después de que el intento de phishing ya ocurrió.</em></p>
+    </ol>
+
+  <section id="conclusion">
+    <h2>Conclusión</h2>
+    <p>
+      Esta actividad permitió comprender, dentro de un entorno controlado y aislado, 
+      cómo opera técnicamente un ataque de phishing basado en un Credential Harvester: 
+      desde el diseño de una página falsa convincente hasta la captura y el registro de 
+      las credenciales introducidas por la víctima. Configurar el módulo Custom Import de 
+      SET también dejó ver una limitación real de la herramienta la incapacidad de su servidor 
+      ligero para entregar correctamente páginas adicionales lo cual refuerza la idea de que, 
+      en un ataque real, el atacante depende de que cada pieza del engaño funcione de manera 
+      perfectamente creíble. Desde la perspectiva defensiva, el ejercicio deja claro que los 
+      indicadores de un intento de phishing (URLs con IP en lugar de dominio, mensajes de 
+      urgencia no solicitados, portales fuera de la infraestructura oficial) son detectables 
+      si el usuario está capacitado para reconocerlos, lo que confirma que la concienciación y 
+      los controles técnicos como MFA siguen siendo la defensa más efectiva frente a este tipo 
+      de amenazas.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>CrowdStrike. (2025). What Is Credential Harvesting? CrowdStrike. https://www.crowdstrike.com/en-us/cybersecurity-101/cyberattacks/credential-harvesting/</li>
+      <li>Cybersecurity and Infrastructure Security Agency (CISA). (2021). Phishing Tip Sheet. https://www.cisa.gov/sites/default/files/publications/Spanish%20-%20Cybersecurity%20Awareness%20Month%202021%20-%20Phishing%20Tip%20Sheet.pdf</li>
+      <li>TrustedSec. (s.f.). Social-Engineer Toolkit (SET) Documentación oficial. GitHub. https://github.com/trustedsec/social-engineer-toolkit</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+  <a class="btn btn--pdf" href="../../assets/parcial-1/LARZ Act04 WAP.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../index.html#inicio">Inicio</a>
+      <a href="../index.html#parciales">Parciales</a>
+      <a href="../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../js/script.js"></script>
+</body>
+</html>
