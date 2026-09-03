@@ -22,7 +22,16 @@ const PARCIALES = [
         status: "disponible",
         href: "index.html#inicio",
       },
-      { code: "ACT-03", title: "Actividad pendiente", status: "proximamente", href: "#" },
+      { code: "ACT-03", 
+        title: "No presiones Esc… todavía", 
+        status: "disponible", 
+        href: "../templates/parcial-1/act03-P1.html" 
+      },
+      { code: "ACT-04", 
+        title: "Una página demasiado convincente", 
+        status: "disponible", 
+        href: "../templates/parcial-1/act04-P1.html" 
+      },
     ],
   },
   {
