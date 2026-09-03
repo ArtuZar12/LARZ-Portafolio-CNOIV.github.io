@@ -6,6 +6,16 @@
 <title>Portafolio · Seguridad Informática</title>
 <meta name="description" content="Portafolio digital de evidencias académicas — CNO IV, Seguridad Informática.">
 
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -36,7 +46,7 @@
       </span>
     </a>
 
-    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Abrir menú de navegación">
+     <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Abrir menú de navegación">
       <span></span><span></span><span></span>
     </button>
 
@@ -46,8 +56,18 @@
       <a href="#perfil">Perfil</a>
       <a href="#tecnico">Ficha técnica</a>
       <a href="#parciales">Parciales</a>
+      <a href="#roadmap">Road to Hall of Fame</a>
       <a href="#contacto">Contacto</a>
     </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+      <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+      <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
 
   <div class="site-header__meta">
@@ -205,6 +225,34 @@
     </div>
 
     <div class="partial-panels" id="partialPanels">
+    </div>
+  </section>
+
+  <section class="section" id="roadmap">
+    <div class="section__head">
+      <span class="eyebrow">06 · Módulo especial</span>
+      <h2>Road to Hall of Fame</h2>
+      <p class="section__intro">
+        Ruta de progreso de los laboratorios prácticos. Pasa el cursor sobre
+        cada nodo para descargar el informe correspondiente o ver el
+        laboratorio resuelto en Burp Suite. Los laboratorios se habilitan
+        conforme se van completando.
+      </p>
+    </div>
+
+    <div class="roadmap">
+      <ol class="roadmap__track" id="roadmapTrack">
+      </ol>
+
+      <div class="roadmap__goal">
+        <span class="roadmap__goal-node" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M8 21h8M12 17v4M7 4h10v3a5 5 0 0 1-10 0V4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 5H4a1 1 0 0 0-1 1c0 2.5 1.8 4.3 4.2 4.6M17 5h3a1 1 0 0 1 1 1c0 2.5-1.8 4.3-4.2 4.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <div>
+          <div class="roadmap__goal-title">Hall of Fame</div>
+          <div class="roadmap__goal-sub">Meta final de la ruta</div>
+        </div>
+      </div>
     </div>
   </section>
 
