@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PR · De la teoría a la práctica: walkthrough en acción — Portafolio</title>
+
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#parciales">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 1</span>
+    <span class="tag">PR</span>
+  </div>
+  <h1>De la teoría a la práctica: walkthrough en acción</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 08/09/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      El presente reporte documenta, de manera técnica y detallada, el desarrollo completo de la actividad 
+      “De la teoría a la práctica: walkthrough en acción”, cuyo objetivo general es demostrar la capacidad 
+      de aplicar conocimientos teóricos de seguridad informática en un entorno práctico y controlado, 
+      mediante la explotación exhaustiva de una máquina virtual intencionalmente vulnerable.
+    </p>
+    <p>
+      Para ello se utilizó la máquina digitalworld.local: snakeoil, disponible públicamente en la plataforma 
+      VulnHub (https://www.vulnhub.com/entry/digitalworldlocal-snakeoil,738/), la cual simula una aplicación 
+      web corporativa (“Good Tech Inc.”) construida con Python/Flask y protegida mediante autenticación 
+      basada en JSON Web Tokens (JWT). Todo el ejercicio se realizó en un entorno de virtualización 
+      completamente aislado (red Host-Only de VirtualBox), sin exposición a redes externas ni a Internet, 
+      con fines exclusivamente académicos y sin intención maliciosa.
+    </p>
+    <p>
+      A lo largo del documento se sigue la metodología estándar de un pentest: reconocimiento, enumeración, 
+      análisis de vulnerabilidades, explotación, post-explotación y escalada de privilegios, relacionando en 
+      cada etapa las técnicas empleadas con los fundamentos teóricos de la asignatura de Seguridad Informática 
+      (reconocimiento de superficie de ataque, control de acceso, criptografía aplicada a contraseñas, tokens 
+      de sesión, inyección de comandos y gestión de privilegios en sistemas Unix).
+    </p>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <h3>Preparación del entorno de prueba</h3>
+    <p>
+      El primer paso consistió en construir un laboratorio de pruebas aislado utilizando Oracle VirtualBox, 
+      con dos máquinas virtuales: una máquina atacante (Kali Linux) y la máquina víctima (SNAKEOIL, basada en 
+      Debian). Ambas se configuraron con un adaptador de red del tipo Host-Only, lo cual crea una subred 
+      privada entre el equipo anfitrión y las máquinas virtuales, garantizando que ningún tráfico de la 
+      práctica saliera hacia la red real o Internet.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-01.jpg" alt="Ambas máquinas virtuales (Kali y SNAKEOIL) en ejecución dentro de VirtualBox">
+      <figcaption>Figura 1. Ambas máquinas virtuales (Kali y SNAKEOIL) en ejecución dentro de VirtualBox.</figcaption>
+    </figure>
+
+    <p>
+      La víctima venía configurada por defecto en modo NAT, por lo que fue necesario modificar su adaptador de 
+      red a “Adaptador solo anfitrión”, usando el mismo adaptador virtual que la máquina atacante, para que ambas 
+      quedaran dentro de la misma subred aislada (192.168.56.0/24).
+    </p>
+    
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-03.jpg" alt="Configuración de red Host-Only en la máquina atacante (Kali)">
+      <figcaption>Figura 2. Configuración de red Host-Only en la máquina atacante (Kali).</figcaption>
+    </figure>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-04.jpg" alt="Configuración de red Host-Only en la máquina víctima (SNAKEOIL)">
+      <figcaption>Figura 3. Configuración de red Host-Only en la máquina víctima (SNAKEOIL).</figcaption>
+    </figure>
+
+    <h3>Reconocimiento (Reconnaissance)</h3>
+
+    <p>
+      Con ambas máquinas en la misma subred, el objetivo de esta fase fue identificar la dirección IP 
+      asignada a la máquina víctima. Se utilizó netdiscover para capturar tráfico ARP y listar los hosts 
+      activos en la red; comparando las direcciones MAC frente a la IP conocida de la máquina atacante, 
+      se determinó por descarte que la IP 192.168.56.102 correspondía a la víctima.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-02.jpg" alt="Identificación de hosts activos en la subred mediante netdiscover">
+      <figcaption>Figura 4. Identificación de hosts activos en la subred mediante netdiscover.</figcaption>
+    </figure>
+
+    <p>
+      Una vez confirmada la IP objetivo, se ejecutó un escaneo completo de puertos con Nmap, incluyendo 
+      detección de versión y scripts básicos de enumeración (-sV -sC -p-), con el fin de mapear la superficie 
+      de ataque expuesta por la máquina.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-05.jpg" alt="Resultado del escaneo completo de puertos con Nmap">
+      <figcaption>Figura 5. Resultado del escaneo completo de puertos con Nmap.</figcaption>
+    </figure>
+
+    <div class="activity-callout">
+      Hallazgo clave: el escaneo reveló tres servicios expuestos: SSH (22, OpenSSH 7.9p1), un servidor web 
+      nginx en el puerto 80 (página estática de bienvenida) y un segundo servicio web en el puerto 8080, 
+      identificado como una aplicación “Good Tech Inc.’s Snake Oil Project”, que actúa además como proxy.
+    </div>
+
+    <h3>Enumeración de servicios web</h3>
+    <p>
+      El puerto 80 únicamente mostró una página estática de bienvenida de nginx sin contenido explotable, 
+      por lo que se descartó como vector de ataque tras revisar su código fuente.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-06.jpg" alt="Página estática del puerto 80, descartada como vector de ataque">
+      <figcaption>Figura 6. Página estática del puerto 80, descartada como vector de ataque.</figcaption>
+    </figure>
+
+    <p>
+      El puerto 8080, en cambio, alojaba una aplicación tipo blog/CMS construida en Flask, con 
+      publicaciones (“Introduction”, “House Rules”, “Useful Links”) y funcionalidades de edición y 
+      creación de contenido accesibles sin autenticación aparente, lo cual constituyó la primera señal de 
+      un posible control de acceso débil (Broken Access Control).
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-07.jpg" alt="Aplicación web “Good Tech Inc.’s Snake Oil Project” en el puerto 8080">
+      <figcaption>Figura 7. Aplicación web “Good Tech Inc.’s Snake Oil Project” en el puerto 8080.</figcaption>
+    </figure>
+
+    <p>
+      La publicación “Useful Links” resultó especialmente relevante: mencionaba explícitamente el uso de 
+      la librería flask-jwt-extended para la autenticación mediante JWT y enlazaba a su documentación 
+      oficial de configuración una pista deliberada del autor de la máquina hacia la superficie de ataque 
+      relacionada con tokens.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-10.jpg" alt="Publicación “Useful Links” con referencia a la librería flask-jwt-extended">
+      <figcaption>Figura 8. Publicación “Useful Links” con referencia a la librería flask-jwt-extended.</figcaption>
+    </figure>
+
+    <p>
+      Para descubrir rutas y recursos no enlazados directamente desde la interfaz, se utilizó Gobuster 
+      con la wordlist dirb/common.txt y extensiones típicas de API (json, php), lo que permitió 
+      identificar endpoints adicionales como /users, /registration, /login, /run, /secret y /test.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo1">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo1" class="code-block__code">gobuster dir -u http://192.168.56.102:8080/ -w /usr/share/wordlists/dirb/common.txt -x json,php</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-12.jpg" alt="Enumeración de directorios y rutas ocultas con Gobuster">
+      <figcaption>Figura 9. Enumeración de directorios y rutas ocultas con Gobuster.</figcaption>
+    </figure>
+
+    <h3>Análisis de vulnerabilidades</h3>
+    <h4>Exposición de información sensible en /users</h4>
+    
+    <p>
+      Al consultar la ruta /users descubierta mediante Gobuster, la API devolvió en texto plano el nombre 
+      de usuario y el hash de la contraseña del administrador del sistema (patrick), en formato 
+      PBKDF2-SHA256 con 29 000 iteraciones. Este es un fallo clásico de exposición de información sensible 
+      (OWASP A01/A02): un endpoint de listado de usuarios nunca debería exponer, bajo ninguna circunstancia, 
+      el hash de las contraseñas.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-57.png" alt="Fuga del hash de contraseña del usuario patrick a través de /users">
+      <figcaption>Figura 10. Fuga del hash de contraseña del usuario patrick a través de /users.</figcaption>
+    </figure>
+
+    <p>
+      Se intentó crackear este hash de forma offline utilizando John the Ripper contra las wordlists 
+      rockyou.txt y xato-net-10-million-passwords-1000000.txt de SecLists. Ambos intentos fueron 
+      infructuosos, lo cual, en retrospectiva, era el comportamiento esperado: al usar PBKDF2 con un 
+      número elevado de iteraciones, el costo computacional por intento es alto y la contraseña real no 
+      correspondía a ninguna wordlist de diccionario común.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo2">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo2" class="code-block__code">sudo john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-15.jpg" alt="Intento de crackeo offline del hash de patrick (sin éxito)">
+      <figcaption>Figura 11. Intento de crackeo offline del hash de patrick (sin éxito).</figcaption>
+    </figure>
+
+    <h4>Control de acceso roto en el registro de usuarios</h4>
+
+    <p>
+      La ruta /registration, aunque inicialmente rechazaba peticiones GET, aceptaba peticiones POST sin 
+      ningún tipo de restricción ni verificación adicional, permitiendo crear libremente una cuenta propia 
+      y obtener de inmediato un token de acceso (access_token) válido. Esto confirmó que el sistema de 
+      autenticación no distinguía entre usuarios legítimos y usuarios recién registrados por un atacante.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-19.jpg" alt="Autenticación exitosa con una cuenta registrada por el atacante y obtención de tokens JWT">
+      <figcaption>Figura 12. Autenticación exitosa con una cuenta registrada por el atacante y obtención de tokens JWT.</figcaption>
+    </figure>
+
+    <h3>Explotación</h3>
+    <h4>Análisis del token JWT</h4>
+
+    <p>
+      Con un access_token y un refresh_tokens válidos en mano, se procedió a decodificar el JWT con la 
+      herramienta jwt_tool para inspeccionar su cabecera y contenido. El token utilizaba el algoritmo 
+      HS256 (firma simétrica) y un campo fresh: false, propio de la librería flask-jwt-extended para 
+      distinguir tokens recién emitidos por login (fresh) de tokens renovados por refresco.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-20.jpg" alt="Decodificación del JWT con jwt_tool: algoritmo HS256, campo fresh=false">
+      <figcaption>Figura 13. Decodificación del JWT con jwt_tool: algoritmo HS256, campo fresh=false.</figcaption>
+    </figure>
+
+    <p>
+      Se exploraron varias vías de ataque contra el JWT fuerza bruta de la clave de firma (jwt_tool y 
+      John con 14 millones de contraseñas, sin éxito) y el clásico ataque de suplantación mediante 
+      algoritmo “none” ninguna prosperó, lo cual evidenció una configuración robusta de la librería frente 
+      a ese vector específico.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-25.jpg" alt="Intento de crackeo de la clave de firma del JWT (14 millones de contraseñas probadas, sin éxito)">
+      <figcaption>Figura 14. Intento de crackeo de la clave de firma del JWT (14 millones de contraseñas probadas, sin éxito).</figcaption>
+    </figure>
+
+    <h4>Descubrimiento de la clave interna mediante autenticación por cookie</h4>
+
+    <p>
+      La pista dejada en la publicación “Useful Links” resultó decisiva: la documentación de 
+      flask-jwt-extended permite transportar el JWT mediante cookies HTTP en lugar de la cabecera 
+      Authorization. Al reenviar un token recién generado como cookie access_token_cookie, el 
+      endpoint /secret que hasta entonces devolvía un error 500 constante respondió exitosamente, 
+      revelando una clave interna del sistema.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-58.png" alt="Obtención de la clave secreta interna (secret_key) mediante autenticación por cookie">
+      <figcaption>Figura 15. Obtención de la clave secreta interna (secret_key) mediante autenticación por cookie.</figcaption>
+    </figure>
+
+    <div class="activity-callout">
+      Hallazgo clave: la clave revelada fue "commandexecutionissecret"  su propio nombre ya insinuaba la 
+      existencia de una funcionalidad de ejecución de comandos en el backend.
+    </div>
+
+    <H4>SSRF y ejecución remota de comandos (RCE) en /run</H4>
+
+    <p>
+      El endpoint /run, protegido por la secret_key recién obtenida, resultó ser una puerta trasera 
+      (“backdoor”) que ejecutaba internamente el comando curl contra la URL proporcionada por el usuario 
+      mediante subprocess.Popen con shell=True. Esto constituye simultáneamente una vulnerabilidad de 
+      tipo SSRF (Server-Side Request Forgery, ya que permite hacer peticiones desde el propio servidor 
+      hacia direcciones internas como 127.0.0.1) y de Inyección de Comandos del Sistema Operativo 
+      (OS Command Injection), al concatenar directamente la entrada del usuario dentro de una cadena de 
+      shell.
+    </p>
+
+    <p>
+      El backend implementaba una lista negra de palabras prohibidas (bash, python, /dev/tcp, nc, 
+      mkfifo, php) para impedir la obtención de una shell reversa. Sin embargo, esta lista no contemplaba 
+      el intérprete Perl, por lo que fue posible evadir el filtro utilizando un one-liner de Perl 
+      encapsulado entre backticks para forzar la ejecución de comandos arbitrarios en el servidor.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo3">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo3" class="code-block__code">curl -s -X POST http://192.168.56.102:8080/run \
+  --cookie "access_token_cookie=$(cat jwt.txt)" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"127.0.0.1:22`perl -e '"'"'use Socket;...'"'"'`","secret_key":"commandexecutionissecret"}'
+</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-32.jpg" alt="Evasión del filtro de comandos y obtención de una shell reversa mediante Perl">
+      <figcaption>Figura 16. Evasión del filtro de comandos y obtención de una shell reversa mediante Perl.</figcaption>
+    </figure>
+
+    <h3>Post-explotación</h3>
+
+    <p>
+      La shell reversa obtenida correspondía directamente al usuario del sistema operativo patrick 
+      (no a un usuario de aplicación con privilegios limitados), ya que el proceso de la aplicación 
+      Flask se ejecutaba con esa identidad. Al consultar los privilegios de sudo disponibles, se 
+      encontró la entrada (ALL : ALL) ALL, es decir, patrick puede ejecutar cualquier comando como 
+      cualquier usuario incluido root siempre que proporcione su contraseña.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-34.jpg" alt="Confirmación de identidad (patrick) y verificación de privilegios de sudo">
+      <figcaption>Figura 17. Confirmación de identidad (patrick) y verificación de privilegios de sudo.</figcaption>
+    </figure>
+
+    <p>
+      Dado que la contraseña del sistema operativo no era conocida y los intentos triviales fallaron, s
+      e procedió a inspeccionar el código fuente completo de la aplicación (app.py, models.py, 
+      resources.py), disponible directamente en el sistema de archivos gracias al acceso ya obtenido.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-37.jpg" alt="Código fuente de la ruta /run: filtro de comandos y ejecución mediante subprocess.Popen con shell=True">
+      <figcaption>Figura 18. Código fuente de la ruta /run: filtro de comandos y ejecución mediante subprocess.Popen con shell=True.</figcaption>
+    </figure>
+
+    <p>
+      Una búsqueda dirigida con grep sobre los archivos fuente permitió localizar la variable de 
+      configuración JWT_SECRET_KEY, cuyo valor una frase con capitalización particular que incluye 
+      literalmente la palabra “PASSWORD” resultó ser, además de la clave de firma de los tokens, la 
+      contraseña real del usuario patrick en el sistema operativo.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo4">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo4" class="code-block__code">grep -ri "password" /home/patrick/flask_blog/*.py</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-49.jpg" alt="Localización de la contraseña real del sistema, reutilizada como clave de firma JWT">
+      <figcaption>Figura 19. Localización de la contraseña real del sistema, reutilizada como clave de firma JWT.</figcaption>
+    </figure>
+
+    <h3>Escalada de privilegios</h3>
+
+    <p>
+      Utilizando la cadena NOreasonableDOUBTthisPASSWORDisGOOD como contraseña de patrick, se ejecutó 
+      sudo su, obteniendo una shell interactiva con privilegios de superusuario (root). Este hallazgo 
+      evidencia una mala práctica crítica de seguridad: la reutilización de una misma credencial entre 
+      distintos propósitos (clave criptográfica de una aplicación y contraseña de acceso al sistema 
+      operativo), que en este caso permitió escalar de un acceso remoto no autenticado a control total 
+      del servidor.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo5">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo5" class="code-block__code">sudo su
+[sudo] password for patrick: NOreasonableDOUBTthisPASSWORDisGOOD
+</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-1/PR-54.jpg" alt="Acceso root confirmado y lectura de la bandera final (/root/proof.txt)">
+      <figcaption>Figura 20. Acceso root confirmado y lectura de la bandera final (/root/proof.txt).</figcaption>
+    </figure>
+
+    <div class="activity-callout">
+      Hallazgo clave: con el prompt root@SNAKEOIL y la lectura exitosa de /root/proof.txt se dio por 
+      completado el objetivo del walkthrough: comprometer totalmente la máquina víctima.
+    </div>
+    
+  </section>
+
+
+  <section id="video">
+    <h2>Video</h2>
+    <p>
+      Explica brevemente qué muestra el video (por ejemplo, la ejecución del
+      laboratorio paso a paso). Sube el video a YouTube como
+      <strong>"No listado"</strong> y pega aquí su ID.
+    </p>
+
+    <div class="video-block">
+      <div class="video-block__bar">
+        <span class="video-block__label">Video · PR: De la teoría a la práctica: walkthrough en acción PARCIAL 1 WAP</span>
+      </div>
+      <div class="video-block__frame">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/AQUI_VA_EL_ID"
+          title="Descripción del video de la actividad"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+        ></iframe>
+      </div>
+    </div>
+    <p class="video-block__caption">Video 1. Video sobre la practica de: De la teoría a la práctica: walkthrough en acción.
+El cual presenta de manera técnica y detallada, el desarrollo completo de la actividad “De la teoría a la práctica: walkthrough en acción”, cuyo objetivo general es demostrar la capacidad de aplicar conocimientos teóricos de seguridad informática en un entorno práctico y controlado, mediante la explotación exhaustiva de una máquina virtual intencionalmente vulnerable.</p>
+  </section>
+
+  <section id="conclusion">
+    <h2>Resultados</h2>
+    <p>
+      La siguiente tabla resume, en orden cronológico, la cadena completa de 
+      vulnerabilidades explotadas para lograr el compromiso total de la máquina SNAKEOIL:
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 1. Tabla que muestra un resumen de forma cronologica la cadena completa de vulnerabilidades explotadas para esta actividad.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Fase</th>
+            <th scope="col">Vulnerabilidad</th>
+            <th scope="col">Herramienta</th>
+            <th scope="col">Resultado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Reconocimiento</td>
+            <td>Escaneo de puertos y servicios</td>
+            <td>Nmap</td>
+            <td>Puertos 22, 80 y 8080 identificados</td>
+          </tr>
+          <tr>
+            <td>Enumeración</td>
+            <td>Descubrimiento de rutas ocultas</td>
+            <td>Gobuster</td>
+            <td>Endpoints de API expuestos (/users, /run, /secret, etc.)</td>
+          </tr>
+          <tr>
+            <td>Análisis</td>
+            <td>Exposición de información sensible</td>
+            <td>curl</td>
+            <td>Hash de contraseña de patrick filtrado (no explotado)</td>
+          </tr>
+          <tr>
+            <td>Análisis</td>
+            <td>Control de acceso roto (registro libre)</td>
+            <td>curl</td>
+            <td>Creación de cuenta y JWT propio sin restricciones</td>
+          </tr>
+          <tr>
+            <td>Explotación</td>
+            <td>Autenticación JWT por cookie no documentada en UI</td>
+            <td>curl (--cookie)</td>
+            <td>Revelación de secret_key interna</td>
+          </tr>
+          <tr>
+            <td>Explotación</td>
+            <td>SSRF + Inyección de comandos (evasión de filtro)</td>
+            <td>Perl / curl</td>
+            <td>Ejecución remota de comandos (RCE)</td>
+          </tr>
+          <tr>
+            <td>Post-explotación</td>
+            <td>Análisis de código fuente en el servidor</td>
+            <td>grep / cat</td>
+            <td>Contraseña real de patrick localizada</td>
+          </tr>
+          <tr>
+            <td>Escalada</td>
+            <td>Reutilización de credenciales / sudo (ALL:ALL) ALL</td>
+            <td>sudo su</td>
+            <td>Acceso root completo al sistema</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Como evidencia final del compromiso total del sistema, se obtuvo acceso de superusuario y 
+      se leyó el archivo de confirmación ubicado en /root/proof.txt, cuyo contenido acredita 
+      la finalización exitosa del reto: “Congratulations on obtaining a root shell on this 
+      machine! :-)”.
+    </p>
+    <h2>Conclusión</h2>
+    <p>
+      Este ejercicio permitió aplicar de manera integral la metodología de pentesting vista en 
+      la asignatura de Seguridad Informática, recorriendo cada una de sus fases reconocimiento, 
+      enumeración, análisis de vulnerabilidades, explotación, post-explotación y escalada de 
+      privilegios sobre un objetivo realista que combinó múltiples categorías de fallos: 
+      exposición de información sensible, control de acceso roto, configuración insegura de 
+      autenticación (JWT por cookie no documentada en la interfaz), SSRF, inyección de comandos 
+      del sistema operativo y, finalmente, reutilización de credenciales entre un componente de 
+      aplicación y el sistema operativo subyacente.
+    </p>
+    <p>
+      El hallazgo más significativo, desde una perspectiva formativa, fue comprobar en la 
+      práctica cómo una sola mala decisión de diseño usar la misma cadena como clave 
+      criptográfica de una aplicación y como contraseña de un usuario del sistema puede convertir 
+      una vulnerabilidad de aplicación web en un compromiso total de infraestructura. Asimismo, el 
+      proceso reforzó la importancia de la enumeración exhaustiva y de la lectura cuidadosa de las 
+      pistas contextuales (comentarios de blog, nombres de endpoints, mensajes de error) por 
+      encima de la fuerza bruta ciega, la cual, en varios tramos del ejercicio, resultó ineficaz 
+      frente a un análisis dirigido del código fuente disponible tras obtener el primer punto de 
+      apoyo (shell) en el sistema.
+    </p>
+    <p>
+      En síntesis, la actividad cumplió su objetivo general: demostrar, mediante evidencia 
+      técnica documentada paso a paso, la capacidad de trasladar conocimientos teóricos de 
+      seguridad ofensiva a un entorno práctico controlado, sin comprometer sistemas reales ni 
+      realizar actividades fuera del alcance autorizado del laboratorio.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>Donavan. (2021). digitalworld.local: snakeoil [Máquina virtual]. VulnHub. https://www.vulnhub.com/entry/digitalworldlocal-snakeoil,738/</li>
+      <li>Grinberg, M., Flask-JWT-Extended contributors. (2021). Configuration Options  Flask-JWT-Extended documentation. https://flask-jwt-extended.readthedocs.io/en/stable/options/</li>
+      <li>OWASP Foundation. (2021). OWASP Top 10:2021. https://owasp.org/Top10/</li>
+      <li>OWASP Foundation. (s.f.). Server-Side Request Forgery Prevention Cheat Sheet. https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html</li>
+      <li>OWASP Foundation. (s.f.). OS Command Injection Defense Cheat Sheet. https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html</li>
+      <li>jwt.io. (s.f.). Introduction to JSON Web Tokens. Auth0. https://jwt.io/introduction</li>
+      <li>OffSec. (s.f.). Nmap  Reference Guide. https://nmap.org/book/man.html</li>
+      <li>OJ Reeves & Christian Mehlmauer. (s.f.). Gobuster [Software]. https://github.com/OJ/gobuster</li>
+      <li>Openwall. (s.f.). John the Ripper password cracker. https://www.openwall.com/john/</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+
+  <a class="btn btn--pdf" href="../../assets/parcial-1/LARZ PR1 WAP.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
