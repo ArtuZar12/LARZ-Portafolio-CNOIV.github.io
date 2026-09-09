@@ -32,6 +32,11 @@ const PARCIALES = [
         status: "disponible", 
         href: "templates/parcial-1/act04-P1.html" 
       },
+      { code: "PR", 
+        title: "De la teoría a la práctica: walkthrough en acción", 
+        status: "disponible", 
+        href: "templates/parcial-1/PR-P1.html" 
+      },
     ],
   },
   {
