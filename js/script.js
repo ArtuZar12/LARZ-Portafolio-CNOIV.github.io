@@ -216,7 +216,7 @@ function renderRoadmap() {
                 ${ICON_DOWNLOAD} Descargar informe
               </a>
               <a class="roadmap__action roadmap__action--burp" href="${lab.burpHref}" target="_blank" rel="noopener">
-                ${ICON_TARGET} Ver en Burp Suite
+                ${ICON_TARGET} Ver laboratorio
               </a>
             </div>
           ` : `<p class="roadmap__lock-note">Próximamente</p>`}
