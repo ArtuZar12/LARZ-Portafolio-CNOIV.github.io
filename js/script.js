@@ -75,8 +75,8 @@ const LABS = [
     title: "Lab: File Path Traversal Simple Case",
     desc: "Explotación de una vulnerabilidad de path traversal en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
     status: "disponible",
-    reportHref: "assets/road-to-hall-of-fame/lab-01-informe.pdf",
-    burpHref: "#",
+    reportHref: "assets/road-to-hall-of-fame/LARZ Act07 WAP.pdf",
+    burpHref: "templates/road-to-hall-of-fame/act07-P2.html",
   },
   {
     code: "LAB-02",
