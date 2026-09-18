@@ -72,8 +72,8 @@ const PARCIALES = [
 const LABS = [
   {
     code: "LAB-01",
-    title: "Nombre del laboratorio",
-    desc: "Descripción breve del laboratorio.",
+    title: "Lab: File Path Traversal Simple Case",
+    desc: "Explotación de una vulnerabilidad de path traversal en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
     status: "disponible",
     reportHref: "assets/road-to-hall-of-fame/lab-01-informe.pdf",
     burpHref: "#",
