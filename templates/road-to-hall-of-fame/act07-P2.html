@@ -155,8 +155,7 @@
       Paso 3. Al reenviar (Forward) las peticiones interceptadas, se observó en el HTTP 
       history que el navegador solicitaba múltiples recursos a través del endpoint 
       /image, cada uno con un parámetro filename distinto (p. ej. filename=58.jpg, 
-      filename=64.jpg), correspondientes a las imágenes de los productos de la tienda 
-      (Figura 1).
+      filename=64.jpg), correspondientes a las imágenes de los productos de la tienda.
     </p>
 
     <figure class="activity-figure">
@@ -167,7 +166,7 @@
     <p>
       Paso 4. Se seleccionó la petición GET /image?filename=58.jpg en el historial HTTP y 
       se examinaron sus cabeceras completas para confirmar la estructura exacta de la 
-      petición, incluyendo la cookie de sesión y el método utilizado (Figura 2).
+      petición, incluyendo la cookie de sesión y el método utilizado.
     </p>
 
     <figure class="activity-figure">
@@ -189,7 +188,7 @@
       Paso 6. En Repeater, se modificó el valor del parámetro filename, reemplazando el 
       nombre de la imagen original por la secuencia de path traversal ../../../etc/passwd, 
       con el objetivo de acceder al archivo de cuentas de usuario del sistema operativo 
-      del servidor (Figura 3).
+      del servidor.
     </p>
 
     <figure class="activity-figure">
@@ -201,7 +200,7 @@
       Paso 7. Se envió la petición modificada mediante el botón Send y se analizó la 
       respuesta del servidor, confirmando el código de estado 200 OK y verificando que el 
       cuerpo de la respuesta contenía el listado completo de usuarios del sistema, lo que 
-      evidenció la lectura exitosa del archivo /etc/passwd (Figura 4).
+      evidenció la lectura exitosa del archivo /etc/passwd.
     </p>
 
     <figure class="activity-figure">
@@ -212,7 +211,7 @@
     <p>
       Paso 8. Se regresó al navegador y se recargó la página del laboratorio, confirmando 
       que el banner superior mostraba el mensaje «Congratulations, ¡you solved the lab!» 
-      y que el estado del laboratorio había cambiado de «Not solved» a «Solved» (Figura 5).
+      y que el estado del laboratorio había cambiado de «Not solved» a «Solved».
     </p>
 
     <figure class="activity-figure">
