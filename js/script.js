@@ -80,11 +80,11 @@ const LABS = [
   },
   {
     code: "LAB-02",
-    title: "Laboratorio pendiente",
-    desc: "Descripción breve del laboratorio.",
-    status: "bloqueado",
-    reportHref: "#",
-    burpHref: "#",
+    title: "Lab: File Path Traversal - Traversal Sequences Blocked with Absolute Path Bypass",
+    desc: "Bypass de un filtro de secuencias de traversal mediante una ruta absoluta en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
+    status: "disponible",
+    reportHref: "assets/road-to-hall-of-fame/LARZ Act08 WAP.pdf",
+    burpHref: "templates/road-to-hall-of-fame/act08-P2.html",
   },
   {
     code: "LAB-03",
