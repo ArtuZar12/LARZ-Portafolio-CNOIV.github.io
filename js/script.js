@@ -47,7 +47,7 @@ const PARCIALES = [
       { code: "ACT-14", 
        title: "Ciberseguridad en una mirada", 
        status: "disponible", 
-       href: "templates/parcial-1/act14-P2.html" 
+       href: "templates/parcial-2/act14-P2.html" 
       },
     ],
   },
