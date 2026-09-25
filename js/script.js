@@ -88,11 +88,11 @@ const LABS = [
   },
   {
     code: "LAB-03",
-    title: "Laboratorio pendiente",
-    desc: "Descripción breve del laboratorio.",
-    status: "bloqueado",
-    reportHref: "#",
-    burpHref: "#",
+    title: "Lab: File path traversal, traversal sequences stripped non-recursively",
+    desc: "Bypass de un filtro de secuencias de traversal mediante secuencias anidadas (saneamiento no recursivo) en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
+    status: "disponible",
+    reportHref: "assets/road-to-hall-of-fame/LARZ Act09 WAP.pdf",
+    burpHref: "templates/road-to-hall-of-fame/act09-P2.html",
   },
 ];
 
