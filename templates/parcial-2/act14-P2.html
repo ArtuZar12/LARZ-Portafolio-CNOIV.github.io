@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-14 · Ciberseguridad en una mirada — Portafolio</title>
+
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#parciales">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 2</span>
+    <span class="tag">ACT-14</span>
+  </div>
+  <h1>Ciberseguridad en una mirada</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 25/09/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Diseñar una infografía profesional que explique de manera visual,
+      sintética y estratégica uno de los temas abordados en el curso
+      Introducción a la Ciberseguridad de Cisco Networking Academy,
+      demostrando comprensión técnica, capacidad de síntesis y comunicación
+      efectiva orientada a concientización organizacional.
+
+    </p>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <p>
+      Para la elaboración de esta actividad, se seleccionó el Modulo 4: Protección
+      de la organización, debido a su relevancia critica en el diseño de infraestructuras
+      empresariales seguras. Por lo que se extrajeron los principios teóricos del módulo de Cisco NetAcad, 
+      condensando la informacion en cuatro ejes: definición del concepto, relevancia para el negocio, riesgos 
+      asociados a las amenazas y estrategias de mitigación. Se utilizó la herramienta de diseño Canva usando 
+      el formato vertical A4.
+    </p>
+
+  </section>
+
+  <section id="conclusion">
+    <h2>Resultados</h2>
+
+    <p>
+      El resultado de este desarrollo es una infografía profesional que 
+      comunica exitosamente la importancia de proteger la infraestructura 
+      corporativa. El material gráfico cumple con el objetivo de servir 
+      como un recurso de concientización organizacional, logrando traducir 
+      requerimientos técnicos complejos (como el hardening de servidores o 
+      la arquitectura Zero Trust) en un formato digerible para la toma de 
+      decisiones gerenciales.
+    </p>
+
+    <!--
+      Cómo insertar la infografía (PDF):
+      1) Sube el PDF a assets/parcial-X/ (junto a las demás evidencias).
+      2) Sustituye la ruta en AMBOS lugares de abajo: el src del iframe
+         y el href del botón "Abrir en pestaña nueva".
+      3) El recuadro muestra el PDF incrustado directamente en la página
+         (funciona bien en computadora). Como algunos navegadores de
+         celular no renderizan PDFs incrustados, el botón "Abrir en
+         pestaña nueva" siempre funciona como respaldo — no lo quites.
+    -->
+    <div class="pdf-block">
+      <div class="pdf-block__bar">
+        <span class="pdf-block__label">Infografía · PDF</span>
+        <a class="pdf-block__open" href="../../assets/parcial-2/LARZ ACT14.pdf" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Abrir en pestaña nueva
+        </a>
+      </div>
+      <div class="pdf-block__frame">
+        <iframe src="../../assets/parcial-2/LARZ ACT14.pdf" title="Infografía de la actividad" loading="lazy">
+          <p class="pdf-block__fallback">
+            Tu navegador no puede mostrar el PDF incrustado.
+            <a href="../../assets/parcial-2/LARZ ACT14.pdf">Descárgalo aquí</a>.
+          </p>
+        </iframe>
+      </div>
+    </div>
+    <p class="pdf-block__caption">Infografía 1. Descripción breve del contenido.</p>
+
+    <h2>Conclusión</h2>
+
+    <p>
+      La realización de esta infografía demostró que la ciberseguridad no 
+      se limita exclusivamente a la configuración técnica de equipos o al 
+      análisis de redes en simuladores, sino que requiere una fuerte 
+      habilidad de comunicación estratégica. Como futuro ingeniero 
+      especializado en ciberseguridad, es imperativo saber transmitir el 
+      impacto de los riesgos digitales a nivel organizacional. 
+      La correcta implementación de controles desde el perímetro de red 
+      hasta las políticas de gobernanza solo es posible si se logra 
+      concientizar a las organizaciones sobre la importancia de invertir 
+      proactivamente en la continuidad y protección de su negocio.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>Cisco Networking Academy. (2023). Introducción a la Ciberseguridad: Módulo 4 - Protección de la organización. Cisco Systems. https://www.netacad.com/</li>
+      <li>Instituto Nacional de Ciberseguridad [INCIBE]. (2023). Políticas de seguridad para la protección de entornos corporativos. INCIBE. https://www.incibe.es/</li>
+    </ol>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#roadmap">Road to Hall of Fame</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
