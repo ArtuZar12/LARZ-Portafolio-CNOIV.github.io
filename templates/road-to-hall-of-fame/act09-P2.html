@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-09 · Lab: File path traversal, traversal sequences stripped non-recursively — Portafolio</title>
+
+<!-- Aplica el tema guardado ANTES de pintar la página, para evitar parpadeo -->
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Ruta relativa: si mueves esta copia a otra carpeta, ajusta "../css/styles.css" -->
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<!--
+  ============================================================
+  CÓMO USAR ESTA PLANTILLA
+  ============================================================
+  1. Duplica este archivo y renómbralo, ej: act-03-parcial1.html
+  2. Cambia el <title> arriba y todos los textos marcados como
+     placeholder (los que dicen "Escribe aquí…", "Título…", etc).
+  3. Agrega o quita <section> según lo que pida la actividad
+     (no todas necesitan tabla, imagen, código, video o varias secciones).
+  4. Si la actividad no incluye código, borra toda la sección
+     id="codigo". Si necesitas más de un bloque, sigue las
+     instrucciones dentro de esa misma sección.
+  5. Si la actividad no incluye video, borra toda la sección
+     id="video". Instrucciones para insertar el ID de YouTube
+     dentro de esa misma sección.
+  6. Sube tu PDF ya elaborado a assets/parcial-X/ y actualiza
+     el href del botón "Descargar PDF" al final del archivo.
+  7. En js/script.js, agrega esta actividad al arreglo PARCIALES
+     con status: "disponible" y el href apuntando a este archivo.
+  ============================================================
+-->
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#roadmap">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 2</span>
+    <span class="tag">ACT-09</span>
+  </div>
+  <h1>Lab: File path traversal, traversal sequences stripped non-recursively</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 24/09/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Este reporte documenta la resolución del laboratorio «File path traversal, 
+      traversal sequences stripped non-recursively» de PortSwigger Web Security 
+      Academy, cuyo objetivo es explotar una vulnerabilidad de path traversal en 
+      la funcionalidad de visualización de imágenes de una tienda en línea, 
+      sorteando un filtro que elimina las secuencias de traversal (../) de forma 
+      no recursiva con el fin de acceder a archivos del sistema operativo del 
+      servidor que no deberían ser accesibles públicamente. La actividad forma 
+      parte del portafolio de evidencias «Road to Hall of Fame» de la asignatura 
+      CNO IV Seguridad Informática y profundiza en los obstáculos comunes que las 
+      aplicaciones interponen frente a esta vulnerabilidad correspondiente a la 
+      categoría A01:2021 – Broken Access Control del OWASP Top 10, así como en las 
+      técnicas de anidamiento de payloads para evadirlos usando Burp Suite.
+    </p>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <p>
+      Esta sección documenta el laboratorio realizado en la práctica: su ficha técnica, la 
+      fundamentación de la vulnerabilidad explotada, el procedimiento seguido paso a paso con la 
+      evidencia fotográfica integrada en cada paso, el análisis del payload utilizado y las medidas 
+      de mitigación recomendadas.
+    </p>
+
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 1. Datos generales del laboratorio.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Nombre del Laboratorio</th>
+            <th scope="col">Nivel</th>
+            <th scope="col">Tipo de Explotación</th>
+            <th scope="col">Objetivo del laboratorio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>File path traversal, traversal sequences stripped non-recursively</td>
+            <td>Practitioner</td>
+            <td>Path Traversal / Directory Traversal bypass de un filtro de secuencias de traversal mediante el uso de secuencias anidadas (saneamiento no recursivo) en el parámetro filename.</td>
+            <td>Explotar la vulnerabilidad de path traversal presente en la funcionalidad de visualización de imágenes de producto, evadiendo el filtro de eliminación no recursiva de «../», para recuperar el contenido del archivo /etc/passwd del servidor.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Explicación técnica de la vulnerabilidad</h3>
+    <p>
+      Este laboratorio presenta una variante del path traversal en la que la 
+      aplicación implementa una defensa previa: antes de utilizar el valor del 
+      parámetro filename, el servidor procesa la cadena enviada y elimina las 
+      secuencias de traversal ../. Sin embargo, esta defensa es defectuosa debido 
+      a que la eliminación de los caracteres se realiza de manera no recursiva 
+      (es decir, en una sola pasada lineal sobre la entrada).
+    </p>
+
+    <p>
+      Cuando la aplicación ejecuta un filtrado de una sola pasada, un atacante 
+      puede estructurar una secuencia anidada como ....//. Al ser procesada por 
+      el servidor, la función de sanitización detecta la coincidencia exacta de la 
+      cadena ../ que se encuentra en el centro (. [.. /] ./) y la borra. Al eliminar 
+      esos caracteres centrales, los elementos restantes del lado izquierdo (..) y 
+      del lado derecho (/) se unen en el string resultante, reconstruyendo una nueva 
+      secuencia ../ válida. Puesto que el filtro no vuelve a revisar la cadena 
+      modificada de forma recursiva, la nueva secuencia pasa directamente al sistema 
+      de archivos subyacente, permitiendo al atacante retroceder directorios hasta 
+      alcanzar archivos del sistema operativo como /etc/passwd. Esta falla ilustra 
+      los riesgos de confiar en saneamientos de entrada basados en eliminación lineal 
+      de patrones y corresponde a la categoría A01:2021 – Broken Access Control del 
+      OWASP Top 10.
+    </p>
+
+    <h3>Procedimiento paso a paso</h3>
+    <p>
+      Paso 1. Se abrió el laboratorio «File path traversal, traversal sequences 
+      stripped non-recursively» en el navegador integrado de Burp Suite, con 
+      Intercept desactivado, verificando el estado inicial «Not solved» de la 
+      tienda en línea «We Like To Shop».
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab03-01.jpg" alt="Laboratorio abierto con Burp Suite, estado inicial «Not solved»">
+      <figcaption>Figura 1. Laboratorio abierto con Burp Suite, estado inicial «Not solved».</figcaption>
+    </figure>
+
+    <p>
+      Paso 2. Se activó la opción «Intercept on» en la pestaña Proxy de Burp Suite y se recargó la 
+      página principal, capturando la primera petición GET / enviada por el navegador hacia el 
+      servidor.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab03-02.jpg" alt="Activación de «Intercept on» y captura de la primera petición GET /">
+      <figcaption>Figura 2. Activación de «Intercept on» y captura de la primera petición GET /.</figcaption>
+    </figure>
+
+    <p>
+      Paso 3. Al reenviar (Forward) las peticiones interceptadas, se observó en el historial HTTP 
+      que el navegador solicitaba múltiples recursos a través del endpoint /image, cada uno con un 
+      parámetro filename distinto, correspondientes a las imágenes de los productos de la tienda.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab03-03.jpg" alt="Peticiones GET /image?filename=… capturadas en el historial HTTP">
+      <figcaption>Figura 3. Peticiones GET /image?filename=… capturadas en el historial HTTP.</figcaption>
+    </figure>
+
+    <p>
+      Paso 4. Se seleccionó la petición GET /image?filename=72.jpg en el historial HTTP y se 
+      examinaron sus cabeceras completas para confirmar la estructura exacta de la petición, 
+      incluyendo la cookie de sesión y el método utilizado.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab03-04.jpg" alt="Petición original identificada: GET /image?filename=72.jpg">
+      <figcaption>Figura 4. Petición original identificada: GET /image?filename=72.jpg.</figcaption>
+    </figure>
+
+    <p>
+      Paso 5. La petición se envió a la pestaña Repeater de Burp Suite (Send to Repeater) para 
+      poder modificarla y reenviarla de forma controlada las veces que fuera necesario.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab03-06.jpg" alt="Petición original enviada a Repeater">
+      <figcaption>Figura 5. Petición original enviada a Repeater.</figcaption>
+    </figure>
+
+    <p>
+      Paso 6. En Repeater se sustituyó el valor del parámetro filename por la secuencia anidada 
+      ....//....//....//etc/passwd, aprovechando que la aplicación únicamente elimina las 
+      secuencias ../ de forma no recursiva.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab03-06.jpg" alt="Payload de bypass aplicado en Repeater: filename=....//....//....//etc/passwd">
+      <figcaption>Figura 6. Payload de bypass aplicado en Repeater: filename=....//....//....//etc/passwd.</figcaption>
+    </figure>
+
+    <p>
+      Paso 7. Se envió la petición modificada mediante el botón Send y se analizó la respuesta del 
+      servidor, confirmando el código de estado 200 OK y verificando que el cuerpo de la respuesta 
+      contenía el listado completo de usuarios del sistema, lo que evidenció la lectura exitosa del 
+      archivo /etc/passwd.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab03-07.jpg" alt="Respuesta vulnerable del servidor: contenido del archivo /etc/passwd">
+      <figcaption>Figura 7. Respuesta vulnerable del servidor: contenido del archivo /etc/passwd.</figcaption>
+    </figure>
+
+    <p>
+      Paso 8. Se regresó al navegador y se recargó la página del laboratorio, confirmando que el 
+      banner superior mostraba el mensaje «Congratulations, ¡you solved the lab!» y que el estado 
+      del laboratorio había cambiado de «Not solved» a «Solved».
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab03-08.jpg" alt="Confirmación de «Lab Solved» tras la explotación exitosa">
+      <figcaption>Figura 8. Confirmación de «Lab Solved» tras la explotación exitosa.</figcaption>
+    </figure>
+
+    <h3>Explicación del payload</h3>
+
+    <p>
+      El payload utilizado fue ....//....//....//etc/passwd, enviado como valor del 
+      parámetro filename en la petición GET /image?filename=....//....//....//etc/passwd.
+    </p>
+
+    <p>
+      A diferencia de un ataque directo, este payload se aprovecha directamente del 
+      funcionamiento del algoritmo de filtrado del servidor. Al recibir la entrada, el 
+      servidor busca y remueve la cadena ../. En el segmento ....//, la subsecuencia ../ 
+      se encuentra ubicada internamente entre el primer punto y la segunda diagonal 
+      (. [.. /] ./). Al ser eliminada dicha subsecuencia por el filtro no recursivo, los 
+      caracteres extremos sobrantes se unen automáticamente: los dos puntos iniciales (..) 
+      se combinan con la diagonal final (/), dando como resultado una secuencia de traversal 
+      equivalente a ../. Al repetir este patrón tres veces (....//....//....//), la cadena 
+      se transforma internamente en ../../../etc/passwd, lo que permite navegar tres 
+      niveles hacia arriba en el sistema de archivos (saliendo del directorio de imágenes) 
+      hasta llegar a la raíz y retornar el archivo /etc/passwd. El payload es efectivo 
+      porque explota la falta de recursividad en el proceso de saneamiento.
+    </p>
+
+    <h3>Mitigación recomendada</h3>
+
+    <p>
+      Para prevenir y corregir esta vulnerabilidad se recomienda:
+    </p>
+
+    <ul>
+      <li>Implementar filtrado recursivo: En caso de aplicar funciones de eliminación de caracteres, se debe asegurar que el proceso se ejecute de manera recursiva (en un bucle continuo) hasta que la cadena resultante ya no contenga ninguna coincidencia del patrón ../.</li>
+      <li>Uso de listas blancas (allow-list): Emplear una lista permitida de nombres de archivo o un identificador indirecto (por ejemplo, un ID numérico mapeado internamente) en lugar de aceptar nombres de archivo directamente desde las peticiones del cliente.</li>
+      <li>Canonicalización y validación de rutas: Resolver la ruta resultante en su forma canónica (mediante funciones del lenguaje como realpath()) y verificar estrictamente que se mantenga dentro del directorio base autorizado antes de leer el recurso.</li>
+      <li>Principio de mínimo privilegio: Ejecutar el servidor web con un usuario que posea permisos estrictamente limitados en el sistema de archivos.</li>
+      <li>Aislamiento del entorno: Utilizar entornos aislados como contenedores, chroot o jails para limitar el acceso del proceso únicamente a las carpetas indispensables para la aplicación.</li>
+      <li>Pruebas de seguridad continuas: Incorporar análisis de código estático (SAST) y dinámico (DAST) con casos de prueba específicos para bypasses de path traversal con cadenas anidadas.</li>
+    </ul>
+
+  </section>
+
+  <section id="conclusion">
+    <h2>Resultados</h2>
+
+    <p>
+      Se logró explotar exitosamente la vulnerabilidad de path traversal presente en el 
+      endpoint /image, evadiendo el filtro de eliminación de caracteres implementado por 
+      la aplicación. En un primer momento se confirmó que el servidor elimina las 
+      secuencias simples de traversal; sin embargo, al enviar en el parámetro filename la 
+      secuencia anidada ....//....//....//etc/passwd, se obtuvo una respuesta HTTP 200 OK 
+      cuyo cuerpo contenía el contenido completo del archivo /etc/passwd, mostrando cuentas 
+      de usuario del sistema como root, daemon, bin, sys, www-data, peter, carlos, entre 
+      otras. El laboratorio de PortSwigger confirmó la explotación al actualizar su estado 
+      de «Not solved» a «Solved». El resultado demuestra que eliminar patrones de forma no 
+      recursiva no constituye una medida de seguridad efectiva.
+    </p>
+
+    <h2>Conclusión</h2>
+
+    <p>
+      Este laboratorio permitió comprender cómo los mecanismos de sanitización 
+      incompletos pueden ser evadidos mediante la estructuración táctica del payload. 
+      Se demostró de manera práctica que el borrado no recursivo de caracteres peligrosos 
+      (../) permite al atacante anticipar la transformación de la cadena dentro del servidor 
+      para lograr que la aplicación reconstruya la secuencia maliciosa por sí misma. 
+      Asimismo, se consolidó el uso de Burp Suite (Proxy, HTTP History y Repeater) para 
+      interceptar, modificar y validar la respuesta del servidor. Esta actividad refuerza 
+      la lección de que los controles de seguridad no deben basarse en modificar o limpiar 
+      entradas maliciosas, sino en la validación estricta mediante listas blancas y la 
+      canonicalización de rutas. Como siguiente paso en el portafolio «Road to Hall of Fame», 
+      se continuará con el estudio de otras variantes de bypass en vulnerabilidades de 
+      Path Traversal.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>PortSwigger. (s.f.). File path traversal, traversal sequences stripped non-recursively. PortSwigger Web Security Academy. https://portswigger.net/web-security/file-path-traversal/lab-sequences-stripped-non-recursively</li>
+      <li>PortSwigger. (s.f.). Path traversal. PortSwigger Web Security Academy. https://portswigger.net/web-security/file-path-traversal</li>
+      <li>OWASP. (2021). A01:2021 – Broken Access Control. OWASP Top 10. https://owasp.org/Top10/A01_2021-Broken_Access_Control/</li>
+      <li>PortSwigger. (s.f.). Burp Suite documentation. https://portswigger.net/burp/documentation</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+
+  <a class="btn btn--pdf" href="../../assets/road-to-hall-of-fame/LARZ Act09 WAP.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#roadmap">Road to Hall of Fame</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
