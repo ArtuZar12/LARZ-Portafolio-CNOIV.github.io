@@ -42,9 +42,13 @@ const PARCIALES = [
   {
     id: "parcial-2",
     label: "Parcial 2",
-    meta: "Por definir",
+    meta: "Sistemas de gestión de la seguridad",
     activities: [
-      { code: "ACT-01", title: "Actividad pendiente", status: "proximamente", href: "#" },
+      { code: "ACT-14", 
+       title: "Ciberseguridad en una mirada", 
+       status: "disponible", 
+       href: "templates/parcial-1/act14-P2.html" 
+      },
     ],
   },
   {
