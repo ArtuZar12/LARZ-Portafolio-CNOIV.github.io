@@ -98,6 +98,14 @@ const LABS = [
     reportHref: "assets/road-to-hall-of-fame/LARZ Act09 WAP.pdf",
     burpHref: "templates/road-to-hall-of-fame/act09-P2.html",
   },
+  {
+    code: "LAB-04",
+    title: "Lab: File Path Traversal, Traversal Sequences Stripped with Superfluous URL-Decode",
+    desc: "Bypass de un filtro de secuencias de traversal mediante doble codificación URL, en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
+    status: "disponible",
+    reportHref: "assets/road-to-hall-of-fame/LARZ Act10 WAP.pdf",
+    burpHref: "templates/road-to-hall-of-fame/act10-P2.html",
+  },
 ];
 
 /* ==========================================================================
