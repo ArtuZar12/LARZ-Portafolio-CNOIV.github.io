@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-11 · Lab: File Path Traversal, Validation of Start of Path — Portafolio</title>
+
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#roadmap">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 2</span>
+    <span class="tag">ACT-11</span>
+  </div>
+  <h1>Lab: File Path Traversal, Validation of Start of Path</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 26/09/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Este reporte documenta la resolución del laboratorio «File path traversal, validation 
+      of start of path» de PortSwigger Web Security Academy, cuyo objetivo es explotar una 
+      vulnerabilidad de path traversal en la funcionalidad de visualización de imágenes de 
+      una tienda en línea, sorteando una validación que solo verifica que la ruta recibida 
+      comience con el directorio de imágenes esperado, con el fin de acceder a archivos del 
+      sistema operativo del servidor que no deberían ser accesibles públicamente. La actividad 
+      forma parte del portafolio de evidencias «Road to Hall of Fame» de la asignatura CNO IV 
+      Seguridad Informática y profundiza en un cuarto obstáculo frente al path traversal 
+      categoría A01:2021 Broken Access Control del OWASP Top 10, relacionado con validar solo 
+      el inicio de una ruta en lugar de su contenido completo, así como en las técnicas para 
+      evadirlo usando Burp Suite.
+    </p>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <p>
+      Esta sección documenta el laboratorio realizado en la práctica: su ficha técnica, la 
+      fundamentación de la vulnerabilidad explotada, el procedimiento seguido paso a paso con la 
+      evidencia fotográfica integrada en cada paso, el análisis del payload utilizado y las medidas 
+      de mitigación recomendadas.
+    </p>
+
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 1. Datos generales del laboratorio.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Nombre del Laboratorio</th>
+            <th scope="col">Nivel</th>
+            <th scope="col">Tipo de Explotación</th>
+            <th scope="col">Objetivo del laboratorio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>File path traversal, validation of start of path</td>
+            <td>Practitioner</td>
+            <td>Path Traversal / Directory Traversal bypass de una validación que solo comprueba el directorio inicial de la ruta recibida en el parámetro filename.</td>
+            <td>Explotar la vulnerabilidad de path traversal presente en la funcionalidad de visualización de imágenes de producto, incluyendo el directorio base esperado al inicio de la ruta para superar la validación y añadiendo secuencias de traversal a continuación, para recuperar el contenido del archivo /etc/passwd del servidor.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Explicación técnica de la vulnerabilidad</h3>
+    <p>
+     A diferencia de los laboratorios anteriores, en este caso la aplicación no construye la 
+     ruta del archivo concatenando un directorio base fijo a un nombre de archivo recibido 
+     del cliente; en su lugar, el parámetro filename transporta la ruta completa del archivo, 
+     y el servidor se limita a validar que dicha ruta comience con el directorio esperado, 
+     /var/www/images/. Esta validación es insuficiente porque solo examina el prefijo de la 
+     cadena recibida, sin verificar ni canonicalizar el resto de la ruta. En consecuencia, un 
+     atacante puede satisfacer la validación incluyendo el directorio exigido al inicio de la 
+     ruta y, a continuación, añadir secuencias de traversal «../» que hagan que el sistema de 
+     archivos suba de nivel repetidamente hasta salir por completo de ese directorio antes de 
+     descender hacia el archivo objetivo. Por ejemplo, la ruta /var/www/images/../../../etc/passwd 
+     comienza, tal como exige el filtro, con «/var/www/images/», por lo que supera la 
+     validación; sin embargo, al resolverla, el sistema operativo primero entra en 
+     /var/www/images/ y luego sube tres niveles («../../../»), lo que lo saca del árbol de 
+     directorios de imágenes y lo sitúa en la raíz del sistema de archivos, desde donde accede 
+     a etc/passwd. Esta vulnerabilidad ilustra un obstáculo distinto a los anteriores: la falla 
+     no está en el filtrado de patrones ni en el orden de decodificación, sino en validar 
+     únicamente el inicio de una ruta en lugar de resolverla (canonicalizarla) por completo y 
+     verificar el resultado final. Corresponde igualmente a la categoría A01:2021 – Broken 
+     Access Control del OWASP Top 10.
+    </p>
+
+    <h3>Procedimiento paso a paso</h3>
+    <p>
+      Paso 1. Se abrió el laboratorio «File path traversal, validation of start of path» en el 
+      navegador integrado de Burp Suite, con Intercept desactivado, verificando el estado 
+      inicial «Not solved».
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab05-01.jpg" alt="Laboratorio abierto con Burp Suite, estado inicial «Not solved»">
+      <figcaption>Figura 1. Laboratorio abierto con Burp Suite, estado inicial «Not solved».</figcaption>
+    </figure>
+
+    <p>
+      Paso 2. Se activó la opción «Intercept on» en la pestaña Proxy de Burp Suite y se recargó 
+      la página principal, capturando la primera petición GET / enviada por el navegador hacia el 
+      servidor.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab05-02.jpg" alt="Activación de «Intercept on» y captura de la primera petición GET /">
+      <figcaption>Figura 2. Activación de «Intercept on» y captura de la primera petición GET /.</figcaption>
+    </figure>
+
+    <p>
+      Paso 3. Al reenviar (Forward) las peticiones interceptadas, se observó en el historial HTTP 
+      que el navegador solicitaba múltiples recursos a través del endpoint /image, cada uno con 
+      un parámetro filename que transportaba la ruta completa (/var/www/images/…), 
+      correspondientes a las imágenes de los productos de la tienda.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab05-03.jpg" alt="Peticiones GET /image?filename=/var/www/images/… capturadas en el historial HTTP">
+      <figcaption>Figura 3. Peticiones GET /image?filename=/var/www/images/… capturadas en el historial HTTP.</figcaption>
+    </figure>
+
+    <p>
+      Paso 4. Se seleccionó la petición GET /image?filename=/var/www/images/9.jpg en el historial 
+      HTTP y se examinaron sus cabeceras completas, confirmando que el parámetro filename 
+      transmite la ruta completa del archivo en lugar de solo su nombre.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab05-04.jpg" alt="Petición original identificada: GET /image?filename=/var/www/images/9.jpg">
+      <figcaption>Figura 4. Petición original identificada: GET /image?filename=/var/www/images/9.jpg.</figcaption>
+    </figure>
+
+    <p>
+      Paso 5. La petición se envió a la pestaña Repeater de Burp Suite (Send to Repeater) para 
+      poder modificarla y reenviarla de forma controlada, conservando inicialmente el valor 
+      original del parámetro.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab05-05.jpg" alt="Petición original enviada a Repeater, sin modificar">
+      <figcaption>Figura 5. Petición original enviada a Repeater, sin modificar.</figcaption>
+    </figure>
+
+    <p>
+      Paso 6. En Repeater se sustituyó el valor del parámetro filename por 
+      /var/www/images/../../../etc/passwd, conservando el directorio /var/www/images/ al inicio 
+      de la ruta para superar la validación, y añadiendo a continuación las secuencias «../» 
+      necesarias para salir de ese directorio y llegar a /etc/passwd.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab05-06.jpg" alt="Payload aplicado en Repeater: filename=/var/www/images/../../../etc/passwd">
+      <figcaption>Figura 6. Payload aplicado en Repeater: filename=/var/www/images/../../../etc/passwd.</figcaption>
+    </figure>
+
+    <p>
+      Paso 7. Se envió la petición modificada mediante el botón Send y se analizó la respuesta del 
+      servidor, confirmando el código de estado 200 OK y verificando que el cuerpo de la respuesta 
+      contenía el listado completo de usuarios del sistema, lo que evidenció la lectura exitosa del 
+      archivo /etc/passwd.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab05-07.jpg" alt="Respuesta vulnerable del servidor: contenido del archivo /etc/passwd">
+      <figcaption>Figura 7. Respuesta vulnerable del servidor: contenido del archivo /etc/passwd.</figcaption>
+    </figure>
+
+    <p>
+      Paso 8. Se regresó al navegador y se recargó la página del laboratorio, confirmando que el 
+      banner superior mostraba el mensaje «Congratulations, ¡you solved the lab!» y que el estado 
+      del laboratorio había cambiado de «Not solved» a «Solved».
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/road-to-hall-of-fame/Lab05-08.jpg" alt="Confirmación de «Lab Solved» tras la explotación exitosa">
+      <figcaption>Figura 8. Confirmación de «Lab Solved» tras la explotación exitosa.</figcaption>
+    </figure>
+
+    <h3>Explicación del payload</h3>
+
+    <p>
+      El payload utilizado fue /var/www/images/../../../etc/passwd, enviado como valor completo del 
+      parámetro filename en la petición GET /image?filename=/var/www/images/../../../etc/passwd. El 
+      payload tiene dos partes con funciones distintas. La primera, «/var/www/images/», no aporta nada 
+      a la explotación en sí, pero es indispensable para superar la validación del servidor, que 
+      únicamente comprueba que la cadena recibida comience con ese directorio exacto; al incluirlo 
+      literalmente al inicio, la validación se satisface sin necesidad de romperla. La segunda parte, 
+      «../../../etc/passwd», es la secuencia de traversal real: cada «../» indica al sistema de 
+      archivos que suba un nivel en la jerarquía de directorios. Como el sistema operativo resuelve la 
+      ruta completa de forma secuencial entra primero en /var/www/images/ y luego aplica cada «../» 
+      sobre esa posición, termina subiendo tres niveles por encima del directorio de imágenes, lo que 
+      lo saca de él y lo sitúa en la raíz del sistema de archivos, desde donde desciende hacia 
+      etc/passwd. El payload es efectivo porque la validación del servidor se limita a examinar el 
+      prefijo literal de la cadena y nunca resuelve (canonicaliza) la ruta completa para comprobar en 
+      qué directorio termina realmente apuntando.
+    </p>
+
+    <h3>Mitigación recomendada</h3>
+
+    <p>
+      Para prevenir y corregir esta vulnerabilidad se recomienda:
+    </p>
+
+    <ul>
+      <li>Canonicalizar (resolver) la ruta completa recibida incluyendo cualquier «../» y enlace simbólico antes de validarla, y verificar el directorio en el que realmente termina apuntando, en lugar de comprobar únicamente el prefijo de la cadena original.</li>
+      <li>Rechazar cualquier ruta que, tras canonicalizarla, no quede exactamente dentro del directorio base permitido, incluso si el texto original comenzaba con ese directorio.</li>
+      <li>Evitar que el cliente transmita rutas de archivo completas; en su lugar, aceptar solo el nombre del archivo (sin separadores de directorio) o un identificador indirecto (p. ej. un ID numérico mapeado internamente al archivo real).</li>
+      <li>Emplear una lista blanca (allow-list) de nombres o identificadores de archivo válidos en lugar de intentar validar la forma de una ruta arbitraria proporcionada por el cliente.</li>
+      <li>Ejecutar el proceso del servidor de aplicaciones con el mínimo privilegio necesario, restringiendo los permisos de lectura únicamente a los directorios estrictamente requeridos.</li>
+      <li>Incorporar pruebas de seguridad (SAST/DAST) con payloads que combinen un prefijo de directorio válido seguido de secuencias de traversal, dentro del ciclo de desarrollo seguro, para detectar validaciones que solo examinan el inicio de una ruta.</li>
+    </ul>
+
+  </section>
+
+  <section id="conclusion">
+    <h2>Resultados</h2>
+
+    <p>
+      Se logró explotar exitosamente la vulnerabilidad de path traversal presente en el endpoint 
+      /image, evadiendo la validación que solo comprueba el directorio inicial de la ruta recibida. 
+      Al sustituir el parámetro filename por /var/www/images/../../../etc/passwd, se obtuvo una 
+      respuesta HTTP 200 OK cuyo cuerpo contenía el archivo /etc/passwd completo del servidor, 
+      evidenciando cuentas del sistema como root, daemon, bin, sys y www-data, entre otras. Este 
+      hallazgo fue confirmado por el propio laboratorio de PortSwigger, que actualizó automáticamente 
+      el estado de «Not solved» a «Solved» al detectar la lectura del archivo objetivo. El resultado 
+      demuestra que validar únicamente el prefijo de una ruta proporcionada por el cliente es 
+      insuficiente si no se canonicaliza y verifica la ruta completa resultante, ya que un atacante 
+      puede satisfacer trivialmente esa validación superficial y aun así dirigir el acceso final a un 
+      archivo completamente distinto del directorio permitido.
+    </p>
+
+    <h2>Conclusión</h2>
+
+    <p>
+      Este laboratorio permitió comprender que una validación de entrada puede parecer razonable en 
+      apariencia exigir que una ruta comience con un directorio específico y, sin embargo, ser 
+      completamente ineficaz si no se combina con la canonicalización de la ruta final. Se reforzó el 
+      uso de Burp Suite en particular Repeater para construir un payload que combina el prefijo exigido 
+      por el filtro con una secuencia de traversal efectiva. Esta actividad complementa los contenidos 
+      de la asignatura CNO IV Seguridad Informática al mostrar que las validaciones basadas en el formato 
+      superficial de una entrada (como su prefijo) deben complementarse siempre con una verificación 
+      semántica del resultado real, un principio aplicable a múltiples categorías del OWASP Top 10 más 
+      allá de path traversal. Como siguiente paso dentro del portafolio «Road to Hall of Fame», se 
+      continuará documentando variantes adicionales de esta vulnerabilidad.
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>PortSwigger. (s.f.). File path traversal, validation of start of path. PortSwigger Web Security Academy. https://portswigger.net/web-security/file-path-traversal/lab-validate-start-of-path</li>
+      <li>PortSwigger. (s.f.). Path traversal. PortSwigger Web Security Academy. https://portswigger.net/web-security/file-path-traversal</li>
+      <li>OWASP. (2021). A01:2021 – Broken Access Control. OWASP Top 10. https://owasp.org/Top10/A01_2021-Broken_Access_Control/</li>
+      <li>PortSwigger. (s.f.). Burp Suite documentation. https://portswigger.net/burp/documentation</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+
+  <a class="btn btn--pdf" href="../../assets/road-to-hall-of-fame/LARZ Act11 WAP.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#roadmap">Road to Hall of Fame</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
