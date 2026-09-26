@@ -80,7 +80,7 @@ const LABS = [
     desc: "Explotación de una vulnerabilidad de path traversal en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
     status: "disponible",
     reportHref: "assets/road-to-hall-of-fame/LARZ Act07 WAP.pdf",
-    burpHref: "templates/road-to-hall-of-fame/act07-P2.html",
+    href: "templates/road-to-hall-of-fame/act07-P2.html",
   },
   {
     code: "LAB-02",
@@ -88,7 +88,7 @@ const LABS = [
     desc: "Bypass de un filtro de secuencias de traversal mediante una ruta absoluta en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
     status: "disponible",
     reportHref: "assets/road-to-hall-of-fame/LARZ Act08 WAP.pdf",
-    burpHref: "templates/road-to-hall-of-fame/act08-P2.html",
+    href: "templates/road-to-hall-of-fame/act08-P2.html",
   },
   {
     code: "LAB-03",
@@ -96,7 +96,7 @@ const LABS = [
     desc: "Bypass de un filtro de secuencias de traversal mediante secuencias anidadas (saneamiento no recursivo) en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
     status: "disponible",
     reportHref: "assets/road-to-hall-of-fame/LARZ Act09 WAP.pdf",
-    burpHref: "templates/road-to-hall-of-fame/act09-P2.html",
+    href: "templates/road-to-hall-of-fame/act09-P2.html",
   },
   {
     code: "LAB-04",
@@ -104,8 +104,16 @@ const LABS = [
     desc: "Bypass de un filtro de secuencias de traversal mediante doble codificación URL, en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
     status: "disponible",
     reportHref: "assets/road-to-hall-of-fame/LARZ Act10 WAP.pdf",
-    burpHref: "templates/road-to-hall-of-fame/act10-P2.html",
+    href: "templates/road-to-hall-of-fame/act10-P2.html",
   },
+  {
+    code: "LAB-05",
+    title: "Lab: File Path Traversal, Validation of Start of Path",
+    desc: "Bypass de una validación de directorio inicial en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
+    status: "disponible",
+    reportHref: "assets/road-to-hall-of-fame/LARZ Act11 WAP.pdf",
+    href: "templates/road-to-hall-of-fame/act11-P2.html",
+   },
 ];
 
 /* ==========================================================================
