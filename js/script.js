@@ -115,6 +115,14 @@ const LABS = [
     reportHref: "assets/road-to-hall-of-fame/LARZ Act11 WAP.pdf",
     labHref: "templates/road-to-hall-of-fame/act11-P2.html",
    },
+   {
+    code: "LAB-06",
+    title: "Lab: File Path Traversal, Validation of File Extension with Null Byte Bypass",
+    desc: "Bypass de una validación de extensión de archivo mediante inyección de byte nulo, en la carga de imágenes de una tienda en línea · PortSwigger Web Security Academy.",
+    status: "disponible",
+    reportHref: "assets/road-to-hall-of-fame/LARZ Act12 WAP.pdf",
+    labHref: "templates/road-to-hall-of-fame/act12-P2.html",
+   },
 ];
 
 /* ==========================================================================
