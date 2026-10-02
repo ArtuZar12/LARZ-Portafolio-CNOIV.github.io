@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-13 · Red Team Report: Pentesting de My File Server 1 — Portafolio</title>
+
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#parciales">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 2</span>
+    <span class="tag">ACT-13</span>
+  </div>
+  <h1>Red Team Report: Pentesting de My File Server 1</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 01/10/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Executive Summary (Resumen Ejecutivo)</h2>
+    <p>
+      Este informe documenta un ejercicio de pruebas de penetración de tipo caja 
+      negra realizado sobre la máquina vulnerable “My File Server: 1” (VulnHub), la 
+      cual simula un servidor de archivos corporativo. El objetivo fue identificar, 
+      explotar y documentar las debilidades de seguridad presentes, evaluando el nivel 
+      de exposición del sistema desde la perspectiva de un atacante externo con 
+      conocimiento limitado del entorno.
+    </p>
+    <p>
+      Durante el engagement se identificaron seis hallazgos de seguridad, dos de 
+      ellos de severidad crítica. La cadena de ataque partió de un servicio FTP con 
+      inicio de sesión anónimo habilitado, continuó con la exposición pública de 
+      credenciales válidas a través del servicio web, y culminó con una escalada de 
+      privilegios a nivel root mediante la explotación de la vulnerabilidad de kernel 
+      DirtyCOW (CVE-2016-5195), lo que permitió el compromiso total del sistema.
+    </p>
+    <div class="activity-callout">
+      Hallazgo clave: en menos de 30 minutos y sin necesidad de fuerza bruta ni 
+      ingeniería social, fue posible pasar de un acceso anónimo no autenticado a 
+      control total (root) del servidor, únicamente encadenando configuraciones 
+      inseguras por defecto.
+    </div>
+    <p>
+      Desde una perspectiva de negocio, este nivel de exposición representa un 
+      riesgo alto: un atacante con acceso root a un servidor de archivos corporativo 
+      podría leer, modificar o eliminar cualquier documento almacenado, instalar 
+      puertas traseras persistentes, o utilizar el equipo como punto de pivote hacia 
+      el resto de la red interna. Se recomienda remediar los hallazgos críticos y 
+      altos en un plazo no mayor a 15 días hábiles.
+    </p>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Alcance (Scope)</h2>
+    <h3>Objetivo del engagement</h3>
+
+    <p>
+      Evaluar de forma controlada la postura de seguridad de la máquina “My File Server: 
+      1”, identificando vulnerabilidades explotables en los servicios expuestos y 
+      determinando el impacto real que tendría su explotación en un entorno 
+      productivo.
+    </p>
+
+    <h3>Activo en alcance</h3>
+
+    <!-- Tabla de ejemplo -->
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <thead>
+          <tr>
+            <th scope="col">Elemento</th>
+            <th scope="col">Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Nombre de la máquina</td>
+            <td>My File Server: 1</td>
+          </tr>
+          <tr>
+            <td>Origen</td>
+            <td>https://download.vulnhub.com/myfileserver/My_file_server_1.ova</td>
+          </tr>
+          <tr>
+            <td>Dirección IP objetivo</td>
+            <td>192.168.56.104 (red interna aislada)</td>
+          </tr>
+          <tr>
+            <td>Sistema operativo</td>
+            <td>CentOS Linux 7 (Core), kernel 3.10.0-229.el7.x86_64</td>
+          </tr>
+          <tr>
+            <td>Tipo de prueba</td>
+            <td>Caja negra (black box), sin credenciales previas</td>
+          </tr>
+          <tr>
+            <td>Entorno de ataque</td>
+            <td>Kali Linux</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Limitaciones y reglas de compromiso</h3>
+
+    <ul>
+      <li>La prueba se realizó exclusivamente en un entorno de laboratorio virtualizado y aislado; no se atacaron sistemas productivos.</li>
+      <li>No se realizaron pruebas de denegación de servicio (DoS) intencionales.</li>
+      <li>El alcance se limitó a la máquina víctima; no se evaluó la infraestructura de red circundante ni otros hosts detectados durante el descubrimiento.</li>
+      <li>Toda evidencia (capturas de pantalla, salidas de comandos) fue recolectada durante la ejecución de las pruebas.</li>
+    </ul>
+
+    <h2>Metodología Aplicada</h2>
+
+    <p>
+      El ejercicio se condujo siguiendo las fases del Penetration Testing Execution 
+      Standard (PTES), complementado con prácticas de enumeración propuestas por 
+      OWASP para servicios expuestos. Esto garantiza un proceso repetible, trazable 
+      y alineado con estándares de la industria.
+    </p>
+
+    <!-- Tabla de ejemplo -->
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <thead>
+          <tr>
+            <th scope="col">Fase PTES</th>
+            <th scope="col">Objetivo</th>
+            <th scope="col">Herramientas utilizadas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1. Reconocimiento</td>
+            <td>Identificar el host objetivo dentro de la red</td>
+            <td>netdiscover</td>
+          </tr>
+          <tr>
+            <td>2. Enumeración</td>
+            <td>Descubrir puertos, servicios, versiones y recursos compartidos</td>
+            <td>nmap, ftp, smbmap, nikto, navegador web</td>
+          </tr>
+          <tr>
+            <td>3. Análisis de vulnerabilidades</td>
+            <td>Correlacionar versiones de software con CVEs conocidos</td>
+            <td>Investigación manual, uname -a</td>
+          </tr>
+          <tr>
+            <td>4. Explotación</td>
+            <td>Obtener acceso inicial al sistema</td>
+            <td>FTP anónimo, ssh-keygen, SSH</td>
+          </tr>
+          <tr>
+            <td>5. Post-explotación / Escalada</td>
+            <td>Elevar privilegios hasta obtener control total (root)</td>
+            <td>Exploit DirtyCOW (CVE-2016-5195), gcc</td>
+          </tr>
+          <tr>
+            <td>6. Reporte</td>
+            <td>Documentar hallazgos, impacto y remediación</td>
+            <td>Este informe</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Fases de Reconocimiento</h2>
+    <h3>Identificación de la dirección IP de la víctima</h3>
+
+    <p>Se utilizó netdiscover en modo pasivo para escuchar tráfico ARP en la red
+       local y así identificar los hosts activos sin generar tráfico intrusivo. 
+       El escaneo reveló múltiples dispositivos en el segmento 172.26.58.0/16, entre 
+       ellos un host con MAC asociada al fabricante “PCS Systemtechnik GmbH” 
+       (VirtualBox), correspondiente a la máquina víctima en la dirección 192.168.1.
+       154.
+    </p>
+
+    <h2>Análisis de Impacto (Modelo CIA)</h2>
+
+    <p>
+      Se evalúa el impacto de la cadena de vulnerabilidades explotada sobre los tres 
+      pilares de la seguridad de la información: Confidencialidad, Integridad y 
+      Disponibilidad.
+    </p>
+
+    <!-- Tabla de ejemplo -->
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <thead>
+          <tr>
+            <th scope="col">Dimensión</th>
+            <th scope="col">Nivel</th>
+            <th scope="col">Justificación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Confidencialidad</td>
+            <td>Alto</td>
+            <td>Exposición pública de credenciales, acceso a recursos compartidos sin autenticación fuerte y, tras la escalada, lectura de cualquier archivo del sistema (documentos, configuraciones, bases de datos locales).</td>
+          </tr>
+          <tr>
+            <td>Integridad</td>
+            <td>Alto</td>
+            <td>El acceso de escritura vía FTP/SMB permite modificar o sustituir archivos; el acceso root demostrado permite alterar binarios del sistema (se sobrescribió /usr/bin/passwd durante la explotación), configuraciones y registros.</td>
+          </tr>
+          <tr>
+            <td>Disponibilidad</td>
+            <td>Medio</td>
+            <td>No se ejecutaron ataques de denegación de servicio durante la prueba, pero el control root obtenido habilita a un atacante real a detener servicios, eliminar datos o desplegar ransomware, por lo que el riesgo latente es significativo.</td>
+          </tr>
+          <tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      En conjunto, el nivel de riesgo del sistema se califica como CRÍTICO: la 
+      combinación de exposición de credenciales, servicios de transferencia de 
+      archivos mal configurados y un kernel sin parchear resultó en compromiso 
+      total (root) sin necesidad de técnicas sofisticadas.
+    </p>
+
+    <h2>Recomendaciones Técnicas</h2>
+    <h3>Remediación inmediata (0–15 días)</h3>
+    <ul>
+      <li>Actualizar el kernel de CentOS a una versión parchada contra CVE-2016-5195 (kernel ≥ 3.10.0-327.36.3 o migrar a una versión con soporte activo) y establecer un proceso de gestión de parches periódico.</li>
+      <li>Eliminar el archivo readme.txt (y cualquier otro archivo con credenciales o información sensible) del webroot de Apache; nunca almacenar contraseñas en texto plano accesibles públicamente.</li>
+      <li>Deshabilitar el inicio de sesión anónimo en el servicio FTP (anonymous_enable=NO en vsftpd.conf) o, si es imprescindible, restringirlo estrictamente a solo lectura.</li>
+    </ul>
+
+    <h3>Corto plazo (15–30 días)</h3>
+    <ul>
+      <li>Revisar y corregir los permisos de los recursos compartidos SMB, deshabilitando el acceso de invitado y aplicando el principio de mínimo privilegio por usuario/grupo.</li>
+      <li>Forzar el uso de contraseñas robustas y rotación periódica para todas las cuentas de servicio (por ejemplo, smbuser).</li>
+      <li>Restringir o aislar el servicio FTP para que no pueda escribir en directorios sensibles del sistema de archivos, incluyendo el directorio .ssh de los usuarios (uso de chroot_local_user o jaulas equivalentes).</li>
+      <li>Deshabilitar el método HTTP TRACE en la configuración de Apache (TraceEnable off) para mitigar ataques de Cross-Site Tracing.</li>
+    </ul>
+
+    <h3>Mediano y largo plazo (30–90 días)</h3>
+    <ul>
+      <li>Implementar un programa formal de gestión de vulnerabilidades con escaneos periódicos (por ejemplo, con Nessus u OpenVAS) y seguimiento de CVEs críticos.</li>
+      <li>Adoptar el principio de defensa en profundidad: segmentación de red, firewall de host y monitoreo centralizado (SIEM) para detectar patrones de enumeración y exfiltración.</li>
+      <li>Establecer una política de hardening de servidores (CIS Benchmarks) para servicios FTP, SMB y SSH, incluyendo deshabilitar servicios no utilizados como NFS y rpcbind si no son necesarios.</li>
+      <li>Capacitar al personal de TI en buenas prácticas de configuración segura y gestión de secretos, evitando la publicación accidental de credenciales.</li>
+    </ul>
+
+
+  </section>
+
+  <section id="conclusion">
+    <h2>Tabla de Hallazgos</h2>
+
+    <p>
+      A continuación, se resumen todos los hallazgos identificados durante el 
+      engagement, ordenados de mayor a menor severidad.
+    </p>
+
+    <!-- Tabla de ejemplo -->
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Vulnerabilidad</th>
+            <th scope="col">Severidad</th>
+            <th scope="col">Evidencia</th>
+            <th scope="col">Impacto</th>
+            <th scope="col">Recomendación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>H-01</td>
+            <td>Exposición de credenciales en archivo público del servidor web (readme.txt)</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+          </tr>
+          <tr>
+            <td>Integridad</td>
+            <td>Alto</td>
+            <td>El acceso de escritura vía FTP/SMB permite modificar o sustituir archivos; el acceso root demostrado permite alterar binarios del sistema (se sobrescribió /usr/bin/passwd durante la explotación), configuraciones y registros.</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+          </tr>
+          <tr>
+            <td>Disponibilidad</td>
+            <td>Medio</td>
+            <td>No se ejecutaron ataques de denegación de servicio durante la prueba, pero el control root obtenido habilita a un atacante real a detener servicios, eliminar datos o desplegar ransomware, por lo que el riesgo latente es significativo.</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+          </tr>
+          <tr>
+            <td>Integridad</td>
+            <td>Alto</td>
+            <td>El acceso de escritura vía FTP/SMB permite modificar o sustituir archivos; el acceso root demostrado permite alterar binarios del sistema (se sobrescribió /usr/bin/passwd durante la explotación), configuraciones y registros.</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+          </tr>
+          <tr>
+            <td>Integridad</td>
+            <td>Alto</td>
+            <td>El acceso de escritura vía FTP/SMB permite modificar o sustituir archivos; el acceso root demostrado permite alterar binarios del sistema (se sobrescribió /usr/bin/passwd durante la explotación), configuraciones y registros.</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+          </tr>
+          <tr>
+            <td>Integridad</td>
+            <td>Alto</td>
+            <td>El acceso de escritura vía FTP/SMB permite modificar o sustituir archivos; el acceso root demostrado permite alterar binarios del sistema (se sobrescribió /usr/bin/passwd durante la explotación), configuraciones y registros.</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+            <td>Crítica</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Conclusión</h2>
+
+    <p>
+      El ejercicio sobre “My File Server: 1” demuestra cómo la combinación de 
+      configuraciones inseguras por defecto login anónimo en FTP, recursos SMB 
+      sin control de acceso adecuado, exposición de credenciales en texto plano y 
+      un kernel sin actualizar puede derivar en el compromiso total de un servidor 
+      sin necesidad de exploits sofisticados ni conocimientos avanzados de 
+      ingeniería inversa.
+    </p>
+
+    <p>
+      Desde la perspectiva de la asignatura, esta actividad refuerza el ciclo 
+      completo de un pentest (reconocimiento, enumeración, explotación y 
+      post-explotación) y evidencia la importancia de aplicar controles básicos de 
+      higiene de seguridad gestión de parches, mínimo privilegio y manejo adecuado 
+      de credenciales como primera línea de defensa frente a atacantes reales.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>VulnHub. (s.f.). My File Server: 1. https://www.vulnhub.com/entry/my-file-server-1,375/</li>
+      <li>MITRE. (2016). CVE-2016-5195 (DirtyCOW). https://nvd.nist.gov/vuln/detail/CVE-2016-5195</li>
+      <li>SecWiki. (s.f.). linux-kernel-exploits  CVE-2016-5195 (40616.c). https://github.com/SecWiki/linux-kernel-exploits</li>
+      <li>The PTES Team. (s.f.). Penetration Testing Execution Standard. http://www.pentest-standard.org/</li>
+      <li>Nmap Project. (s.f.). Nmap Reference Guide. https://nmap.org/book/man.html</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+  <a class="btn btn--pdf" href="../../assets/parcial-2/LARZ ACT14.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+<div class="activity-download">
+  <a class="btn btn--pdf" href="../../assets/parcial-2/LARZ ACT14.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Presentacion profesional en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#roadmap">Road to Hall of Fame</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
