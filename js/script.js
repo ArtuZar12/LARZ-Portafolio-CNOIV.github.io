@@ -44,6 +44,11 @@ const PARCIALES = [
     label: "Parcial 2",
     meta: "Sistemas de gestión de la seguridad",
     activities: [
+      { code: "ACT-13", 
+       title: "Red Team Report: Pentesting de My File Server 1", 
+       status: "disponible", 
+       href: "templates/parcial-2/act13-P2.html" 
+      },
       { code: "ACT-14", 
        title: "Ciberseguridad en una mirada", 
        status: "disponible", 
