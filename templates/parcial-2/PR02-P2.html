@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PR02 · Blindando la información: gobernanza y cumplimiento — Portafolio</title>
+
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#parciales">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 2</span>
+    <span class="tag">PR02</span>
+  </div>
+  <h1>Blindando la información: gobernanza y cumplimiento</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV - Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 11/10/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Esta actividad traduce los 20 hallazgos técnicos comprobados sobre el entorno simulado
+      INTERAFAS-LAB (organismo operador de agua metropolitano) en un programa de gobernanza y
+      cumplimiento completo: un Sistema de Gestión de Seguridad de la Información alineado a
+      ISO/IEC 27001, un plan de comunicación para gestionar la crisis reputacional de un
+      incidente, y un plan de respuesta técnica basado en NIST SP 800-61 con playbooks
+      operativos. El propósito es demostrar que la auditoría ofensiva el "qué falló" es solo
+      el primer paso: el valor real está en convertir esos hallazgos en políticas, roles,
+      procedimientos y controles medibles que una institución pueda sostener en el tiempo.
+    </p>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <h3>Resumen del proyecto</h3>
+    <p>
+      El proyecto se organiza en cinco entregables. El primero es la evidencia cruda exportada
+      directamente de la plataforma de laboratorio; los otros cuatro son los documentos de
+      gobernanza elaborados a partir de esa evidencia, cada uno dirigido a una audiencia y un
+      objetivo distinto dentro de la institución.
+    </p>
+
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 1. Entregables del proyecto PR02.</caption>
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Entregable</th>
+            <th scope="col">Enfoque</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01</td>
+            <td>Portafolio digital de evidencias (export de la plataforma)</td>
+            <td>Bitácora y registro crudo de las 20 banderas resueltas</td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td>Informe de Seguridad Ofensiva</td>
+            <td>Cadena de ataque completa, de la fuga de rutas al control físico del proceso</td>
+          </tr>
+          <tr>
+            <td>03</td>
+            <td>Propuesta de SGSI (ISO/IEC 27001)</td>
+            <td>20 políticas funcionales, matriz de riesgos, RACI y checklist de auditoría interna</td>
+          </tr>
+          <tr>
+            <td>04</td>
+            <td>Plan de Comunicación de Crisis</td>
+            <td>Comité, niveles de activación y plantillas de comunicación interna/externa</td>
+          </tr>
+          <tr>
+            <td>05</td>
+            <td>Plan de Respuesta ante Incidentes</td>
+            <td>Metodología NIST SP 800-61 y cinco playbooks operativos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      El entregable 01 es el registro de actividad (log) exportado directamente de la plataforma 
+      INTERAFAS-LAB en formato CSV: documenta la fecha de inicio del intento y las 20 banderas 
+      resueltas, cada una con su fecha, código, hallazgo, categoría y dificultad. Es la evidencia 
+      cruda que respalda, cronológicamente, los hallazgos narrados en el entregable 02.
+    </p>
+
+    <h3>Entregable 02 - Informe de Seguridad Ofensiva</h3>
+    <p>
+      Las 20 vulnerabilidades (VULN-01 a VULN-20) no son hallazgos aislados: forman una cadena
+      de ataque progresiva en la que cada grupo de fallas entrega al atacante lo que necesita
+      para el siguiente. La fuga inicial de rutas y metadatos permite perfilar la infraestructura
+      sin credenciales; los controles de acceso rotos del portal ciudadano exponen datos y
+      funciones indebidas; una falsificación de cabecera HTTP cruza la frontera entre la red de
+      TI y la red operacional (OT); y, finalmente, unas credenciales heredadas y un canal de
+      firmware sin firma digital entregan control efectivo sobre un dispositivo de campo, hasta
+      provocar una cascada de fallas con consecuencias físicas sobre el suministro de agua.
+    </p>
+
+    <div class="activity-callout">
+      El cierre del ejercicio (bandera 20/20) quedó registrado tanto en el propio entorno
+      comprometido como en el panel de seguimiento institucional, con una puntuación técnica
+      completa de 65/65 puntos sobre las 20 vulnerabilidades documentadas.
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/cierre_owned.jpg" alt="Mensaje de cierre del ejercicio en /system.php tras validar la bandera 20 de 20">
+      <figcaption>Figura 1. Mensaje de cierre del ejercicio en /system.php tras validar la bandera 20/20.</figcaption>
+    </figure>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/cierre_panel.jpg" alt="Panel del auditor INTERAFAS mostrando 20 de 20 banderas y 65 de 65 puntos">
+      <figcaption>Figura 2. Panel del auditor institucional al finalizar el intento: 20/20 banderas, 65/65 puntos.</figcaption>
+    </figure>
+
+    <h3>Entregable 03 - Propuesta de SGSI (ISO/IEC 27001)</h3>
+    <p>
+      A partir de los 20 activos críticos de INTERAFAS se definieron 20 políticas funcionales,
+      una matriz de riesgos (R = Probabilidad × Impacto), una matriz RACI y un ciclo completo de
+      mejora continua: una auditoría interna trimestral detectó una no conformidad real personal
+      de guardia conectando dispositivos USB en estaciones SCADA pese a la prohibición
+      documentada que escaló de un control administrativo a un control técnico y físico
+      (bloqueo de puertos), acompañado de material de concientización rediseñado para el perfil
+      de usuario correcto.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/flyer.jpg" alt="Infografía de concientización sobre phishing, control de USB y contraseñas">
+      <figcaption>Figura 3. Infografía de concientización «El agua de la ciudad está en nuestras manos».</figcaption>
+    </figure>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/wallpaper.jpg" alt="Wallpaper de advertencia sobre el bloqueo de puertos USB en estaciones SCADA">
+      <figcaption>Figura 4. Wallpaper mandatorio de advertencia, segunda iteración del material de concientización tras la auditoría interna.</figcaption>
+    </figure>
+
+    <h3>Entregable 04 - Plan de Comunicación de Crisis</h3>
+    <p>
+      Define el Comité de Comunicación de Crisis (líder, vocero técnico, vocero operativo
+      hídrico, enlace de atención ciudadana y asesoría legal), cuatro niveles de activación que
+      van de la vigilancia rutinaria a una crisis crítica con afectación física al agua, y los
+      productos de comunicación preautorizados desde la alerta interna inicial hasta el
+      comunicado de cierre para agilizar la respuesta en las primeras horas de un incidente.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/escalation.jpg" alt="Diagrama de los cuatro niveles de activación y escalamiento del Comité de Comunicación de Crisis">
+      <figcaption>Figura 5. Niveles de activación y escalamiento del Comité de Comunicación de Crisis.</figcaption>
+    </figure>
+
+    <h3>Entregable 05 - Plan de Respuesta ante Incidentes</h3>
+    <p>
+      Formaliza, bajo la metodología NIST SP 800-61, el ciclo completo de respuesta técnica
+      preparación, detección y análisis, contención, erradicación, recuperación y actividades
+      post-incidente y lo aplica a cinco playbooks derivados directamente de los escenarios de
+      INTERAFAS-LAB, incluyendo el escenario crítico de manipulación de parámetros operacionales
+      sobre un dispositivo de campo (el mismo que cierra la cadena de ataque del entregable 02).
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-2/lifecycle.jpg" alt="Diagrama del ciclo de vida de respuesta a incidentes según NIST SP 800-61">
+      <figcaption>Figura 6. Ciclo de vida de respuesta a incidentes de INTERAFAS, basado en NIST SP 800-61 Rev. 2.</figcaption>
+    </figure>
+  </section>
+
+  <section id="conclusion">
+    <h2>Conclusión</h2>
+    <p>
+      El proyecto deja una lección central: ninguna de las veinte vulnerabilidades, vista de
+      forma aislada, parecía catastrófica un archivo olvidado, una cabecera que el cliente
+      controla, un parámetro sin validar pero combinadas formaron una cadena capaz de dañar
+      físicamente infraestructura crítica. Gobernar la seguridad de la información no es
+      documentar controles por cumplir una norma, sino diseñar un sistema donde la auditoría
+      técnica, las políticas del SGSI, la comunicación de crisis y la respuesta a incidentes se
+      retroalimentan: el mismo hallazgo que cierra el informe ofensivo es el que activa el nivel
+      más alto del plan de comunicación y el disparador del playbook más crítico del plan de
+      respuesta. Esa coherencia, más que cualquier documento por separado, es el verdadero
+      entregable de PR02.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>Organización Internacional de Normalización (ISO). (2022). <em>ISO/IEC 27001:2022 — Sistemas de gestión de la seguridad de la información. Requisitos</em>. https://www.iso.org/standard/27001</li>
+      <li>Organización Internacional de Normalización (ISO). (2022). <em>ISO 22361:2022 — Seguridad y resiliencia. Gestión de crisis. Directrices</em>. https://www.iso.org/standard/50267.html</li>
+      <li>National Institute of Standards and Technology. (2012). <em>SP 800-61 Rev. 2 — Computer Security Incident Handling Guide</em>. https://csrc.nist.gov/pubs/sp/800/61/r2/final</li>
+      <li>National Institute of Standards and Technology. (2023). <em>SP 800-82 Rev. 3 — Guide to Operational Technology (OT) Security</em>. https://doi.org/10.6028/NIST.SP.800-82r3</li>
+      <li>Cámara de Diputados del H. Congreso de la Unión. (2017). <em>Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados</em>. Diario Oficial de la Federación. https://www.diputados.gob.mx/LeyesBiblio/pdf/LGPDPPSO.pdf</li>
+      <li>Universidad Politécnica de San Luis Potosí. (2026). <em>PR02 — Blindando la información: gobernanza y cumplimiento</em> S05-UPSLP_CNOIV.2026-v01.pdf. Parcial II: Sistemas de Gestión de la Seguridad, Mtro. Servando López Contreras.</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+  <a class="btn btn--pdf" href="../../assets/parcial-2/RochaZarazúaLuisArturo-PR02.zip" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar paquete PR02 (.zip)
+  </a>
+  <p class="activity-download__note">Incluye los 5 documentos entregables (01 a 05).</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
