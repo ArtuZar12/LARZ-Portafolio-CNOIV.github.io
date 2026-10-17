@@ -54,6 +54,11 @@ const PARCIALES = [
        status: "disponible", 
        href: "templates/parcial-2/act14-P2.html" 
       },
+      { code: "PR02", 
+       title: "Blindando la información: gobernanza y cumplimiento", 
+       status: "disponible", 
+       href: "templates/parcial-2/PR02-P2.html" 
+      },
     ],
   },
   {
