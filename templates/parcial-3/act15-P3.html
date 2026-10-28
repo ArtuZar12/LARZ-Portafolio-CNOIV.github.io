@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-15 · La fotografía como testigo — Portafolio</title>
+
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#parciales">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 3</span>
+    <span class="tag">ACT-15</span>
+  </div>
+  <h1>La fotografía como testigo</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 28/10/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      El presente reporte documenta la Actividad 15, «La fotografía como 
+      testigo: extracción de metadatos GPS para geolocalización». El 
+      objetivo es utilizar la herramienta ExifTool para extraer e 
+      interpretar los metadatos de dos ficheros de muestra: un documento 
+      de Word atribuido a INTERPOL (WOA database application form.docx) y 
+      una fotografía en formato JPG (XiaomiMiA2Lite.jpg). Con ellos se 
+      responde el cuestionario de la actividad, se ubica en un mapa el 
+      lugar donde se tomó la fotografía y, por último, se eliminan los 
+      metadatos de la imagen.
+    </p>
+    <p>
+      Esta práctica se relaciona directamente con la seguridad 
+      informática y el análisis forense digital: los metadatos son 
+      «datos sobre los datos» que se guardan de forma automática dentro 
+      de un archivo y que pueden revelar quién lo creó, con qué programa 
+      o dispositivo, cuándo y, en el caso de las fotografías, dónde. 
+      Esa información es muy útil en una investigación, pero también 
+      representa un riesgo de privacidad cuando un archivo se comparte 
+      sin limpiarse.
+    </p>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <h3>Parte I. Metadatos del documento de INTERPOL</h3>
+    <p>
+      Para el fichero de INTERPOL se consultaron únicamente las etiquetas 
+      solicitadas en el cuestionario, indicándolas como argumentos de 
+      ExifTool y escribiendo entre comillas el nombre del archivo porque 
+      contiene espacios (figura 1).
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">CMD</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo1">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo1" class="code-block__code">exiftool -Category -Template -TotalEditTime -Company -LastModifiedBy -CreateDate -Creator "infocrim\WOA database application form.docx"</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act15-2.jpg" alt="Metadatos del fichero WOA database application form.docx obtenidos con ExifTool">
+      <figcaption>Figura 1. Metadatos del fichero WOA database application form.docx obtenidos con ExifTool.</figcaption>
+    </figure>
+    
+    <p>
+      Con base en la salida anterior se responde la Parte I del 
+      cuestionario (tabla 1).
+    </p>
+
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 1. Respuestas de la Parte I (fichero WOA database application form.docx).</caption>
+        <thead>
+          <tr>
+            <th scope="col">N.º</th>
+            <th scope="col">Pregunta</th>
+            <th scope="col">Respuesta</th>
+            <th scope="col">Etiqueta de ExifTool</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>¿Cómo categorizó el archivo INTERPOL?</td>
+            <td>English</td>
+            <td>Category</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>¿Qué template se utilizó para elaborar el archivo?</td>
+            <td>G03 Basic Doc SP.dotx</td>
+            <td>Template</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>¿Cuál fue el tiempo total de edición?</td>
+            <td>45 minutos</td>
+            <td>Total Edit Time</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>¿Qué compañía es propietaria del fichero?</td>
+            <td>OIPC - INTERPOL</td>
+            <td>Company</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>¿Quién realizó la última modificación?</td>
+            <td>Carolyn Lejeune</td>
+            <td>Last Modified By</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>¿Cuál es la fecha de creación?</td>
+            <td>3 de mayo de 2019, 15:35:00 (UTC)  [2019:05:03 15:35:00Z]</td>
+            <td>Create Date</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>¿Quién es el creador del fichero?</td>
+            <td>Carolyn Lejeune</td>
+            <td>Creator</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="activity-callout">
+      Hallazgo clave: el creador del documento y la persona que lo guardó 
+      por última vez son la misma (Carolyn Lejeune), y la organización 
+      registrada es OIPC - INTERPOL. La «Z» al final de la fecha indica 
+      que la hora está expresada en UTC.
+    </div>
+
+    <h3>Parte II. Metadatos y geolocalización de la fotografía</h3>
+    <p>
+      Para la fotografía se consultaron las etiquetas ISO, FocalLength, 
+      Flash, CreateDate, DateTimeOriginal y GPSPosition (figura 2).
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">CMD</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo2">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo2" class="code-block__code">exiftool -ISO -FocalLength -Flash -CreateDate -DateTimeOriginal -GPSPosition infocrim\XiaomiMiA2Lite.jpg</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act15-3.jpg" alt="Metadatos EXIF de la fotografía XiaomiMiA2Lite.jpg">
+      <figcaption>Figura 2. Metadatos EXIF de la fotografía XiaomiMiA2Lite.jpg.</figcaption>
+    </figure>
+
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 2. Respuestas de la Parte II (preguntas 1 a 5, fichero XiaomiMiA2Lite.jpg).</caption>
+        <thead>
+          <tr>
+            <th scope="col">N.º</th>
+            <th scope="col">Pregunta</th>
+            <th scope="col">Respuesta</th>
+            <th scope="col">Etiqueta de ExifTool</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>¿Cuál fue el ISO utilizado?</td>
+            <td>ISO 100</td>
+            <td>ISO</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>¿Cuál es la longitud focal de la cámara?</td>
+            <td>3.8 mm</td>
+            <td>Focal Length</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>¿Se usó flash para la captura?</td>
+            <td>No. «Off, Did not fire»: el flash estaba apagado y no se disparó</td>
+            <td>Flash</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>¿Cuál es la fecha de creación del archivo?</td>
+            <td>28 de mayo de 2020, 18:11:41  [2020:05:28 18:11:41]</td>
+            <td>Create Date / Date/Time Original</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>¿Cuáles son los datos de ubicación GPS?</td>
+            <td>51° 15' 12.99" N, 0° 32' 21.93" W</td>
+            <td>GPS Position</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Sobre la pregunta 1, conviene precisar que el ISO no es una 
+      apertura sino la sensibilidad del sensor a la luz; la apertura del 
+      diafragma corresponde a otra etiqueta (FNumber). El valor ISO 100 
+      es el más bajo y es típico de una escena con buena iluminación, lo 
+      que es coherente con que el flash no se haya disparado. Además, la 
+      fecha de creación coincide con la de captura original (Date/Time 
+      Original), por lo que el archivo no parece haber sido alterado desde 
+      que se tomó la foto.
+    </p>
+
+    <p>
+      Para ubicar la fotografía, las coordenadas en grados, minutos y 
+      segundos (DMS) se convierten a grados decimales con la fórmula 
+      grados + minutos/60 + segundos/3600, aplicando signo negativo al 
+      hemisferio sur o al oeste:
+    </p>
+
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 3. Conversión de las coordenadas GPS de DMS a grados decimales.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Coordenada</th>
+            <th scope="col">Cálculo</th>
+            <th scope="col">Decimal</th>
+            <th scope="col">Referencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Latitud</td>
+            <td>51 + 15/60 + 12.99/3600</td>
+            <td>51.253608</td>
+            <td>N (norte): positiva</td>
+          </tr>
+          <tr>
+            <td>Longitud</td>
+            <td>0 + 32/60 + 21.93/3600</td>
+            <td>-0.539425</td>
+            <td>W (oeste): negativa</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Al introducir las coordenadas en Google Maps (figura 3), el punto 
+      queda en la dirección con código Plus Code 7F36+C6W, en Guildford 
+      (condado de Surrey, Inglaterra, Reino Unido). Es una zona 
+      residencial situada entre Hareward Road y Great Goodwin Drive, muy 
+      cerca de Bushy Hill Community Club, Bushy Hill Park y Merrow Park 
+      Wildlands.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act15-4.jpg" alt="Ubicación de la fotografía en Google Maps (51.253608, -0.539425), Guildford, Reino Unido">
+      <figcaption>Figura 3. Ubicación de la fotografía en Google Maps (51.253608, -0.539425), Guildford, Reino Unido.</figcaption>
+    </figure>
+
+    <div class="activity-callout">
+      Lugar exacto: la fotografía fue tomada el 28 de mayo de 2020 a las 
+      18:11:41, en una zona residencial de Guildford, Surrey (Reino Unido), 
+      en las coordenadas 51.253608, -0.539425. La precisión del GPS de un 
+      teléfono suele ser de pocos metros, por lo que se identifica la 
+      calle y la manzana, no necesariamente una casa concreta.
+    </div>
+
+    <h3>Eliminación de los metadatos</h3>
+    <p>
+      Para eliminar todos los metadatos de la muestra se utilizó la 
+      opción -all= de ExifTool, que asigna un valor vacío a todas las 
+      etiquetas del archivo (figura 4). ExifTool respondió «1 image 
+      files updated», lo que confirma que el archivo fue modificado.
+    </p>
+
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">CMD</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigoEjemplo3">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigoEjemplo3" class="code-block__code">exiftool -all= infocrim\XiaomiMiA2Lite.jpg</code></pre>
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act15-5.jpg" alt="Ejecución del comando exiftool -all= sobre XiaomiMiA2Lite.jpg">
+      <figcaption>Figura 4. Ejecución del comando exiftool -all= sobre XiaomiMiA2Lite.jpg.</figcaption>
+    </figure>
+
+    <p>
+      Para comprobar la limpieza se repitió la misma consulta de la Parte 
+      II (figura 5). Esta vez ExifTool no devolvió ningún valor para ISO, 
+      longitud focal, flash, fechas ni posición GPS, de modo que la 
+      fotografía ya no revela cuándo, con qué parámetros ni dónde fue 
+      tomada.
+    </p>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act15-6.jpg" alt="Verificación: la consulta de las mismas etiquetas ya no devuelve resultados">
+      <figcaption>Figura 5. Verificación: la consulta de las mismas etiquetas ya no devuelve resultados.</figcaption>
+    </figure>
+
+    <div class="activity-callout">
+      Precaución: por defecto ExifTool conserva una copia del archivo 
+      original con el nombre XiaomiMiA2Lite.jpg_original (Figura 6), que 
+      sigue teniendo todos los metadatos. Antes de compartir la imagen 
+      hay que borrar esa copia, o bien usar la opción -overwrite_original 
+      al ejecutar el comando.
+    </div>
+
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act15-8.jpg" alt="Copia del archivo original con el nombre XiaomiMiA2Lite.jpg_original">
+      <figcaption>Figura 6. Copia del archivo original con el nombre XiaomiMiA2Lite.jpg_original.</figcaption>
+    </figure>
+
+  </section>
+
+  <section id="conclusion">
+    <h2>Resultados</h2>
+    <p>
+      Los resultados obtenidos con ExifTool se resumen a continuación. 
+      Del documento de INTERPOL se obtuvo que fue creado el 3 de mayo de 
+      2019 por Carolyn Lejeune, quien también lo modificó por última vez, 
+      a partir de la plantilla «G03 Basic Doc SP.dotx», con una categoría 
+      «English», una compañía registrada «OIPC - INTERPOL» y un tiempo 
+      total de edición de 45 minutos. Estos datos permiten atribuir el 
+      documento a una persona y a una organización sin necesidad de leer 
+      su contenido.
+    </p>
+    <p>
+      De la fotografía se obtuvo que fue tomada el 28 de mayo de 2020 a 
+      las 18:11:41 con ISO 100, una longitud focal de 3.8 mm y sin flash. 
+      Sus coordenadas (51° 15' 12.99" N, 0° 32' 21.93" W; 51.253608, 
+      -0.539425) corresponden a una zona residencial de Guildford, Surrey, 
+      en el Reino Unido. Tras ejecutar exiftool -all=, una nueva consulta 
+      comprobó que esos datos ya no están presentes en el archivo.
+    </p>
+
+    <h2>Conclusión</h2>
+    <p>
+      La actividad mostró que los metadatos pueden aportar evidencia 
+      valiosa sin abrir el contenido de un archivo: en el documento 
+      identifican a su autor, su organización, la plantilla usada y los 
+      tiempos de edición, y en la fotografía permiten reconstruir cuándo 
+      y dónde se tomó, y con qué parámetros de cámara. ExifTool resultó 
+      una herramienta sencilla y potente para consultar solo las etiquetas 
+      necesarias.
+    </p>
+
+    <p>
+      Desde el punto de vista de la seguridad informática, el ejercicio 
+      también deja una lección de privacidad: cualquier foto o documento 
+      compartido puede filtrar datos personales, como la ubicación de un 
+      domicilio, si no se limpia antes. Por ello, es recomendable eliminar 
+      los metadatos (por ejemplo, con exiftool -all=, sin olvidar borrar 
+      la copia _original) o desactivar el etiquetado GPS en la cámara antes 
+      de publicar archivos. Como siguiente paso, la misma técnica puede 
+      aplicarse a otros tipos de archivo, como PDF o video, y combinarse 
+      con otras fuentes abiertas para verificar la autenticidad de una 
+      evidencia.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>CIPA. (2019). Exchangeable image file format for digital still cameras: Exif Version 2.32 (CIPA DC-008-Translation-2019). Camera & Imaging Products Association. https://www.cipa.jp/std/documents/e/DC-008-Translation-2019-E.pdf</li>
+      <li>Google. (s. f.). Google Maps [Servicio de mapas en línea]. https://www.google.com/maps</li>
+      <li>Google. (s. f.). Open Location Code (Plus Codes). https://maps.google.com/pluscodes/</li>
+      <li>Harvey, P. (s. f.). ExifTool by Phil Harvey [Software]. https://exiftool.org/</li>
+      <li>Harvey, P. (s. f.). ExifTool Tag Names. https://exiftool.org/TagNames/index.html</li>
+      <li>Harvey, P. (s. f.). ExifTool Application Documentation. https://exiftool.org/exiftool_pod.html</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+  <a class="btn btn--pdf" href="../../assets/parcial-3/LARZ ACT15.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
