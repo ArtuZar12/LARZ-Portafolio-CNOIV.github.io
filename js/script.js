@@ -64,9 +64,14 @@ const PARCIALES = [
   {
     id: "parcial-3",
     label: "Parcial 3",
-    meta: "Por definir",
+    meta: "Temas actuales en seguridad informática",
     activities: [
-      { code: "ACT-01", title: "Actividad pendiente", status: "proximamente", href: "#" },
+      { 
+         code: "ACT-15", 
+         title: "La fotografía como testigo", 
+         status: "disponible", 
+         href: "templates/parcial-3/act15-P3.html" 
+      },
     ],
   },
 ];
