@@ -72,6 +72,12 @@ const PARCIALES = [
          status: "disponible", 
          href: "templates/parcial-3/act15-P3.html" 
       },
+      { 
+         code: "ACT-16", 
+         title: "La verdad en los bits", 
+         status: "disponible", 
+         href: "templates/parcial-3/act16-P3.html" 
+      },
     ],
   },
 ];
