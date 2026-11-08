@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-16 · La verdad en los bits — Portafolio</title>
+
+<!-- Aplica el tema guardado ANTES de pintar la página, para evitar parpadeo -->
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#parciales">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 3</span>
+    <span class="tag">ACT-16</span>
+  </div>
+  <h1>La verdad en los bits: adquisición forense con FTK Imager</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 08/11/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Este reporte documenta la Actividad 16, «La verdad en los bits: adquisición forense con FTK Imager». 
+      El objetivo es realizar la adquisición forense de una memoria USB, que funge como evidencia, creando una 
+      imagen bit a bit en formato Raw (dd) con la herramienta FTK Imager, y verificar su integridad mediante 
+      los hashes MD5 y SHA-1. Además, se documenta cada paso con capturas de pantalla y se responden las 
+      preguntas sobre los formatos de imagen forense.
+    </p>
+    <p>
+      El análisis forense digital es un conjunto de técnicas de recopilación y peritaje de datos que, sin 
+      modificar la evidencia, permite responder ante un incidente en un marco legal. Se divide usualmente en 
+      las cinco fases de la tabla 1; esta actividad corresponde principalmente a la primera (adquisición) y 
+      sienta las bases de la segunda (preservación), ya que todo el análisis posterior debe hacerse sobre la 
+      copia y no sobre el original.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 1. Fases del análisis forense digital.</caption>
+        <thead>
+          <tr><th scope="col">Fase</th><th scope="col">Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1. Adquisición</td><td>Se obtienen copias bit a bit de la información que puede estar vinculada con el incidente, evitando modificar cualquier dato.</td></tr>
+          <tr><td>2. Preservación</td><td>Se resguarda la evidencia original y sus copias, verificando su integridad con funciones hash y manteniendo la cadena de custodia.</td></tr>
+          <tr><td>3. Análisis</td><td>Se examinan las copias para encontrar rastros, archivos y eventos relacionados con el incidente.</td></tr>
+          <tr><td>4. Documentación</td><td>Se registra de forma detallada cada acción realizada para que el proceso sea verificable y reproducible.</td></tr>
+          <tr><td>5. Presentación</td><td>Se exponen los hallazgos y su soporte ante la institución o autoridad que los requiera.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <h3>Obtención e instalación de FTK Imager</h3>
+    <p>
+      FTK Imager es una herramienta forense gratuita desarrollada por AccessData (hoy parte de Exterro) que 
+      permite crear imágenes forenses de discos duros, memorias USB y tarjetas de memoria. La imagen es una 
+      copia exacta del dispositivo, con todos sus datos y metadatos, que puede analizarse sin riesgo de alterar 
+      el original.
+    </p>
+    <p>
+      Según la guía de la actividad, el software se descarga desde el sitio de Exterro (https://www.exterro.com/): 
+      en el menú «Products» se entra a «Digital Forensics», se elige «FTK Imager» y se completa el formulario de 
+      «Download FTK Imager Now». Después se ejecuta el instalador como administrador y se sigue el asistente de 
+      instalación.
+    </p>
+    <div class="activity-callout">
+      <strong>Versión utilizada:</strong> Para esta práctica se utilizó la versión 4.3.1.1 de AccessData FTK 
+      Imager.
+    </div>
+    <p>
+      Una vez instalado, se ejecuta el programa. La figura 1 muestra la ventana principal de FTK Imager, aún sin 
+      evidencia cargada.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-1.jpg" alt="Ventana principal de FTK Imager 4.3.1.1">
+      <figcaption>Figura 1. Ventana principal de FTK Imager.</figcaption>
+    </figure>
+
+    <h3>Selección de la evidencia</h3>
+    <p>
+      Se conectó una memoria USB a la computadora como evidencia. Es importante señalar que, en un caso real, se 
+      debe usar un bloqueador de escritura para impedir que el sistema operativo modifique la evidencia; para 
+      esta práctica se omitió su uso, como lo indica la actividad.
+    </p>
+    <p>
+      Para iniciar la adquisición se abrió el menú File y se seleccionó la opción «Create Disk Image…».
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-11.jpg" alt="Menú File con la opción Create Disk Image">
+      <figcaption>Figura 2. Menú File → Create Disk Image…</figcaption>
+    </figure>
+    <p>
+      En la ventana «Select Source» se eligió «Physical Drive», ya que se necesita copiar el dispositivo completo 
+      y no solo una partición.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-12.jpg" alt="Ventana Select Source con Physical Drive seleccionado">
+      <figcaption>Figura 3. Selección del tipo de evidencia: Physical Drive.</figcaption>
+    </figure>
+    <p>
+      Después se eligió en la lista la unidad que se copiaría: \\.\PHYSICALDRIVE1, correspondiente a la memoria 
+      ADATA USB Flash Drive. Antes de hacer clic en Finish se verifica que sea el dispositivo correcto.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-2.jpg" alt="Selección de la unidad PHYSICALDRIVE1">
+      <figcaption>Figura 4. Selección de la unidad de origen (\\.\PHYSICALDRIVE1 – ADATA USB Flash Drive).</figcaption>
+    </figure>
+
+    <h3>Configuración de la imagen forense</h3>
+    <p>
+      Al terminar el asistente se abre la ventana «Create Image», donde aparece la fuente (\\.\PHYSICALDRIVE1) y 
+      la lista de destinos vacía. Está activada la opción «Verify images after they are created», que calcula y 
+      compara los hashes al terminar. Para definir el destino se hace clic en «Add…».
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-13.jpg" alt="Ventana Create Image con la lista de destinos vacía">
+      <figcaption>Figura 5. Ventana Create Image: fuente y botón Add… para agregar el destino.</figcaption>
+    </figure>
+    <p>
+      A continuación se seleccionó el formato de la imagen. Para esta práctica se eligió Raw (dd), un formato 
+      crudo de lectura universal.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-14.jpg" alt="Selección del formato Raw (dd)">
+      <figcaption>Figura 6. Selección del tipo de imagen destino: Raw (dd).</figcaption>
+    </figure>
+    <p>
+      Luego se capturó la información de la evidencia con los datos indicados en la actividad.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-3.jpg" alt="Ventana Evidence Item Information">
+      <figcaption>Figura 7. Información del elemento de evidencia.</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 2. Datos capturados en Evidence Item Information.</caption>
+        <thead>
+          <tr><th scope="col">Campo</th><th scope="col">Valor</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Case Number</td><td>InfoCrim-01_21.11.2023</td></tr>
+          <tr><td>Evidence Number</td><td>00</td></tr>
+          <tr><td>Unique Description</td><td>CNO IV - análisis de incidente de fraude bancario</td></tr>
+          <tr><td>Examiner</td><td>Rocha Zarazúa Luis Arturo</td></tr>
+          <tr><td>Notes</td><td>Adquisición realizada en LIF de la UPSLP</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Por último se definió el destino: se creó en el Escritorio la carpeta «InfoCrim13» y se nombró la imagen 
+      «infocrim_RZLA» (sin extensión), formada por el apellido paterno, el apellido materno y la inicial del 
+      nombre. El tamaño de fragmento se dejó en 1500 MB, por lo que la imagen se divide en varios segmentos.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-4.jpg" alt="Ventana Select Image Destination">
+      <figcaption>Figura 8. Carpeta de destino, nombre de la imagen y tamaño de fragmento.</figcaption>
+    </figure>
+
+    <h3>Ejecución y tiempos de la adquisición</h3>
+    <p>
+      Con la configuración terminada se hizo clic en «Start». FTK Imager copió la unidad sector por sector y, al 
+      finalizar, mostró el mensaje «Image created successfully» con un tiempo transcurrido de 0:03:10. Enseguida 
+      verificó la imagen y presentó la ventana «Drive/Image Verify Results».
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-5.jpg" alt="Imagen creada con éxito y resultados de verificación">
+      <figcaption>Figura 9. Imagen creada correctamente y ventana de verificación (hashes MD5 y SHA-1).</figcaption>
+    </figure>
+    <p>
+      Las marcas de tiempo del proceso, tomadas del registro de la adquisición, se resumen en la tabla 3.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 3. Marcas de tiempo del proceso de adquisición (8 de noviembre de 2026).</caption>
+        <thead>
+          <tr><th scope="col">Evento</th><th scope="col">Hora</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Hora de inicio de la adquisición</td><td>10:41:55 a. m.</td></tr>
+          <tr><td>Hora de término de la adquisición</td><td>10:45:05 a. m.</td></tr>
+          <tr><td>Tiempo transcurrido</td><td>0:03:10 (3 minutos con 10 segundos)</td></tr>
+          <tr><td>Inicio de la verificación</td><td>10:45:06 a. m.</td></tr>
+          <tr><td>Fin de la verificación</td><td>10:45:24 a. m.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Resultados y archivos generados</h3>
+    <p>
+      Al terminar, la ventana de verificación mostró los resultados finales. La figura 10 presenta la parte 
+      inferior de esa ventana, donde los hashes calculados coinciden con los del reporte y no se encontraron 
+      bloques dañados. Los valores se resumen en la tabla 4.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-6.jpg" alt="Resultados de verificación: hashes y bloques dañados">
+      <figcaption>Figura 10. Resultado de la verificación: Match en MD5 y SHA-1, sin bloques dañados.</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 4. Resultados finales de la adquisición.</caption>
+        <thead>
+          <tr><th scope="col">Concepto</th><th scope="col">Resultado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sectores copiados</td><td>7,592,960 (512 bytes por sector)</td></tr>
+          <tr><td>Tamaño de la fuente</td><td>3707 MB</td></tr>
+          <tr><td>Hash MD5</td><td><code>3d48acc09b3d4ef9a16b36a8cabba584</code></td></tr>
+          <tr><td>Hash SHA-1</td><td><code>1049925e7259d3fe045b5331774c6b64a8a5837a</code></td></tr>
+          <tr><td>Resultado de la verificación</td><td>Match (MD5 y SHA-1)</td></tr>
+          <tr><td>Bloques dañados</td><td>No se encontraron</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      El directorio InfoCrim13 contiene 4 archivos: tres segmentos de la imagen (.001, .002 y .003) y un archivo 
+      de texto con el resumen del proceso. Como el tamaño de fragmento fue de 1500 MB, los dos primeros segmentos 
+      pesan 1,536,000 KB cada uno y el tercero contiene el resto, 724,480 KB; la suma (3,796,480 KB ≈ 3707 MB) 
+      coincide con el tamaño de la fuente.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-7.jpg" alt="Archivos generados en la carpeta InfoCrim13">
+      <figcaption>Figura 11. Archivos generados en la carpeta InfoCrim13.</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 5. Archivos generados por la adquisición.</caption>
+        <thead>
+          <tr><th scope="col">Archivo</th><th scope="col">Tamaño</th><th scope="col">Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>infocrim_RZLA.001</code></td><td>1,536,000 KB</td><td>Segmento 1 de la imagen Raw</td></tr>
+          <tr><td><code>infocrim_RZLA.002</code></td><td>1,536,000 KB</td><td>Segmento 2 de la imagen Raw</td></tr>
+          <tr><td><code>infocrim_RZLA.003</code></td><td>724,480 KB</td><td>Segmento 3 de la imagen Raw</td></tr>
+          <tr><td><code>infocrim_RZLA.001.txt</code></td><td>2 KB</td><td>Resumen del proceso (log)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      En el mismo directorio se generó el archivo de texto con el mismo nombre que la imagen, que contiene la 
+      información detallada del proceso: los datos del caso, la geometría de la unidad, los hashes calculados, 
+      los tiempos de adquisición y los resultados de la verificación. Este archivo se anexa al envío de la 
+      actividad.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-8.jpg" alt="Archivo de texto de la adquisición, parte superior">
+      <figcaption>Figura 12. Archivo infocrim_RZLA.001.txt: datos del caso y de la unidad (parte superior).</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act16-9.jpg" alt="Archivo de texto de la adquisición, parte inferior">
+      <figcaption>Figura 13. Archivo infocrim_RZLA.001.txt: hashes, tiempos, segmentos y verificación (parte inferior).</figcaption>
+    </figure>
+
+    <h3>Formatos de imagen forense</h3>
+    <p>
+      <strong>9. ¿Qué es el formato Raw (dd)?</strong> Es una copia cruda, byte por byte, de todos los sectores 
+      del dispositivo, sin encabezados, sin compresión y sin metadatos del caso. Su ventaja es que es un formato 
+      universal que casi cualquier herramienta forense puede leer. Su desventaja es que ocupa el mismo espacio 
+      que el dispositivo original y no guarda dentro de sí información como el examinador o los hashes, por lo 
+      que esos datos deben registrarse aparte; por eso FTK Imager genera el archivo .txt. Además, puede dividirse 
+      en segmentos numerados (.001, .002, …), como en esta práctica.
+    </p>
+    <p>
+      <strong>10. ¿Qué es el formato E01?</strong> Es el formato de EnCase, también conocido como Expert Witness 
+      Format (EWF). Guarda la imagen de forma segmentada y permite comprimirla; además incluye en el mismo 
+      archivo los metadatos del caso (número de caso, examinador, notas, fechas), una verificación de errores 
+      (CRC) por bloque y el hash de la evidencia, lo que facilita comprobar su integridad. Aunque nació en 
+      EnCase, es compatible con la mayoría de las herramientas forenses, incluido FTK Imager.
+    </p>
+    <p>
+      <strong>11. ¿Cuál es la diferencia entre SMART y E01?</strong> SMART es el formato de la herramienta SMART 
+      de ASR Data, y E01 es el de EnCase. Ambos pertenecen a la familia EWF y comparten la idea de segmentar la 
+      imagen, comprimirla y guardar metadatos y verificaciones de integridad. La diferencia principal es su 
+      origen y su alcance: SMART (extensión .s01) es el formato más antiguo y menos usado, mientras que E01 
+      (extensión .E01) es el estándar de facto, con más campos de información del caso y soporte mucho más 
+      amplio en herramientas. La tabla 6 compara los tres formatos.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 6. Comparación de los formatos Raw (dd), E01 y SMART.</caption>
+        <thead>
+          <tr><th scope="col">Característica</th><th scope="col">Raw (dd)</th><th scope="col">E01</th><th scope="col">SMART</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Origen</td><td>Copia cruda universal</td><td>EnCase (EWF)</td><td>ASR Data SMART (EWF)</td></tr>
+          <tr><td>Compresión</td><td>No</td><td>Opcional</td><td>Opcional</td></tr>
+          <tr><td>Metadatos del caso</td><td>No</td><td>Sí</td><td>Limitados</td></tr>
+          <tr><td>Hash / CRC incluido</td><td>No</td><td>Sí</td><td>CRC por bloque</td></tr>
+          <tr><td>Extensión típica</td><td>.dd, .001, .raw</td><td>.E01, .E02, …</td><td>.s01, .s02, …</td></tr>
+          <tr><td>Compatibilidad</td><td>Universal</td><td>Muy amplia</td><td>Más limitada</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Verificación de la integridad</h3>
+    <p>
+      La verificación de integridad es lo que convierte una copia en evidencia confiable. Una función hash 
+      (como MD5 o SHA-1) convierte todo el contenido de la unidad en una huella de longitud fija: 32 caracteres 
+      hexadecimales en MD5 (128 bits) y 40 en SHA-1 (160 bits). Si cambia un solo bit de los datos, la huella 
+      cambia por completo, de modo que dos hashes iguales indican que el contenido es idéntico.
+    </p>
+    <p>
+      FTK Imager calcula los hashes de la unidad de origen mientras la lee y, al terminar, los vuelve a calcular 
+      sobre los archivos de la imagen y los compara. En la figura 10 y en el archivo de texto aparece «Match» 
+      (coincidencia) en MD5 y SHA-1, lo que demuestra que la imagen es una copia exacta. Se usan dos algoritmos 
+      a la vez porque MD5 y SHA-1 tienen colisiones conocidas; por eso hoy se recomienda complementarlos con 
+      SHA-256.
+    </p>
+    <p>
+      La integridad también depende del procedimiento: en un caso real se usa un bloqueador de escritura para 
+      que el sistema operativo no modifique la unidad original, se conserva la evidencia original sin tocar y se 
+      mantiene la cadena de custodia, es decir, el registro de quién tuvo la evidencia, cuándo y para qué. 
+      Todo el análisis se hace sobre la copia.
+    </p>
+  </section>
+
+  <section id="resultados">
+    <h2>Resultados</h2>
+
+    <h3>Análisis de los resultados</h3>
+    <p>
+      La adquisición de la memoria USB (\\.\PHYSICALDRIVE1, ADATA USB Flash Drive, 3707 MB) se completó 
+      correctamente en 3 minutos con 10 segundos, entre las 10:41:55 y las 10:45:05 a. m. del 8 de noviembre de 
+      2026. Se copiaron 7,592,960 sectores de 512 bytes en formato Raw (dd) y la imagen se dividió en tres 
+      segmentos de hasta 1500 MB, más un archivo de texto con el registro del proceso.
+    </p>
+    <p>
+      La verificación fue exitosa: los hashes calculados a partir de la imagen coinciden con los de la unidad de 
+      origen (MD5 y SHA-1, tabla 4), y no se encontraron bloques dañados. Esto demuestra que la imagen es una 
+      copia fiel y que cualquier análisis posterior puede realizarse sobre ella sin tocar la evidencia original.
+    </p>
+    <p>
+      El tamaño de la imagen es consistente con la unidad original: 7,592,960 sectores × 512 bytes = 
+      3,887,595,520 bytes (3707.5 MB), igual al «Source data size» de 3707 MB del registro. Esto confirma que se 
+      copió el dispositivo completo (incluidos espacio no asignado y archivos borrados) y no solo sus archivos 
+      visibles. Con fragmentos de 1500 MB resultan tres segmentos: dos completos de 1500 MB (1,536,000 KB) y 
+      uno con el resto, 707.5 MB (724,480 KB), que es justo lo que muestra la carpeta InfoCrim13.
+    </p>
+    <p>
+      Los hashes MD5 y SHA-1 del registro son los que identifican esta evidencia: cualquier persona que repita 
+      la adquisición o recalcule el hash de la imagen debe obtener los mismos valores. El archivo de texto y la 
+      ventana de verificación coinciden entre sí, y el examinador, el número de caso y las notas quedaron 
+      registrados junto con los tiempos, lo que hace el proceso verificable y reproducible.
+    </p>
+
+    <h3>Relación con el caso y líneas de investigación</h3>
+    <p>
+      La imagen pertenece al caso InfoCrim-01_21.11.2023, un análisis de incidente de fraude bancario. En esta 
+      etapa solo se adquirió y verificó la evidencia; el contenido de la memoria aún no se ha analizado, por 
+      lo que no se puede afirmar qué información contiene. Con la imagen ya verificada, las líneas de 
+      investigación a seguir se resumen en la tabla 7.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 7. Líneas de investigación propuestas a partir de la imagen forense.</caption>
+        <thead>
+          <tr><th scope="col">N.º</th><th scope="col">Línea</th><th scope="col">Acción propuesta</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Preservar la evidencia</td><td>Resguardar la memoria original sin usarla más, registrar la cadena de custodia y trabajar solo con copias de la imagen, recalculando el hash antes de cada análisis.</td></tr>
+          <tr><td>2</td><td>Examinar la imagen</td><td>Abrirla en modo solo lectura (por ejemplo, con FTK Imager o Autopsy) para identificar particiones, sistema de archivos, carpetas y archivos.</td></tr>
+          <tr><td>3</td><td>Recuperar datos borrados</td><td>Buscar archivos eliminados y contenido en espacio no asignado, que una copia lógica no habría incluido.</td></tr>
+          <tr><td>4</td><td>Buscar rastros del fraude</td><td>Localizar documentos, comprobantes, hojas de cálculo, correos o datos de cuentas bancarias mediante búsqueda por palabras clave.</td></tr>
+          <tr><td>5</td><td>Construir una línea de tiempo</td><td>Analizar las fechas de creación, modificación y acceso, y los metadatos de los archivos (como en la Actividad 11 con ExifTool).</td></tr>
+          <tr><td>6</td><td>Documentar y presentar</td><td>Registrar cada hallazgo y presentarlo en un informe con soporte técnico para la institución que lo requiera.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="conclusion">
+    <h2>Conclusión</h2>
+    <p>
+      La práctica permitió realizar de principio a fin una adquisición forense con FTK Imager y comprender por 
+      qué cada paso importa: elegir una unidad física para copiar todo el dispositivo, definir un formato 
+      adecuado, registrar los datos del caso y, sobre todo, verificar la integridad con funciones hash. Los 
+      hashes MD5 y SHA-1 coincidentes son la prueba de que la copia es idéntica a la evidencia y de que no fue 
+      alterada durante el proceso, lo que le da soporte técnico y legal.
+    </p>
+    <p>
+      También quedó claro el valor de la documentación: el archivo de texto que genera la herramienta deja 
+      constancia de quién adquirió la evidencia, cuándo, con qué software y con qué resultados. Como limitación, 
+      en esta práctica no se utilizó un bloqueador de escritura; en un caso real es indispensable para garantizar 
+      que la evidencia original no se modifique. Además, aunque MD5 y SHA-1 siguen siendo habituales en la 
+      adquisición, hoy se recomienda complementarlos con un algoritmo más robusto, como SHA-256.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>Exterro. (s. f.). <em>FTK Imager</em> [Software]. https://www.exterro.com/</li>
+      <li>Exterro. (s. f.). <em>FTK Imager User Guide</em>. https://www.exterro.com/</li>
+      <li>International Organization for Standardization. (2012). <em>ISO/IEC 27037:2012. Information technology — Security techniques — Guidelines for identification, collection, acquisition and preservation of digital evidence</em>. ISO.</li>
+      <li>Kent, K., Chevalier, S., Grance, T., &amp; Dang, H. (2006). <em>Guide to integrating forensic techniques into incident response</em> (NIST Special Publication 800-86). National Institute of Standards and Technology. https://csrc.nist.gov/pubs/sp/800/86/final</li>
+      <li>Metz, J. (s. f.). <em>Expert Witness Compression Format (EWF) specification</em> [Documentación de libewf]. https://github.com/libyal/libewf</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+  <a class="btn btn--pdf" href="../../assets/parcial-3/LARZ ACT16.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
