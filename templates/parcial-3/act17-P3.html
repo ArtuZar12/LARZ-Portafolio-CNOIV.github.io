@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-17 · La memoria del crimen — Portafolio</title>
+
+<!-- Aplica el tema guardado ANTES de pintar la página, para evitar parpadeo -->
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#parciales">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 3</span>
+    <span class="tag">ACT-17</span>
+  </div>
+  <h1>La memoria del crimen: extracción de evidencia de un volcado RAM</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 13/11/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Este reporte documenta la Actividad 17, «La memoria del crimen: extracción de evidencia de un volcado RAM». El objetivo es analizar el volcado de memoria OtterCTF.vmem con la herramienta Volatility 2.6.1 para identificar evidencia digital sobre un presunto cibercriminal: el sistema operativo, las cuentas y contraseñas, la actividad de red, el registro, los procesos en ejecución, los correos utilizados y la cartera de criptomoneda del presunto rescate. Cada paso se documenta con su comando, su captura de pantalla, su resultado y la razón técnica por la que se usa; al final se relacionan los hallazgos con el caso y se proponen líneas de investigación.
+    </p>
+    <p>
+      La memoria volátil (RAM) guarda lo que el equipo está haciendo en el momento de la captura: procesos, conexiones de red, credenciales en claro y contenido del navegador. Estos datos se pierden al apagar el equipo, por eso son los primeros que se recolectan según el orden de volatilidad (RFC 3227) y por eso un volcado de RAM puede revelar información que no existe en el disco.
+    </p>
+    <p>
+      Hechos del caso. Elementos de la FGM obtuvieron un volcado de memoria de un presunto cibercriminal vinculado con el trasiego de estupefacientes y el rapto de personas, que engancha a sus víctimas mediante ingeniería social en redes sociales. Se autodenomina «Morty»; en un grupo secreto de Telegram un usuario «Ricky» pide 0.0000043 BTC a quien quiera unirse a «S0_Just_M0v3_Socy», que se presume es una botnet. Además, SEDENE aportó las iniciales FAF3 y CNDI aportó las iniciales TFE, relacionadas con los servidores «Lunar» que se usan para publicitar víctimas. La tabla 1 resume qué se averiguó en cada punto y con qué comando.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 1. Puntos de la actividad y comandos de Volatility utilizados.</caption>
+        <thead>
+          <tr><th scope="col">Punto</th><th scope="col">Comando</th><th scope="col">Qué permite averiguar</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1 y 2</td><td><code>imageinfo</code></td><td>Perfil del sistema (SO y arquitectura), fecha y hora de captura</td></tr>
+          <tr><td>3</td><td><code>hashdump, lsadump</code></td><td>Cuentas locales, hashes de contraseñas y secretos de la LSA</td></tr>
+          <tr><td>4 y 8</td><td><code>netscan</code></td><td>Conexiones y puertos de red, direcciones IP local y remota</td></tr>
+          <tr><td>5</td><td><code>hivelist</code></td><td>Archivos (hives) del Registro cargados en memoria</td></tr>
+          <tr><td>6</td><td><code>printkey</code></td><td>Valores de una llave del Registro (nombre del equipo)</td></tr>
+          <tr><td>7</td><td><code>pstree</code></td><td>Procesos en ejecución y su relación padre-hijo</td></tr>
+          <tr><td>9</td><td><code>strings + grep</code></td><td>Cadenas de texto en la RAM (correos, navegador)</td></tr>
+          <tr><td>10</td><td><code>memdump + strings</code></td><td>Memoria de un proceso y búsqueda de la cartera BTC</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <h3>Preparación del entorno</h3>
+    <p>
+      El análisis se realizó en Kali Linux ejecutado en VirtualBox. La imagen OtterCTF.vmem (2.0 GiB) se colocó en una carpeta compartida con la máquina virtual, por lo que su ruta es /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem (figura 1).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-1.jpg" alt="Carpeta compartida con el archivo OtterCTF.vmem">
+      <figcaption>Figura 1. Imagen de memoria OtterCTF.vmem (2.0 GiB) en la carpeta compartida.</figcaption>
+    </figure>
+    <p>
+      Volatility se descargó desde el repositorio oficial de Volatility Foundation y se entró a su directorio (figura 2):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo1">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo1" class="code-block__code">sudo git clone https://github.com/volatilityfoundation/volatility.git
+cd volatility</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-2.jpg" alt="Clonado del repositorio de Volatility">
+      <figcaption>Figura 2. Descarga de Volatility con git clone.</figcaption>
+    </figure>
+    <p>
+      Volatility 2.6.1 funciona con Python 2.7, que está obsoleto en las versiones actuales de Kali, por lo que se ejecuta con el comando python2. Además, la primera ejecución mostró unas 20 líneas «Failed to import … No module named Crypto.Hash» y «name distorm3 is not defined» (figura 4). No son un error del análisis: indican que varios complementos opcionales (como hashdump o lsadump, que descifran datos del Registro) necesitan las bibliotecas de criptografía pycrypto y distorm3, que no estaban instaladas. Para corregirlo se ejecutaron los siguientes comandos (figura 3):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo2">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo2" class="code-block__code">sudo apt update
+sudo apt install python2-dev build-essential libssl-dev -y
+curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
+sudo python2 get-pip.py
+sudo python2 -m pip install --upgrade setuptools wheel
+sudo apt update &amp;&amp; sudo apt install libcrypt-dev -y
+sudo python2 -m pip install pycryptodome distorm3
+python2 ~/volatility/vol.py --info</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-20.jpg" alt="Historial de comandos para instalar las dependencias de Volatility">
+      <figcaption>Figura 3. Historial de comandos usado para instalar las dependencias (pycryptodome y distorm3).</figcaption>
+    </figure>
+    <p>
+      En el historial se ven intentos repetidos: primero se probó pycrypto, un paquete obsoleto que suele fallar al compilarse, y finalmente se instaló libcrypt-dev y se sustituyó por pycryptodome, compatible con el mismo código. Con las dependencias instaladas, todos los comandos posteriores a imageinfo se ejecutaron sin esas líneas de falla.
+    </p>
+
+    <h3>Punto 1. Imagen de memoria y hora local</h3>
+    <p>
+      Primero se identificó el perfil y las marcas de tiempo del volcado con el complemento imageinfo (figuras 4 y 5):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo3">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo3" class="code-block__code">python2 vol.py -f /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem imageinfo</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-3.jpg" alt="Ejecución de imageinfo con las líneas de falla de dependencias">
+      <figcaption>Figura 4. Comando imageinfo; las líneas «Failed to import» corresponden a las dependencias aún sin instalar.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-4.jpg" alt="Resultado de imageinfo con perfil sugerido y fecha de la imagen">
+      <figcaption>Figura 5. Resultado de imageinfo: perfil sugerido, DTB, KDBG y fecha y hora de la imagen.</figcaption>
+    </figure>
+    <p>
+      Resultado. La marca de tiempo local del volcado es «Image local date and time: 2018-08-04 22:34:22 +0300», que corresponde a las 19:34:22 en UTC (Image date and time: 2018-08-04 19:34:22 UTC+0000).
+    </p>
+    <p>
+      Cómo funciona. imageinfo busca en la memoria el bloque KDBG (Kernel Debugger Block), una estructura del kernel de Windows que permite reconocer el sistema operativo y proponer los perfiles compatibles; ese perfil es indispensable porque el resto de los complementos lo necesitan (--profile) para interpretar correctamente las estructuras de la memoria. La hora de la imagen se toma de KUSER_SHARED_DATA, la página del kernel donde Windows guarda la hora del sistema y su zona horaria.
+    </p>
+    <p>
+      Análisis de «Image local date and time». La diferencia de +03:00 respecto a UTC es la zona horaria configurada en el equipo del sospechoso. En agosto, un desfase de +3 horas corresponde, entre otras, a la hora de verano de Israel, lo cual es consistente con el campo country: «IL» que aparece en la sesión de correo recuperada de la memoria (Punto 9). Esto no prueba la ubicación, ya que otras regiones también usan UTC+3 y la configuración de zona horaria puede modificarse, pero orienta la investigación. Además, la fecha del 4 de agosto de 2018 a las 19:34:22 UTC marca el momento de la captura y sirve de referencia para ordenar en el tiempo los demás hallazgos: todo proceso o conexión se creó antes de ese instante.
+    </p>
+
+    <h3>Punto 2. Sistema operativo y arquitectura</h3>
+    <p>
+      El mismo comando imageinfo (figura 5) permite identificar el sistema operativo. El resultado sugiere los perfiles Win7SP1x64 (con sus variantes de compilación 24000 y 23418) y Win2008R2SP1x64. Los datos de apoyo son: Image Type (Service Pack): 1, PAE type: No PAE, dos procesadores y espacio de direcciones WindowsAMD64PagedMemory.
+    </p>
+    <div class="activity-callout">
+      <strong>Conclusión:</strong> el equipo del cibercriminal utilizaba Windows 7 Service Pack 1 de 64 bits (perfil Win7SP1x64). Aunque Win2008R2SP1x64 comparte el mismo núcleo, el equipo es una estación de trabajo y no un servidor, porque en la memoria hay software de escritorio como explorer.exe y Chrome (Punto 7). Por eso se usó --profile=Win7SP1x64 en los demás comandos.
+    </div>
+
+    <h3>Punto 3. Contraseña del perfil</h3>
+    <p>
+      Se usaron dos complementos que leen los archivos del Registro cargados en memoria. Primero, hashdump (figura 6):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo4">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo4" class="code-block__code">python2 vol.py -f /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem --profile=Win7SP1x64 hashdump</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-5.jpg" alt="Resultado de hashdump con los usuarios y sus hashes">
+      <figcaption>Figura 6. Hashdump: cuentas Administrator, Guest y Rick con sus hashes LM:NT.</figcaption>
+    </figure>
+    <p>
+      Después, lsadump (figura 7):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo5">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo5" class="code-block__code">python2 vol.py -f /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem --profile=Win7SP1x64 lsadump</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-6.jpg" alt="Resultado de lsadump con el secreto DefaultPassword">
+      <figcaption>Figura 7. Lsadump: secreto DefaultPassword (contraseña de inicio de sesión automático).</figcaption>
+    </figure>
+    <p>
+      Resultado. hashdump muestra tres cuentas: Administrator (RID 500), Guest (501) y Rick (1000). Las dos primeras tienen el hash NTLM 31d6cfe0d16ae931b73c59d7e0c089c0, que corresponde a una contraseña vacía; la cuenta del usuario Rick tiene el hash NTLM 518172d012f97d3a8fcc089615283940. lsadump muestra el secreto DefaultPassword, cuyos bytes están codificados en UTF-16 y se leen en la columna derecha: M.o.r.t.y.I.s.R.e.a.l.l.y.A.n.O.t.t.e.r, es decir, MortyIsReallyAnOtter.
+    </p>
+    <p>
+      Cómo funciona. hashdump lee la base de datos SAM, donde Windows guarda los hashes de las cuentas locales (cifrados con la clave SYSKEY del hive SYSTEM), y los muestra con el formato usuario:RID:LM:NTLM. El hash LM aad3b435b51404eeaad3b435b51404ee es el valor vacío, señal de que el hash LM está deshabilitado. lsadump lee los secretos de la LSA, en el hive SECURITY; el secreto DefaultPassword existe cuando el sistema tiene configurado el inicio de sesión automático (Winlogon) y guarda la contraseña de esa cuenta, por lo que el equipo iniciaba sesión sin pedirla, tal como describe el caso. El otro secreto, DPAPI_SYSTEM, es material de claves del sistema para DPAPI.
+    </p>
+    <div class="activity-callout">
+      <strong>Hallazgo clave:</strong> la contraseña del perfil Rick es MortyIsReallyAnOtter. Se verificó calculando el hash NTLM de esa contraseña (MD4 de la cadena en UTF-16LE), que resulta 518172d012f97d3a8fcc089615283940, idéntico al que hashdump obtuvo para Rick. Por lo tanto, ambos comandos coinciden. Además, contiene el nombre «Morty», el alias con que se identifica al sospechoso.
+    </div>
+
+    <h3>Punto 4. Direccionamiento IP del equipo</h3>
+    <p>
+      Para conocer la actividad de red se usó el complemento netscan (figuras 8 y 9):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo6">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo6" class="code-block__code">python2 vol.py -f /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem --profile=Win7SP1x64 netscan</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-7.jpg" alt="Resultado de netscan: conexiones UDP">
+      <figcaption>Figura 8. Netscan: inicio del listado de conexiones y puertos (UDP).</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-8.jpg" alt="Resultado de netscan: conexiones TCP con direcciones remotas">
+      <figcaption>Figura 9. Netscan: conexiones TCP desde 192.168.202.131 hacia direcciones remotas.</figcaption>
+    </figure>
+    <p>
+      Resultado. Las conexiones TCP salientes visibles salen de la dirección local 192.168.202.131, que es la IP del equipo del cibercriminal al atacar. Es una dirección privada (rango 192.168.x.x) asignada dentro de una red interna; hacia internet saldría a través de un enrutador o NAT, así que la IP pública no aparece en este volcado. Las conexiones pertenecen a BitTorrent.exe (múltiples pares), LunarMS.exe, Lavasoft WebCompanion y chrome.exe.
+    </p>
+    <p>
+      Cómo funciona. netscan busca en la memoria los objetos que el kernel usa para los puertos y las conexiones TCP y UDP (en Windows Vista y posteriores), por lo que muestra también conexiones ya cerradas (estado CLOSED) y los sockets en escucha, con el proceso propietario (PID y nombre). Es útil porque deja ver con quién se comunicó el equipo aunque la conexión ya haya terminado.
+    </p>
+
+    <h3>Punto 5. Registro del sistema</h3>
+    <p>
+      Para ver los archivos del Registro cargados en memoria se usó hivelist (figura 10):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo7">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo7" class="code-block__code">python2 vol.py -f /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem --profile=Win7SP1x64 hivelist</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-11.jpg" alt="Resultado de hivelist con los hives del Registro">
+      <figcaption>Figura 10. Hivelist: archivos del Registro disponibles con sus direcciones virtual y física.</figcaption>
+    </figure>
+    <p>
+      Resultado. Se listan los hives SYSTEM, HARDWARE, SECURITY, SOFTWARE, DEFAULT, SAM y BCD, los de los servicios NetworkService y LocalService, Syscache.hve, y los del usuario Rick: C:\Users\Rick\ntuser.dat y UsrClass.dat. La tabla 2 resume qué contiene cada uno.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 2. Hives del Registro más relevantes y su contenido.</caption>
+        <thead>
+          <tr><th scope="col">Hive</th><th scope="col">Qué contiene</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>SYSTEM</code></td><td>Configuración del equipo: nombre del ordenador, servicios, controladores, dispositivos USB y zona horaria</td></tr>
+          <tr><td><code>SOFTWARE</code></td><td>Programas instalados, versiones y llaves de inicio automático (Run)</td></tr>
+          <tr><td><code>SAM</code></td><td>Cuentas locales y hashes de sus contraseñas (se usa en hashdump)</td></tr>
+          <tr><td><code>SECURITY</code></td><td>Políticas de seguridad y secretos de la LSA (se usa en lsadump)</td></tr>
+          <tr><td><code>NTUSER.DAT (Rick)</code></td><td>Configuración y actividad del usuario: documentos recientes, programas ejecutados, inicio automático por usuario</td></tr>
+          <tr><td><code>UsrClass.dat (Rick)</code></td><td>Asociaciones de archivos y carpetas visitadas (ShellBags) del usuario</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      ¿Por qué es útil conocer el Registro del sistema comprometido? Porque el Registro es la base de datos donde Windows y los programas guardan su configuración y dejan rastros de uso. Permite identificar cuentas y credenciales, el software instalado, los programas que se inician con el sistema (persistencia del atacante), los dispositivos USB conectados, los documentos y programas usados por cada usuario y datos de red, lo que ayuda a reconstruir lo que hizo el usuario y a fechar los hechos, ya que cada llave guarda su fecha de última modificación. En un volcado de memoria, además, el Registro permite extraer información que a veces ya no está en disco, y la lista de hives da las direcciones necesarias para consultar llaves concretas con printkey (Punto 6).
+    </p>
+
+    <h3>Punto 6. Nombre del ordenador</h3>
+    <p>
+      El nombre del equipo está en la llave ComputerName del hive SYSTEM; se consultó con printkey (figura 11):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo8">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo8" class="code-block__code">python2 vol.py -f /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem --profile=Win7SP1x64 printkey -K &quot;ControlSet001\Control\ComputerName\ComputerName&quot;</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-12.jpg" alt="Resultado de printkey con el nombre del equipo">
+      <figcaption>Figura 11. Printkey: valor ComputerName del Registro.</figcaption>
+    </figure>
+    <p>
+      Resultado. El valor ComputerName es WIN-LO6FAF3DTFE. La llave registra su última modificación el 2018-06-02 a las 19:23:00 UTC, es decir, el nombre se fijó unos dos meses antes de la captura (4 de agosto de 2018), lo que es compatible con la instalación o configuración del equipo.
+    </p>
+    <div class="activity-callout">
+      <strong>Vínculo con el caso:</strong> el nombre del equipo contiene las iniciales FAF3 y TFE que aportaron SEDENE y CNDI (WIN-LO6FAF3DTFE), lo que permite vincular este equipo con el caso y con la evidencia EV455FGM. Como Windows genera nombres WIN-… aleatorios al instalarse, la coincidencia debe corroborarse con otras fuentes.
+    </div>
+
+    <h3>Punto 7. Procesos relevantes</h3>
+    <p>
+      Para ver los procesos y su jerarquía se usó pstree (figuras 12 y 13):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo9">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo9" class="code-block__code">python2 vol.py -f /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem --profile=Win7SP1x64 pstree</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-13.jpg" alt="Resultado de pstree, primera parte">
+      <figcaption>Figura 12. Pstree: procesos bajo explorer.exe (Rick And Morty, vmware-tray, chrome, LunarMS, BitTorrent).</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-14.jpg" alt="Resultado de pstree, segunda parte">
+      <figcaption>Figura 13. Pstree: continuación del árbol de procesos (servicios del sistema, WebCompanion).</figcaption>
+    </figure>
+    <p>
+      Cómo funciona. pstree muestra los procesos como árbol: cada línea tiene el nombre, el PID, el PPID (proceso padre), los hilos, los manejadores y la hora de inicio. Los procesos que cuelgan de explorer.exe fueron iniciados por el usuario desde el escritorio, así que sirven para saber qué ejecutó la persona. También sirve para detectar anomalías, como un programa legítimo cuyo padre no es el esperado.
+    </p>
+    <p>
+      De todos los procesos se eligieron tres (tabla 3):
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 3. Procesos considerados importantes.</caption>
+        <thead>
+          <tr><th scope="col">Proceso</th><th scope="col">PID / PPID</th><th scope="col">Inicio (UTC)</th><th scope="col">Por qué es importante</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A. vmware-tray.exe</td><td>3720 / 3820</td><td>2018-08-04 19:33:02</td><td>Se hace pasar por la utilidad de VMware, pero su padre es «Rick And Morty» (3820), un programa sin relación con VMware: suplantación de un proceso legítimo. Es el proceso 3720 del enunciado y contiene la cartera BTC (Punto 10).</td></tr>
+          <tr><td>B. LunarMS.exe</td><td>708 / 2728</td><td>2018-08-04 19:27:39</td><td>Lanzado por el usuario desde explorer.exe; mantiene la conexión TCP al servidor 77.102.199.102:7575 (Punto 8). Se relaciona con los servidores «Lunar» del caso.</td></tr>
+          <tr><td>C. BitTorrent.exe</td><td>2836 / 2728</td><td>2018-08-04 19:27:07</td><td>Cliente torrent con sus procesos hijos bittorrentie.exe (2624 y 2308) y muchas conexiones a pares; es el servicio Torrent que se sospecha usa para enviar videos de las víctimas.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Además se observa Lavasoft WebCompanion (PIDs 3856 y 3880), software publicitario que suele instalarse junto con otros programas, y varios chrome.exe (PID padre 4076), consistentes con el uso del navegador para el correo web (Punto 9).
+    </p>
+
+    <h3>Punto 8. Conexión al servidor malicioso</h3>
+    <p>
+      La conexión al servidor se identificó en el resultado de netscan (figura 9). Cada conexión ocupa dos líneas: la primera con el protocolo y las direcciones y la segunda con el PID y el proceso propietario. La conexión de LunarMS.exe (PID 708) es la siguiente:
+    </p>
+    <div class="output-block">
+      <div class="output-block__bar">
+        <span class="output-block__label">Salida</span>
+      </div>
+      <pre class="output-block__pre"><code>0x7d6124d0  TCPv4  192.168.202.131:49530  77.102.199.102:7575  CLOSED
+            708  LunarMS.exe</code></pre>
+    </div>
+    <p>
+      Resultado. La dirección IP del servidor es 77.102.199.102 y el puerto remoto es 7575/TCP (puerto local 49530). La conexión aparece en estado CLOSED: ya terminó, pero quedó registrada en la memoria. El 7575 no es un puerto de un servicio estándar, lo que indica un servicio personalizado, como un servidor propio.
+    </p>
+    <p>
+      Para ubicar la dirección se consultó geolocation.com (figuras 14 y 15):
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-9.jpg" alt="Mapa de geolocalización de la IP 77.102.199.102 en Londres">
+      <figcaption>Figura 14. Geolocalización de 77.102.199.102: mapa centrado en Londres.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-10.jpg" alt="Datos de geolocalización de la IP 77.102.199.102">
+      <figcaption>Figura 15. Datos de la IP 77.102.199.102: país, ciudad, coordenadas y proveedor (ISP).</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 4. Ubicación probable del servidor según geolocation.com.</caption>
+        <thead>
+          <tr><th scope="col">Dato</th><th scope="col">Valor</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>País / región / ciudad</td><td>Reino Unido / Inglaterra / Londres (Greater London)</td></tr>
+          <tr><td>Código postal</td><td>WC2N (zona de Covent Garden)</td></tr>
+          <tr><td>Latitud / longitud</td><td>51.50853 / -0.12574</td></tr>
+          <tr><td>ISP / ASN</td><td>Virgin Media Limited / AS5089</td></tr>
+          <tr><td>Tipo de uso / proxy</td><td>Línea fija o móvil de un ISP / sin proxy detectado</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="activity-callout">
+      <strong>Precaución:</strong> la ubicación posible del servidor al que se conecta el equipo es Londres, Reino Unido (proveedor Virgin Media). La geolocalización por IP es aproximada: indica la zona del proveedor y no una dirección exacta, y no descarta que la conexión pase por una VPN. Esta ubicación corresponde al servidor, no necesariamente a la persona que lo usa.
+    </div>
+
+    <h3>Punto 9. Correos electrónicos</h3>
+    <p>
+      Los correos se buscaron filtrando las cadenas de texto de toda la memoria con strings y grep (figura 16):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo11">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo11" class="code-block__code">strings /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem | grep -i &quot;@mail.com&quot;</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-19.jpg" alt="Cadenas con direcciones de correo mail.com extraídas de la memoria">
+      <figcaption>Figura 16. Cadenas que contienen «@mail.com» (en rojo) y datos de la sesión del navegador.</figcaption>
+    </figure>
+    <p>
+      Cómo funciona. strings extrae del volcado todas las secuencias de caracteres imprimibles y grep -i las filtra sin distinguir mayúsculas. Es un método simple que funciona porque el navegador deja en la RAM fragmentos de las páginas web y de sus datos de sesión mientras se usa.
+    </p>
+    <p>
+      Resultado. Los correos que aparecen son RickoPicko@mail.com (también como rickopicko@mail.com) y rickypinky@mail.com. En la sesión de correo hay un registro en formato JSON con los datos del usuario: nombre «Rick», 26 años, país y región «IL», idioma en_US, y el campo email con el valor RickoPicko@mail.com. Dentro del mismo registro, el campo ua (user agent) indica platform: «Windows», browser: «Chrome», version: «68.0» y deviceclass: «desktop».
+    </p>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> los correos hallados son RickoPicko@mail.com y rickypinky@mail.com. La plataforma de correo es mail.com, por el dominio de todas las direcciones. Los correos se abrieron desde un equipo de escritorio con Windows y el navegador Google Chrome versión 68.0, lo cual concuerda con los procesos chrome.exe vistos en pstree. En la memoria no hay datos suficientes para decir cuál de las dos cuentas usó el atacante y cuál recibió los mensajes; solo RickoPicko@mail.com aparece como cuenta con sesión activa en el navegador.
+    </div>
+
+    <h3>Punto 10. Cartera de criptomoneda</h3>
+    <p>
+      El enunciado indica que el proceso 3720 (vmware-tray.exe) simula un programa legítimo y oculta un mensaje malicioso. Para analizarlo, primero se extrajo la memoria del proceso con memdump (figura 17):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo12">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo12" class="code-block__code">python2 vol.py -f /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem --profile=Win7SP1x64 memdump -p 3720 -D .
+sudo python2 vol.py -f /media/sf_Actividad_17/OtterCTF/OtterCTF.vmem --profile=Win7SP1x64 memdump -p 3720 -D .</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-15.jpg" alt="Extracción de la memoria del proceso 3720 con memdump">
+      <figcaption>Figura 17. Memdump del proceso 3720: error de permisos (IOError 13) y ejecución correcta con sudo.</figcaption>
+    </figure>
+    <p>
+      El primer comando falló con «IOError: [Errno 13] Permission denied: ./3720.dmp» porque la carpeta de volatility fue creada con sudo y el usuario normal no podía escribir en ella; se repitió con sudo y generó el archivo 3720.dmp. memdump guarda en un archivo todas las páginas de memoria direccionables del proceso (a diferencia de procdump, que extrae solo el ejecutable). Después se buscaron en ese archivo cadenas con el formato de una dirección de Bitcoin (figura 18):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo13">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo13" class="code-block__code">strings -e l 3720.dmp | grep -E &quot;1[a-km-zA-HJ-NP-Z1-9]{25,34}&quot;</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-16.jpg" alt="Búsqueda de direcciones Bitcoin en el volcado del proceso 3720">
+      <figcaption>Figura 18. Búsqueda del patrón de dirección BTC en 3720.dmp; la cartera aparece repetida al inicio.</figcaption>
+    </figure>
+    <p>
+      Por qué ese comando. La opción -e l hace que strings busque cadenas de 16 bits en little-endian (UTF-16LE), la codificación que usa Windows. La expresión regular describe una dirección Bitcoin clásica (P2PKH): comienza con 1, usa el alfabeto Base58, que excluye 0, O, I y l para evitar confusiones, y mide entre 26 y 35 caracteres. El resto de las líneas son falsos positivos: cadenas hexadecimales y repeticiones de dígitos que cumplen el patrón por casualidad.
+    </p>
+    <p>
+      Resultado. La cartera que aparece repetida es 1MmpEmebJkqXG8nQv4cjJSmxZQFVmFo63M. Como verificación adicional se comprobó su suma de control Base58Check, que resultó válida, por lo que es una dirección Bitcoin correctamente formada y no una cadena al azar. Después se consultó en BTC Black, una lista negra de direcciones Bitcoin abusivas (figura 19):
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act17-17.jpg" alt="Consulta de la cartera en BTC Black">
+      <figcaption>Figura 19. BTC Black: «The BTC address 1MmpEmebJkqXG8nQv4cjJSmxZQFVmFo63M is NOT blacklisted».</figcaption>
+    </figure>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> la cartera de criptomoneda es 1MmpEmebJkqXG8nQv4cjJSmxZQFVmFo63M y no aparece en la lista negra de BTC Black. Eso solo significa que no hay un reporte de abuso confirmado en esa base de datos al momento de la consulta; no demuestra que la cartera sea legítima. Para saber si recibió pagos hay que revisar sus transacciones en la cadena de bloques.
+    </div>
+  </section>
+
+  <section id="resultados">
+    <h2>Resultados</h2>
+
+    <h3>Tabla de hallazgos (IOCs)</h3>
+    <p>
+      La tabla 5 consolida los artefactos encontrados en el análisis del volcado.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 5. Hallazgos e indicadores de compromiso (IOCs).</caption>
+        <thead>
+          <tr><th scope="col">Artefacto</th><th scope="col">Hallazgo</th><th scope="col">Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Archivo analizado</td><td>OtterCTF.vmem (2.0 GiB)</td><td>Carpeta compartida</td></tr>
+          <tr><td>Sistema operativo</td><td>Windows 7 SP1 de 64 bits (Win7SP1x64)</td><td>imageinfo</td></tr>
+          <tr><td>Hora de la captura</td><td>2018-08-04 19:34:22 UTC (22:34:22 +0300)</td><td>imageinfo</td></tr>
+          <tr><td>Cuentas locales</td><td>Administrator (500), Guest (501), Rick (1000)</td><td>hashdump</td></tr>
+          <tr><td>Hash NTLM de Rick</td><td>518172d012f97d3a8fcc089615283940</td><td>hashdump</td></tr>
+          <tr><td>Contraseña de Rick</td><td>MortyIsReallyAnOtter</td><td>lsadump</td></tr>
+          <tr><td>IP del equipo</td><td>192.168.202.131</td><td>netscan</td></tr>
+          <tr><td>Nombre del equipo</td><td>WIN-LO6FAF3DTFE</td><td>printkey</td></tr>
+          <tr><td>Procesos clave</td><td>vmware-tray.exe (3720), LunarMS.exe (708), BitTorrent.exe (2836)</td><td>pstree</td></tr>
+          <tr><td>Servidor remoto</td><td>77.102.199.102:7575 (Londres, Virgin Media)</td><td>netscan, geolocation.com</td></tr>
+          <tr><td>Correos</td><td>RickoPicko@mail.com, rickypinky@mail.com</td><td>strings + grep</td></tr>
+          <tr><td>Plataforma y navegador</td><td>mail.com; Windows con Chrome 68.0</td><td>strings + grep</td></tr>
+          <tr><td>Cartera BTC</td><td>1MmpEmebJkqXG8nQv4cjJSmxZQFVmFo63M (no está en BTC Black)</td><td>memdump + strings</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Análisis y correlación con el caso</h3>
+    <p>
+      Los hallazgos coinciden con las hipótesis del caso y se refuerzan entre sí:
+    </p>
+    <p>
+      <strong>Identidad.</strong> El alias «Morty» aparece en la contraseña MortyIsReallyAnOtter del único usuario real del equipo, Rick. El nombre «Ricky» del comentario en Telegram se parece al correo rickypinky@mail.com y al usuario Rick, lo que sugiere (como hipótesis) que una misma persona usa varias identidades.
+    </p>
+    <p>
+      <strong>Equipo e infraestructura.</strong> El nombre del equipo, WIN-LO6FAF3DTFE, contiene las iniciales FAF3 (SEDENE) y TFE (CNDI) proporcionadas por inteligencia, lo que vincula el equipo con el caso. LunarMS.exe, que se conecta a 77.102.199.102:7575, se relaciona con los servidores «Lunar» que se emplean para publicitar a las víctimas.
+    </p>
+    <p>
+      <strong>Rescate y distribución.</strong> BitTorrent.exe y sus procesos hijos mantienen muchas conexiones a pares, lo cual es compatible con la sospecha de que el cibercriminal distribuye videos por Torrent. El proceso vmware-tray.exe (3720) suplanta una utilidad legítima, fue lanzado por «Rick And Morty» y contiene en su memoria la cartera 1MmpEmebJkqXG8nQv4cjJSmxZQFVmFo63M, que sería la cartera donde se piden pagos. Esto es coherente con el comentario del canal de Telegram sobre el pago de 0.0000043 BTC a una cartera del usuario «Ricky».
+    </p>
+    <p>
+      Con las horas de inicio de los procesos se puede reconstruir la secuencia de lo que ocurrió en el equipo antes de la captura (tabla 6).
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 6. Línea de tiempo reconstruida (UTC, 4 de agosto de 2018).</caption>
+        <thead>
+          <tr><th scope="col">Hora (UTC)</th><th scope="col">Evento</th><th scope="col">Fuente</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>19:26:03</code></td><td>Inicio del sistema (proceso System)</td><td>pstree</td></tr>
+          <tr><td><code>19:27:04</code></td><td>Se inicia explorer.exe: sesión de Rick en el escritorio</td><td>pstree</td></tr>
+          <tr><td><code>19:27:07</code></td><td>Se ejecuta BitTorrent.exe</td><td>pstree</td></tr>
+          <tr><td><code>19:27:39</code></td><td>Se ejecuta LunarMS.exe</td><td>pstree</td></tr>
+          <tr><td><code>19:29:30</code></td><td>Se abre Google Chrome</td><td>pstree</td></tr>
+          <tr><td><code>19:32:55</code></td><td>Se ejecuta el programa «Rick And Morty» (PID 3820)</td><td>pstree</td></tr>
+          <tr><td><code>19:33:02</code></td><td>«Rick And Morty» lanza vmware-tray.exe (PID 3720)</td><td>pstree</td></tr>
+          <tr><td><code>19:34:22</code></td><td>Captura de la memoria</td><td>imageinfo</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Un dato importante es que vmware-tray.exe se inició solo siete segundos después de «Rick And Morty», y la captura se hizo apenas 80 segundos después. Esto indica una ejecución muy reciente, y es la razón por la que el mensaje malicioso y la cartera seguían en la RAM.
+    </p>
+
+    <h3>Líneas de investigación y recomendaciones</h3>
+    <p>
+      Con la evidencia obtenida se proponen las líneas de investigación y recomendaciones de la tabla 7.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 7. Líneas de investigación y recomendaciones.</caption>
+        <thead>
+          <tr><th scope="col">N.º</th><th scope="col">Línea</th><th scope="col">Acción propuesta</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Preservar la evidencia</td><td>Calcular el hash (MD5 y SHA-256) del archivo OtterCTF.vmem, mantener la cadena de custodia y trabajar siempre sobre copias.</td></tr>
+          <tr><td>2</td><td>Analizar el proceso 3720</td><td>Revisar su ejecutable y su origen con malfind, cmdline, dlllist y filescan; extraer el binario con procdump y comparar su hash con bases de malware (por ejemplo, VirusTotal).</td></tr>
+          <tr><td>3</td><td>Rastrear la cartera BTC</td><td>Consultar las transacciones de 1MmpEmebJkqXG8nQv4cjJSmxZQFVmFo63M en un explorador de bloques, buscar pagos de 0.0000043 BTC y, mediante la autoridad, solicitar datos a los exchanges involucrados.</td></tr>
+          <tr><td>4</td><td>Investigar la infraestructura</td><td>Hacer WHOIS del IP 77.102.199.102 (AS5089), pedir información al proveedor mediante vía legal y revisar los demás pares y servidores de netscan; bloquear estos indicadores en el firewall.</td></tr>
+          <tr><td>5</td><td>Cuentas de correo</td><td>Pedir a mail.com la preservación y entrega de datos de RickoPicko@mail.com y rickypinky@mail.com, y compararlas con el usuario «Ricky» del canal de Telegram y con el enlace de Reddit.</td></tr>
+          <tr><td>6</td><td>Persistencia y actividad en el Registro</td><td>Extraer con printkey y userassist las llaves de inicio automático y los programas ejecutados por Rick en NTUSER.DAT para saber cómo se instaló el software.</td></tr>
+          <tr><td>7</td><td>Prevención</td><td>Desactivar el inicio de sesión automático (que guarda la contraseña en la LSA), usar contraseñas robustas, y no instalar software de origen no confiable como WebCompanion.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="conclusion">
+    <h2>Conclusión</h2>
+    <p>
+      El análisis del volcado OtterCTF.vmem con Volatility permitió, a partir de una sola captura de la memoria, reconstruir la actividad del equipo del presunto cibercriminal: un Windows 7 SP1 de 64 bits con zona horaria UTC+3, un usuario Rick con inicio de sesión automático y contraseña MortyIsReallyAnOtter, el equipo WIN-LO6FAF3DTFE, conexiones hacia 77.102.199.102:7575 (Londres), un cliente BitTorrent, correos en mail.com abiertos con Chrome 68.0 y un proceso suplantado (vmware-tray.exe) que guarda la cartera BTC 1MmpEmebJkqXG8nQv4cjJSmxZQFVmFo63M. Cada dato fue obtenido con un comando visible y verificado: el hash NTLM coincide con la contraseña y la cartera tiene una suma de control válida.
+    </p>
+    <p>
+      Este caso muestra por qué la memoria volátil es una evidencia clave: contiene contraseñas en claro, conexiones ya cerradas, procesos y fragmentos del navegador que no existen en disco. Como limitaciones, los resultados provienen de un solo instante; la hora del sistema y la geolocalización por IP son aproximadas y pueden alterarse; las coincidencias de nombres (Ricky, FAF3, TFE) son hipótesis que deben corroborarse con otras fuentes; y que la cartera no esté en BTC Black no prueba que sea legítima. Además, Volatility 2 depende de Python 2, ya obsoleto, por lo que en trabajos futuros conviene usar Volatility 3.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>Brezinski, D., &amp; Killalea, T. (2002). Guidelines for evidence collection and archiving (RFC 3227). Internet Engineering Task Force. https://www.rfc-editor.org/rfc/rfc3227</li>
+      <li>Kent, K., Chevalier, S., Grance, T., &amp; Dang, H. (2006). Guide to integrating forensic techniques into incident response (NIST Special Publication 800-86). National Institute of Standards and Technology. https://csrc.nist.gov/pubs/sp/800/86/final</li>
+      <li>Ligh, M. H., Case, A., Levy, J., &amp; Walters, A. (2014). The art of memory forensics: Detecting malware and threats in Windows, Linux, and Mac memory. Wiley.</li>
+      <li>Microsoft. (s. f.). Structure of the registry. Microsoft Learn. https://learn.microsoft.com/en-us/windows/win32/sysinfo/structure-of-the-registry</li>
+      <li>MITRE. (s. f.). Masquerading (T1036). MITRE ATT&amp;CK. https://attack.mitre.org/techniques/T1036/</li>
+      <li>Bitcoin Wiki. (s. f.). Technical background of version 1 Bitcoin addresses. https://en.bitcoin.it/wiki/Technical_background_of_version_1_Bitcoin_addresses</li>
+      <li>Volatility Foundation. (s. f.). Volatility Framework 2.6.1 [Software]. GitHub. https://github.com/volatilityfoundation/volatility</li>
+      <li>Volatility Foundation. (s. f.). Command reference (Volatility 2). GitHub Wiki. https://github.com/volatilityfoundation/volatility/wiki/Command-Reference</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+  <a class="btn btn--pdf" href="../../assets/parcial-3/LARZ ACT17.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
