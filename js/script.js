@@ -78,6 +78,12 @@ const PARCIALES = [
          status: "disponible", 
          href: "templates/parcial-3/act16-P3.html" 
       },
+      { 
+         code: "ACT-17", 
+         title: "La memoria del crimen", 
+         status: "disponible", 
+         href: "templates/parcial-3/act17-P3.html" 
+      },
     ],
   },
 ];
