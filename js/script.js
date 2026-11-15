@@ -90,6 +90,12 @@ const PARCIALES = [
          status: "disponible", 
          href: "templates/parcial-3/act18-P3.html" 
       },
+      { 
+         code: "ACT-19", 
+         title: "Los primeros minutos cuentan", 
+         status: "disponible", 
+         href: "templates/parcial-3/act19-P3.html" 
+      },
     ],
   },
 ];
