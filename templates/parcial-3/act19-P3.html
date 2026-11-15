@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-19 · Los primeros minutos cuentan — Portafolio</title>
+
+<!-- Aplica el tema guardado ANTES de pintar la página, para evitar parpadeo -->
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#parciales">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 3</span>
+    <span class="tag">ACT-19</span>
+  </div>
+  <h1>Los primeros minutos cuentan: adquisición forense en escenas del crimen digital</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 14/11/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Este reporte documenta la Actividad 19, «Los primeros minutos cuentan: adquisición forense en escenas del crimen digital». Como primer respondiente se debe recolectar la evidencia de un sistema Windows que sigue encendido (adquisición «en caliente»). El objetivo es ejecutar los comandos de línea de comandos (CMD) y de PowerShell que recopilan información forense, explicar para qué sirve cada uno, interpretar su resultado, comparar lo que obtienen CMD y PowerShell, identificar indicios de actividad maliciosa y proponer los siguientes pasos de una investigación real.
+    </p>
+    <p>
+      Un sistema encendido guarda información que desaparece al apagarlo o reiniciarlo: los procesos, las conexiones de red, las sesiones de usuario, la caché DNS y la tabla ARP. Por eso estos datos son los primeros que se recolectan, según el orden de volatilidad que recomienda la RFC 3227. Los datos menos volátiles, como los registros de eventos y el árbol de archivos del disco, se recolectan al final.
+    </p>
+    <p>
+      Escenario. Para esta práctica se usó, como entorno de laboratorio, un equipo con Windows 10 Pro (nombre DESKTOP-A6V0BD7) tratado como el «sistema comprometido». La tabla 1 resume los 20 puntos de la actividad, el comando principal de cada uno y el archivo de evidencia que genera.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 1. Puntos de la actividad, comandos y archivos de evidencia.</caption>
+        <thead>
+          <tr><th scope="col">Punto</th><th scope="col">Comando principal</th><th scope="col">Archivo de evidencia</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td><code>date /t  y  time /t</code></td><td><code>01_fecha_hora.txt</code></td></tr>
+          <tr><td>2</td><td><code>tasklist /v</code></td><td><code>02_procesos.txt</code></td></tr>
+          <tr><td>3</td><td><code>sc query  /  Get-Service</code></td><td><code>03_servicios_cmd.txt, 03_servicios_ps.txt</code></td></tr>
+          <tr><td>4</td><td><code>query user</code></td><td><code>04_usuarios_activos.txt</code></td></tr>
+          <tr><td>5</td><td><code>NetUsers.exe  /  Get-CimInstance Win32_UserProfile  /  reg query ...ProfileList</code></td><td><code>05_usuarios_historicos.txt, 05_usuarios_historicos_ps.txt, 05_perfiles_registro.txt</code></td></tr>
+          <tr><td>6</td><td><code>ipconfig /all</code></td><td><code>06_red.txt</code></td></tr>
+          <tr><td>7</td><td><code>nbtstat -n  y  nbtstat -c</code></td><td><code>07_netbios.txt</code></td></tr>
+          <tr><td>8</td><td><code>netstat -ano</code></td><td><code>08_conexiones.txt</code></td></tr>
+          <tr><td>9</td><td><code>netstat -anob</code></td><td><code>09_apps_puertos.txt</code></td></tr>
+          <tr><td>10</td><td><code>ipconfig /displaydns</code></td><td><code>10_dns_dominios.txt</code></td></tr>
+          <tr><td>11</td><td><code>arp -a</code></td><td><code>11_tabla_arp.txt</code></td></tr>
+          <tr><td>12</td><td><code>netsh wlan show profiles</code></td><td><code>12_perfiles_wifi.txt</code></td></tr>
+          <tr><td>13</td><td><code>doskey /history  /  PSReadLine</code></td><td><code>13_historial_cmd.txt, 13_historial_ps.txt</code></td></tr>
+          <tr><td>14</td><td><code>net use</code></td><td><code>14_unidades_mapeadas.txt</code></td></tr>
+          <tr><td>15</td><td><code>net share</code></td><td><code>15_recursos_compartidos.txt</code></td></tr>
+          <tr><td>16</td><td><code>systeminfo</code></td><td><code>16_info_sistema.txt</code></td></tr>
+          <tr><td>17</td><td><code>schtasks /query /fo LIST /v</code></td><td><code>17_tareas_programadas.txt</code></td></tr>
+          <tr><td>18</td><td><code>wevtutil epl System</code></td><td><code>System_Logs.evtx (Escritorio)</code></td></tr>
+          <tr><td>19</td><td><code>copy ...\hosts</code></td><td><code>19_hosts.txt</code></td></tr>
+          <tr><td>20</td><td><code>dir C:\ /s /t:c</code></td><td><code>20_arbol_directorios.txt</code></td></tr>
+          <tr><td>—</td><td><code>Get-FileHash -Algorithm SHA256</code></td><td><code>21_hashes.txt</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <h3>Preparación del entorno y metodología</h3>
+    <p>
+      Se creó la carpeta de trabajo Act19 en el Escritorio. Dentro de ella está la carpeta NetUsers, con el programa NetUsers.exe y su archivo ReadMe, que la actividad proporciona para el punto 5 (figura 1). Todos los archivos de evidencia se guardan en esta misma carpeta.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-1.jpg" alt="Carpeta Act19 con la carpeta NetUsers, NetUsers.exe y ReadMe">
+      <figcaption>Figura 1. Carpeta de trabajo Act19 y contenido de NetUsers (NetUsers.exe y ReadMe).</figcaption>
+    </figure>
+    <p>
+      Se abrieron dos consolas con permisos de administrador: el Símbolo del sistema (CMD) y Windows PowerShell (figura 2). Se necesitan permisos de administrador porque varios comandos, como netstat -b, wevtutil o la lectura de los procesos de otros usuarios, no funcionan sin ellos. En ambas consolas se cambió a la carpeta de trabajo (figura 3):
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-2.jpg" alt="Símbolo del sistema y PowerShell abiertos como administrador">
+      <figcaption>Figura 2. Símbolo del sistema y Windows PowerShell ejecutados como administrador.</figcaption>
+    </figure>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo1">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo1" class="code-block__code">cd /d C:\Users\Usuario\Desktop\Act19
+cd C:\Users\Usuario\Desktop\Act19    (PowerShell)</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-3.jpg" alt="Cambio de directorio a la carpeta Act19 en CMD y PowerShell">
+      <figcaption>Figura 3. Ambas consolas ubicadas en la carpeta de trabajo Act19.</figcaption>
+    </figure>
+    <p>
+      Método de trabajo. Cada comando se ejecuta con el mismo patrón: comando &gt; archivo.txt &amp;&amp; type archivo.txt. El símbolo &gt; redirige el resultado a un archivo de texto y lo crea (&gt;&gt; lo agrega al final de uno existente); el operador &amp;&amp; ejecuta el segundo comando solo si el primero terminó bien; y type muestra el archivo en pantalla. Así, la evidencia queda guardada en un archivo con nombre numerado y también visible en la captura. Los archivos se nombran con el número del punto para mantener el orden.
+    </p>
+
+    <h3>Punto 1. Fecha y hora del sistema</h3>
+    <p>
+      La hora del sistema es la referencia para ordenar en el tiempo todo lo demás. Se obtuvo con los comandos date /t y time /t, y la segunda salida se agregó al mismo archivo (figura 4):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo2">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo2" class="code-block__code">date /t &gt; 01_fecha_hora.txt &amp;&amp; time /t &gt;&gt; 01_fecha_hora.txt &amp;&amp; type 01_fecha_hora.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-4.jpg" alt="Fecha y hora del sistema y comienzo de tasklist /v">
+      <figcaption>Figura 4. Fecha y hora del sistema (14/11/2026, 09:24 p. m.) e inicio del listado de procesos.</figcaption>
+    </figure>
+    <p>
+      Resultado. El sistema marca la fecha 14/11/2026 y la hora 09:24 p. m. El comando systeminfo (punto 16) confirma que la zona horaria es UTC-06:00.
+    </p>
+    <p>
+      Importancia. La fecha y hora de la adquisición es el primer dato que debe quedar registrado, porque cada hallazgo posterior se interpreta respecto a ese instante. En un caso real se compara además con una fuente de tiempo de referencia (por ejemplo, un servidor NTP), para documentar si el reloj del equipo estaba adelantado o atrasado. Los comandos date y time solo muestran la hora local; no incluyen segundos ni zona horaria, por lo que la zona se toma de otras fuentes.
+    </p>
+
+    <h3>Punto 2. Procesos en ejecución</h3>
+    <p>
+      Para listar los procesos se usó tasklist con la opción /v (verbose), que además del nombre y el PID muestra la sesión, el uso de memoria, el estado, el usuario propietario, el tiempo de CPU y el título de la ventana (figuras 4 a 6):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo3">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo3" class="code-block__code">tasklist /v &gt; 02_procesos.txt &amp;&amp; type 02_procesos.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-5.jpg" alt="Listado de procesos con tasklist /v, segunda parte">
+      <figcaption>Figura 5. Continuación de tasklist /v: servicios agrupados en svchost.exe y dwm.exe.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-6.jpg" alt="Listado de procesos con tasklist /v, parte de procesos de usuario">
+      <figcaption>Figura 6. Continuación de tasklist /v: procesos del usuario (chrome.exe, cmd.exe, powershell.exe).</figcaption>
+    </figure>
+    <p>
+      Resultado. El archivo 02_procesos.txt pesa unos 50 KB. En las capturas se distinguen tres grupos de procesos:
+    </p>
+    <p>
+      <strong>Procesos del sistema.</strong> System Idle Process, System, Secure System, Registry, smss.exe, csrss.exe, wininit.exe, services.exe, lsass.exe, winlogon.exe, fontdrvhost.exe, dwm.exe y numerosos svchost.exe. Son componentes normales de Windows 10; los que corren como NT AUTHORITY\SYSTEM, LOCAL SERVICE o NETWORK SERVICE pertenecen a la sesión 0 (Services).
+    </p>
+    <p>
+      <strong>Procesos del usuario.</strong> Varios chrome.exe (el principal usa 592,228 KB, unos 578 MB, y 0:05:53 de CPU), dllhost.exe, smartscreen.exe, RuntimeBroker.exe y ScreenSketch.exe («Recorte y anotación»), todos del usuario DESKTOP-A6V0BD7\Usuario en la sesión 1 (Console).
+    </p>
+    <p>
+      <strong>Procesos del analista.</strong> cmd.exe (PID 9320) y powershell.exe (PID 9608), con los títulos «Administrador: Símbolo del sistema - tasklist /v» y «Administrador: Windows PowerShell», junto con conhost.exe y el propio tasklist.exe (PID 13888). Esto muestra que la adquisición modifica el estado del sistema y deja huellas: los programas del investigador aparecen en la evidencia y deben distinguirse de los demás.
+    </p>
+    <p>
+      Importancia y límites. La lista de procesos permite detectar programas desconocidos, procesos con nombres que imitan a los de Windows, o procesos que consumen muchos recursos (por ejemplo, un minero de criptomonedas). tasklist no muestra el proceso padre (PPID), la ruta del ejecutable ni su firma digital, así que para sospechar de un proceso hay que complementarlo con Get-CimInstance Win32_Process o con herramientas como Process Explorer. En las capturas no se identifica ningún proceso evidentemente malicioso.
+    </p>
+
+    <h3>Punto 3. Servicios: CMD frente a PowerShell</h3>
+    <p>
+      Los servicios se listaron primero desde CMD con sc query y después desde PowerShell con Get-Service (figuras 7 y 8):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo4">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo4" class="code-block__code">sc query &gt; 03_servicios_cmd.txt &amp;&amp; type 03_servicios_cmd.txt
+Get-Service | Out-File 03_servicios_ps.txt; Get-Service</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-7.jpg" alt="Servicios listados con sc query en CMD y Get-Service en PowerShell">
+      <figcaption>Figura 7. Izquierda: sc query (CMD). Derecha: Get-Service (PowerShell).</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-8.jpg" alt="Continuación de los servicios en CMD y PowerShell">
+      <figcaption>Figura 8. Continuación de ambos listados: servicios de usuario en CMD y servicios detenidos y activos en PowerShell.</figcaption>
+    </figure>
+    <p>
+      Resultado. Ambos comandos consultan al Administrador de control de servicios (SCM) de Windows, por lo que describen los mismos servicios, pero con otro formato y con otro alcance. La tabla 2 resume las diferencias observadas.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 2. Diferencias entre sc query (CMD) y Get-Service (PowerShell).</caption>
+        <thead>
+          <tr><th scope="col">Aspecto</th><th scope="col">sc query (CMD)</th><th scope="col">Get-Service (PowerShell)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Servicios mostrados</td><td>Solo los activos (en las capturas todos aparecen como RUNNING)</td><td>Todos: Running y Stopped</td></tr>
+          <tr><td>Datos por servicio</td><td>Nombre, nombre para mostrar, tipo, estado, códigos de salida, punto de comprobación e indicación de inicio</td><td>Estado (Status), nombre (Name) y nombre para mostrar (DisplayName)</td></tr>
+          <tr><td>Formato</td><td>Texto plano de varias líneas por servicio</td><td>Tabla de una línea por servicio; el nombre largo se corta con «...»</td></tr>
+          <tr><td>Tipo de salida</td><td>Texto; solo se puede filtrar con findstr</td><td>Objetos que se pueden filtrar, ordenar y exportar (Where-Object, Export-Csv)</td></tr>
+          <tr><td>Servicios de usuario</td><td>Aparecen con tipo f0 «ERROR» o e0, porque sc no decodifica esos tipos</td><td>Aparecen con su estado, por ejemplo CDPUserSvc_d09b3</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> con CMD solo se ven los servicios que están corriendo, mientras que con PowerShell se ven también los detenidos. Un servicio detenido o deshabilitado también es evidencia: un atacante pudo apagar el antivirus o dejar instalado un servicio que no está activo en ese momento. Por eso, para una revisión completa conviene usar Get-Service (o sc query state= all).
+    </div>
+    <p>
+      Análisis del resultado. En ambas listas se observan servicios normales de Windows y de programas instalados: WinDefend (antivirus de Microsoft) en ejecución, WSLService (Subsistema de Windows para Linux), WTabletServicePro (tableta Wacom), servicios de actualización de Brave en estado detenido y componentes de Hyper-V detenidos. También aparecen servicios por usuario cuyo nombre termina con un sufijo variable (_d09b3), como CDPUserSvc, OneSyncSvc, cbdhsvc y WpnUserService: Windows los crea para cada sesión de usuario, así que el sufijo cambia en cada inicio de sesión y no es una señal de alarma. No se ve ningún servicio con nombre extraño en las capturas; el análisis completo requeriría revisar los archivos exportados.
+    </p>
+    <p>
+      Una limitación de la salida de PowerShell es que los nombres largos aparecen cortados con «...», también en el archivo de salida. Para conservar el texto completo conviene usar Get-Service | Format-Table -AutoSize -Wrap o exportar a CSV.
+    </p>
+
+    <h3>Punto 4. Usuarios con sesión activa</h3>
+    <p>
+      Para saber quién está conectado ahora se usó query user (figura 9). El comando consulta los Servicios de Escritorio remoto y lista las sesiones, locales o remotas, abiertas en el equipo:
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo5">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo5" class="code-block__code">query user &gt; 04_usuarios_activos.txt &amp;&amp; type 04_usuarios_activos.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-9.jpg" alt="Resultado de query user mostrado en el Bloc de notas">
+      <figcaption>Figura 9. query user: sesión activa del usuario «usuario» (se abrió el archivo en el Bloc de notas).</figcaption>
+    </figure>
+    <p>
+      Resultado. Hay una sola sesión: el usuario «usuario» en la sesión «console», con ID 1, estado «Activo», tiempo de inactividad «ninguno» y hora de inicio de sesión 14/11/2026 07:52 p. m. Como la sesión es «console», se trata de un inicio de sesión local, en el teclado del equipo, y no hay sesiones remotas (RDP). La hora de inicio de sesión es un minuto posterior al arranque del sistema (07:51:11 p. m., según systeminfo).
+    </p>
+    <p>
+      Importancia. Permite saber quién estaba usando el equipo cuando se tomó la evidencia y si hay alguien conectado de forma remota. En esta captura el contenido del archivo se abrió en el Bloc de notas para mostrarlo (el texto se ve con caracteres mal codificados, «SESIàN», por la diferencia de páginas de códigos entre CMD y el Bloc de notas, sin afectar los datos).
+    </p>
+
+    <h3>Punto 5. Usuarios que alguna vez iniciaron sesión</h3>
+    <p>
+      Para los usuarios que alguna vez iniciaron sesión se usó primero la herramienta NetUsers, incluida en la carpeta de la actividad (figura 10):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo6">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo6" class="code-block__code">.\NetUsers\NetUsers.exe &gt; 05_usuarios_historicos.txt &amp;&amp; type 05_usuarios_historicos.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-10.jpg" alt="Resultado de NetUsers.exe sin usuarios listados">
+      <figcaption>Figura 10. NetUsers.exe: «Current users logged on locally at DESKTOP-A6V0BD7» sin entradas.</figcaption>
+    </figure>
+    <p>
+      Resultado. La herramienta muestra el encabezado «Current users logged on locally at DESKTOP-A6V0BD7:» sin ningún usuario y termina con «The command completed successfully». Sin parámetros, NetUsers solo lista a los usuarios con sesión local en ese momento, por lo que esta salida no es el historial que pide el punto. Los puntos siguientes se ejecutaron el 15/11/2026, ya que este punto se completó después de la adquisición principal.
+    </p>
+    <p>
+      Para obtener el historial se repitió la herramienta con la opción /history (figura 11):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo7">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo7" class="code-block__code">.\NetUsers\NetUsers.exe /history &gt; 05_usuarios_historicos.txt &amp;&amp; type 05_usuarios_historicos.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-40.jpg" alt="Archivo 05_usuarios_historicos.txt con el historial de NetUsers vacío">
+      <figcaption>Figura 11. 05_usuarios_historicos.txt abierto en el Bloc de notas: historial de NetUsers sin entradas.</figcaption>
+    </figure>
+    <p>
+      Resultado. El archivo muestra el encabezado «History of users logged on locally at DESKTOP-A6V0BD7:» con la columna «Last Logon», pero sin ninguna fila, y termina con «The command completed successfully». Es decir, NetUsers tampoco encontró historial de inicios de sesión, probablemente porque es una herramienta de 2007 (sus archivos tienen fecha de marzo de 2007) y no lee bien los perfiles de Windows 10. Por eso se obtuvo el historial con dos fuentes alternativas del propio sistema.
+    </p>
+    <p>
+      La primera fuente fue el proveedor WMI Win32_UserProfile, que lista los perfiles de usuario del equipo (figura 12):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo8">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo8" class="code-block__code">Get-CimInstance Win32_UserProfile | Select-Object LocalPath,LastUseTime | Out-File 05_usuarios_historicos_ps.txt; Get-Content 05_usuarios_historicos_ps.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-35.jpg" alt="Perfiles de usuario obtenidos con Get-CimInstance Win32_UserProfile">
+      <figcaption>Figura 12. Get-CimInstance Win32_UserProfile: perfil de Usuario y tres perfiles del sistema.</figcaption>
+    </figure>
+    <p>
+      Resultado. Hay cuatro perfiles: C:\Users\Usuario (el único perfil de una persona) y tres perfiles del sistema (C:\Windows\ServiceProfiles\NetworkService, C:\Windows\ServiceProfiles\LocalService y C:\Windows\system32\config\systemprofile). Los cuatro muestran el mismo LastUseTime, 15/11/2026 10:54:55 a. m., muy cercano a la hora de la consulta (10:55 a. m.); esto indica que Windows reporta el momento en que el perfil está cargado y no la fecha real del último inicio de sesión, por lo que este campo no sirve por sí solo como historial.
+    </p>
+    <p>
+      La segunda fuente fue el Registro, en la llave ProfileList, donde Windows guarda un registro por cada perfil que ha iniciado sesión en el equipo (figura 13):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo9">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo9" class="code-block__code">reg query &quot;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList&quot; /s &gt; 05_perfiles_registro.txt &amp;&amp; type 05_perfiles_registro.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-36.jpg" alt="Llave ProfileList del Registro con los perfiles del equipo">
+      <figcaption>Figura 13. reg query ... ProfileList: perfiles del sistema y perfil del usuario con SID terminado en -1001.</figcaption>
+    </figure>
+    <p>
+      Resultado. La llave tiene tres perfiles del sistema (S-1-5-18, S-1-5-19 y S-1-5-20) y un único perfil de usuario: el SID S-1-5-21-4253445073-4101525551-617727678-1001, cuya ruta es C:\Users\Usuario. Este SID es el mismo de la carpeta de la Papelera de reciclaje que aparece en el árbol de directorios (figura 41), lo que confirma que ese usuario es el único que ha usado el equipo. El valor FullProfile es 1 y no hay perfiles temporales ni de otras cuentas.
+    </p>
+    <p>
+      Además, el registro conserva las marcas de tiempo de carga y descarga del perfil, guardadas como estructuras FILETIME separadas en una parte baja y una alta. Se decodificaron igual que la fecha de instalación del sistema (intervalos de 100 nanosegundos desde 1601): LocalProfileLoadTime (0x01dd751b 323f55a3) corresponde al 15/11/2026 a las 10:05:55 a. m. (16:05:55 UTC), y LocalProfileUnloadTime (0x01dd74cc 1f5bddb6), al 15/11/2026 a las 12:39:53 a. m. (06:39:53 UTC). Es decir, el usuario cerró sesión (o apagó el equipo) de madrugada y volvió a iniciar sesión a las 10:05 a. m., después de la adquisición principal.
+    </p>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> el equipo tiene un único usuario real, «Usuario» (SID terminado en -1001, perfil C:\Users\Usuario). Aparte, existen los perfiles propios del sistema (SYSTEM, LOCAL SERVICE y NETWORK SERVICE). No hay indicios de otras cuentas con perfil.
+    </div>
+    <p>
+      Importancia. El historial de perfiles permite saber qué cuentas existieron y cuándo se usaron por última vez, lo que ayuda a detectar cuentas creadas por un atacante. Una cuenta nueva y desconocida aparecería como otro SID en ProfileList. En un caso real se complementaría con los eventos de inicio de sesión (4624) del registro Security. Un dato importante es que el reinicio del equipo entre la adquisición principal y este punto implica que los datos volátiles ya no son los mismos: por eso el orden de volatilidad exige hacer todas las capturas antes de apagar o reiniciar.
+    </p>
+
+    <h3>Punto 6. Información de red</h3>
+    <p>
+      La configuración de red se obtuvo con ipconfig /all, que muestra el detalle de todos los adaptadores, incluso los desconectados (figuras 14 y 15):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo10">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo10" class="code-block__code">ipconfig /all &gt; 06_red.txt &amp;&amp; type 06_red.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-11.jpg" alt="ipconfig /all con adaptadores Ethernet">
+      <figcaption>Figura 14. ipconfig /all: nombre de host y adaptadores Ethernet.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-12.jpg" alt="ipconfig /all con el adaptador Wi-Fi">
+      <figcaption>Figura 15. ipconfig /all: adaptador Wi-Fi con su dirección IP, puerta de enlace, DHCP y DNS.</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 3. Adaptadores de red del sistema.</caption>
+        <thead>
+          <tr><th scope="col">Adaptador</th><th scope="col">Estado</th><th scope="col">Dirección física (MAC)</th><th scope="col">IPv4</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ethernet (Intel 82579LM Gigabit)</td><td>Medios desconectados</td><td><code>28-D2-44-26-00-AA</code></td><td><code>Sin dirección</code></td></tr>
+          <tr><td>Ethernet 2 (VirtualBox Host-Only)</td><td>Activo, DHCP no</td><td><code>0A-00-27-00-00-10</code></td><td><code>192.168.56.1 / 255.255.255.0</code></td></tr>
+          <tr><td>Wi-Fi Direct Virtual Adapter (x2)</td><td>Medios desconectados</td><td><code>A4-4E-31-6A-59-01 y A6-4E-31-6A-59-00</code></td><td><code>Sin dirección</code></td></tr>
+          <tr><td>Wi-Fi (Intel Centrino Advanced-N 6205)</td><td>Conectado, DHCP sí</td><td><code>A4-4E-31-6A-59-00</code></td><td><code>192.168.1.141 / 255.255.255.0</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Resultado. El nombre del host es DESKTOP-A6V0BD7, sin sufijo DNS principal, con tipo de nodo «híbrido» y sin enrutamiento IP. La conexión activa es la del adaptador Wi-Fi: la dirección IPv4 es 192.168.1.141 (más una dirección IPv6 global y una temporal), la puerta de enlace y el servidor DHCP es 192.168.1.254, y los servidores DNS son 8.8.8.8 y 8.8.4.4 (DNS públicos de Google). La concesión DHCP se obtuvo el sábado 14/11/2026 a las 07:51:25 p. m. y expira el domingo 15/11/2026 a la misma hora. Además existe un adaptador virtual de VirtualBox con la red 192.168.56.0/24.
+    </p>
+    <p>
+      Importancia. Identifica al equipo en la red (IP, MAC, nombre), cómo se conectó (por Wi-Fi) y con qué servidores. Con la IP y la MAC se pueden pedir registros al router o al proveedor y ubicar al equipo en la red. Los servidores DNS de Google indican una configuración manual, porque un enrutador doméstico suele entregar sus propios DNS; en una investigación se verifica que no los haya cambiado un malware para redirigir el tráfico. Por último, la hora de inicio de la concesión (07:51:25 p. m.) coincide con el arranque del sistema (07:51:11 p. m.).
+    </p>
+
+    <h3>Punto 7. Nombres NetBIOS</h3>
+    <p>
+      NetBIOS es el protocolo de nombres que Windows usa en redes locales. Se consultaron la tabla de nombres locales (-n) y la caché de nombres remotos (-c), anexando ambas al mismo archivo (figuras 16 y 17):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo11">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo11" class="code-block__code">nbtstat -n &gt; 07_netbios.txt &amp;&amp; nbtstat -c &gt;&gt; 07_netbios.txt &amp;&amp; type 07_netbios.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-13.jpg" alt="Tabla de nombres NetBIOS y caché por interfaz">
+      <figcaption>Figura 16. nbtstat: tabla de nombres locales NetBIOS en las interfaces Ethernet 2 y Wi-Fi.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-14.jpg" alt="Caché de nombres NetBIOS sin entradas">
+      <figcaption>Figura 17. nbtstat -c: «No hay nombres en la caché» en todas las interfaces.</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 4. Nombres NetBIOS registrados.</caption>
+        <thead>
+          <tr><th scope="col">Nombre</th><th scope="col">Tipo</th><th scope="col">Significado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>DESKTOP-A6V0BD7&lt;00&gt;</code></td><td>Único</td><td>Servicio de estaciones de trabajo (nombre del equipo)</td></tr>
+          <tr><td><code>WORKGROUP&lt;00&gt;</code></td><td>Grupo</td><td>Grupo de trabajo al que pertenece el equipo</td></tr>
+          <tr><td><code>DESKTOP-A6V0BD7&lt;20&gt;</code></td><td>Único</td><td>Servicio de servidor (compartición de archivos e impresoras)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Resultado. Los nombres NetBIOS asignados son DESKTOP-A6V0BD7 (tipos &lt;00&gt; y &lt;20&gt;) y el grupo WORKGROUP. Están registrados en las interfaces Ethernet 2 (192.168.56.1) y Wi-Fi (192.168.1.141); en las demás interfaces no hay nombres. La caché de nombres remotos está vacía, así que el equipo no había resuelto recientemente nombres de otros equipos. Importancia: el grupo WORKGROUP confirma que el equipo no pertenece a un dominio de Active Directory (coincide con systeminfo), y el nombre &lt;20&gt; indica que el equipo ofrece compartición de archivos en la red, lo que se relaciona con los recursos compartidos del punto 15.
+    </p>
+
+    <h3>Punto 8. Conexiones establecidas</h3>
+    <p>
+      Las conexiones se obtuvieron con netstat -ano: -a muestra todas las conexiones y puertos en escucha, -n muestra direcciones y puertos en forma numérica (sin resolver nombres) y -o agrega el PID del proceso propietario (figuras 18 a 20):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo12">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo12" class="code-block__code">netstat -ano &gt; 08_conexiones.txt &amp;&amp; type 08_conexiones.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-15.jpg" alt="netstat -ano, primera parte con puertos en escucha y conexiones locales">
+      <figcaption>Figura 18. netstat -ano: puertos en escucha, conexiones locales (127.0.0.1) y primeras conexiones externas.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-16.jpg" alt="netstat -ano, conexiones IPv4 e IPv6 establecidas">
+      <figcaption>Figura 19. netstat -ano: conexiones IPv4 e IPv6 (ESTABLISHED, TIME_WAIT y CLOSE_WAIT).</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-17.jpg" alt="netstat -ano, puertos UDP">
+      <figcaption>Figura 20. netstat -ano: puertos UDP (sin estado de conexión).</figcaption>
+    </figure>
+    <p>
+      Resultado. Los estados que aparecen son LISTENING (puerto abierto esperando conexiones), ESTABLISHED (conexión activa), TIME_WAIT y CLOSE_WAIT (conexiones en cierre). Entre las conexiones establecidas se observan, en la IP local 192.168.1.141:
+    </p>
+    <p>
+      <strong>Conexiones externas.</strong> Hacia 52.96.47.82:443 (PID 7980), 35.171.156.164:443 (7896), 44.223.184.76:443 (10784), 57.144.4.145:443 (7692), 128.116.95.3:443 (9388), 13.249.38.31:443 (10784), 140.82.112.26:443 (7692), 20.161.205.129:443 (6928), 13.107.5.93:443 (15240) y 104.18.124.108:443 (7896). Todas usan el puerto 443 (HTTPS, tráfico cifrado), lo habitual en navegación y aplicaciones en la nube.
+    </p>
+    <p>
+      <strong>Conexiones locales.</strong> Hacia 192.168.1.161:8009 desde los PID 9244, 10784 y 7692. Es una dirección de la propia red local (aparece en la tabla ARP, punto 11) y el puerto 8009 se usa habitualmente en dispositivos con Google Cast, de modo que podría tratarse de un televisor o dispositivo multimedia, lo cual debe confirmarse.
+    </p>
+    <p>
+      <strong>Conexiones en cierre.</strong> Hacia 72.145.35.97 a 72.145.35.109 (puerto 443) en estado TIME_WAIT; se relacionan con la caché DNS del punto 10.
+    </p>
+    <p>
+      Importancia. Las conexiones externas son la forma de detectar comunicación con un servidor de comando y control, o la salida de datos. Con el PID se vincula cada conexión con un proceso (punto 9), y con un WHOIS de la IP remota se identifica a su propietario. No se han resuelto las IP remotas en este análisis, de manera que son datos por verificar.
+    </p>
+
+    <h3>Punto 9. Aplicaciones y puertos</h3>
+    <p>
+      Para saber qué aplicación abrió cada puerto se usó netstat -anob; la opción -b muestra el ejecutable (y los servicios) que creó cada conexión o puerto y exige permisos de administrador (figuras 21 a 23):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo13">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo13" class="code-block__code">netstat -anob &gt; 09_apps_puertos.txt &amp;&amp; type 09_apps_puertos.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-18.jpg" alt="netstat -anob con puertos TCP en escucha y su ejecutable">
+      <figcaption>Figura 21. netstat -anob: puertos TCP en escucha con el programa que los abre.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-19.jpg" alt="netstat -anob con puertos IPv6 y conexiones de aplicaciones">
+      <figcaption>Figura 22. netstat -anob: conexiones IPv6 de OneDrive, SearchApp, Epic Games Launcher y otros.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-20.jpg" alt="netstat -anob con puertos UDP y aplicaciones">
+      <figcaption>Figura 23. netstat -anob: puertos UDP de chrome.exe, svchost.exe (Dnscache, SSDPSRV) y otros.</figcaption>
+    </figure>
+    <p>
+      Resultado. La tabla 5 relaciona los puertos en escucha más relevantes con su proceso. Los PID coinciden con los de la lista de procesos del punto 2 (por ejemplo, 768 es lsass.exe, 668 es wininit.exe, 752 es services.exe y 1004 es un svchost.exe), lo que permite correlacionar ambas evidencias.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 5. Puertos en escucha y programa asociado.</caption>
+        <thead>
+          <tr><th scope="col">Puerto</th><th scope="col">Proceso (PID)</th><th scope="col">Observación</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>135</code></td><td>svchost.exe, RpcEptMapper (1004)</td><td>Asignador de extremos RPC de Windows</td></tr>
+          <tr><td><code>445</code></td><td>System (4)</td><td>SMB, compartición de archivos; sin información de propiedad</td></tr>
+          <tr><td><code>2343, 3580, 3582, 8080</code></td><td>lkads.exe, nisvcloc.exe, SystemWebServer.exe, ApplicationWebServer.exe</td><td>Escuchan en todas las interfaces (0.0.0.0); por sus nombres parecen componentes de software de National Instruments, por verificar</td></tr>
+          <tr><td><code>5040</code></td><td>svchost.exe, CDPSvc (6880)</td><td>Plataforma de dispositivos conectados</td></tr>
+          <tr><td><code>7680</code></td><td>PID 2888</td><td>Sin información de propiedad (se asocia con la optimización de entrega de Windows Update)</td></tr>
+          <tr><td><code>23130, 23132</code></td><td>Wacom_Tablet.exe (488)</td><td>Controlador de la tableta Wacom</td></tr>
+          <tr><td><code>49664 a 49668, 49688</code></td><td>lsass.exe, wininit (668), svchost EventLog y Schedule, spoolsv.exe, services.exe (752)</td><td>Puertos dinámicos RPC de servicios del sistema</td></tr>
+          <tr><td><code>59110</code></td><td>nidmsrv.exe (4732)</td><td>Servicio de software de National Instruments, por verificar</td></tr>
+          <tr><td><code>35783 (::1)</code></td><td>EpicOnlineServicesUserHelper.exe (10096)</td><td>Comunicación local con Epic Games Launcher</td></tr>
+          <tr><td><code>42050 (::1)</code></td><td>OneDrive.Sync.Service.exe (11084)</td><td>Sincronización de OneDrive</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Importancia. Es el eslabón entre una conexión de red y el programa responsable. Los mensajes «No se puede obtener información de propiedad» aparecen en procesos protegidos del sistema (System, wininit, services) a los que netstat no puede acceder, y no son un indicio por sí mismos. Lo relevante para una investigación son los programas de terceros que escuchan en todas las interfaces (0.0.0.0), como los servicios web de los puertos 3582 y 8080, que amplían la superficie de ataque y deben revisarse (ruta, firma digital y regla del firewall).
+    </p>
+
+    <h3>Punto 10. Dominios consultados (caché DNS)</h3>
+    <p>
+      La caché del resolvedor DNS guarda los nombres de dominio que el equipo consultó recientemente. Se obtuvo con ipconfig /displaydns (figuras 24 y 25):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo14">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo14" class="code-block__code">ipconfig /displaydns &gt; 10_dns_dominios.txt &amp;&amp; type 10_dns_dominios.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-21.jpg" alt="Caché DNS, primeros registros">
+      <figcaption>Figura 24. ipconfig /displaydns: registros PTR y A de la caché.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-22.jpg" alt="Caché DNS, registros adicionales">
+      <figcaption>Figura 25. ipconfig /displaydns: registros de array6xx.prod.do.dsp.mp.microsoft.com.</figcaption>
+    </figure>
+    <p>
+      Resultado. La caché es pequeña (el archivo pesa unos 3 KB). Los registros visibles son: 1) un registro PTR de 1.80.168.192.in-addr.arpa que apunta a DESKTOP-A6V0BD7.mshome.net, y el registro A desktop-a6v0bd7.mshome.net con la IP 192.168.80.1 (una red virtual local; mshome.net es el sufijo que Windows usa para los adaptadores virtuales); 2) los dominios array602, array606, array608, array611 y array614.prod.do.dsp.mp.microsoft.com, que resuelven a las IP 72.145.35.97, .101, .103, .106 y .109 con tiempos de vida entre 708 y 2,378 segundos. Ese dominio pertenece al servicio de Optimización de entrega (Delivery Optimization) de Windows Update.
+    </p>
+    <div class="activity-callout">
+      <strong>Correlación:</strong> las IP 72.145.35.x de la caché DNS son las mismas que aparecen en estado TIME_WAIT en netstat (punto 8). Esto confirma, con dos evidencias independientes, que son conexiones del servicio de actualizaciones de Microsoft y no tráfico sospechoso.
+    </div>
+    <p>
+      Importancia. Muestra con qué dominios se comunicó el equipo hace poco. Es una evidencia muy volátil (los registros expiran según su tiempo de vida) y no sustituye al historial del navegador, porque Chrome puede resolver nombres por su cuenta y los registros caducan. En una investigación, los dominios sospechosos (por ejemplo, de malware o de phishing) se buscan en esta caché.
+    </p>
+
+    <h3>Punto 11. Tabla ARP</h3>
+    <p>
+      La tabla ARP guarda la relación entre las direcciones IP (lógicas) y las direcciones MAC (físicas) de los equipos con los que el sistema se comunicó recientemente en su red local (figura 26):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo15">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo15" class="code-block__code">arp -a &gt; 11_tabla_arp.txt &amp;&amp; type 11_tabla_arp.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-23.jpg" alt="Tabla ARP del sistema">
+      <figcaption>Figura 26. arp -a: tabla ARP por interfaz (192.168.56.1 y 192.168.1.141).</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 6. Entradas ARP dinámicas de la interfaz Wi-Fi (192.168.1.141).</caption>
+        <thead>
+          <tr><th scope="col">Dirección IP</th><th scope="col">Dirección MAC</th><th scope="col">Interpretación</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>192.168.1.254</code></td><td><code>e0-a1-ce-8f-ec-d2</code></td><td>Puerta de enlace y servidor DHCP (el router)</td></tr>
+          <tr><td><code>192.168.1.161</code></td><td><code>08-27-a8-bb-48-be</code></td><td>Dispositivo de la red local; destino de las conexiones al puerto 8009</td></tr>
+          <tr><td><code>192.168.1.182</code></td><td><code>34-5e-08-73-02-fc</code></td><td>Otro dispositivo de la red local</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Resultado. La interfaz 192.168.56.1 (red virtual de VirtualBox) solo tiene entradas estáticas de difusión y multidifusión. La interfaz 192.168.1.141 tiene tres vecinos dinámicos (tabla 6) y las entradas estáticas habituales (192.168.1.255, 224.0.0.x, 239.255.255.250 y 255.255.255.255). La dirección 192.168.1.254 coincide con la puerta de enlace de ipconfig, y 192.168.1.161 es el destino de las conexiones al puerto 8009 vistas en netstat.
+    </p>
+    <p>
+      Importancia. Revela los equipos vecinos con los que se habló y su MAC, lo que ayuda a reconstruir la red y a detectar movimientos laterales o ataques de suplantación ARP (dos IP con la misma MAC o una MAC que cambia). Las MAC permiten identificar al fabricante por sus tres primeros bytes (OUI). Es una caché volátil, que se vacía en pocos minutos.
+    </p>
+
+    <h3>Punto 12. Redes WiFi guardadas</h3>
+    <p>
+      Windows guarda un perfil por cada red inalámbrica a la que se conectó. Se listaron con netsh wlan show profiles (figura 27):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo16">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo16" class="code-block__code">netsh wlan show profiles &gt; 12_perfiles_wifi.txt &amp;&amp; type 12_perfiles_wifi.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-24.jpg" alt="Perfiles WiFi guardados con los nombres de las redes ocultos">
+      <figcaption>Figura 27. Perfiles de usuario de la interfaz Wi-Fi (nombres de las redes ocultos por privacidad).</figcaption>
+    </figure>
+    <p>
+      Resultado. En la interfaz Wi-Fi hay 18 perfiles de usuario, todos aplicados a todos los usuarios, y ninguno de directiva de grupo. Los nombres (SSID) se ocultaron en la captura por privacidad. Como ejemplo del detalle que se puede consultar, se mostró el perfil de la red de la universidad con la opción key=clear (figura 28):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo17">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo17" class="code-block__code">netsh wlan show profile &quot;CID_UPSLP&quot; key=clear</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-24-1.jpg" alt="Detalle del perfil WiFi con la contraseña oculta">
+      <figcaption>Figura 28. Detalle de un perfil WiFi: WPA2-Personal, cifrado CCMP/GCMP y clave presente (contraseña ocultada).</figcaption>
+    </figure>
+    <p>
+      El perfil muestra conexión manual, tipo de red de infraestructura, autenticación WPA2-Personal con cifrado CCMP, y «Clave de seguridad: Presente». Con la opción key=clear, Windows muestra la contraseña en texto claro a cualquier cuenta de administrador; en el reporte esta contraseña se ocultó.
+    </p>
+    <p>
+      Importancia. Es una evidencia clave de movilidad: muestra a qué redes se conectó el equipo (casa, escuela, puntos móviles) y, por tanto, dónde estuvo, y permite pedir los registros de esos puntos de acceso. También es un riesgo, porque quien tenga acceso de administrador puede recuperar las contraseñas de todas las redes guardadas, así que la contraseña expuesta debe tratarse como información confidencial.
+    </p>
+
+    <h3>Punto 13. Historial de comandos</h3>
+    <p>
+      El historial de comandos permite reconstruir lo que se ejecutó en el sistema. En CMD se usó doskey /history, que lista los comandos de esa ventana; en PowerShell se leyó el archivo del módulo PSReadLine, que guarda el historial entre sesiones (figuras 29 y 30):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo18">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo18" class="code-block__code">doskey /history &gt; 13_historial_cmd.txt &amp;&amp; type 13_historial_cmd.txt
+Get-Content (Get-PSReadLineOption).HistorySavePath &gt; 13_historial_ps.txt; type 13_historial_ps.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-25.jpg" alt="Historial de comandos de CMD (izquierda) y PowerShell (derecha)">
+      <figcaption>Figura 29. Historial de CMD (doskey) a la izquierda e historial de PowerShell (PSReadLine) a la derecha.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-25-1.jpg" alt="Continuación del historial de PowerShell">
+      <figcaption>Figura 30. Continuación del historial de PowerShell, que termina con los comandos de esta adquisición.</figcaption>
+    </figure>
+    <p>
+      Resultado. El historial de CMD solo contiene los comandos de esta sesión: son los comandos de la propia adquisición (date, tasklist, sc query, netstat, ipconfig, arp, netsh...). Se ve también un error corregido: primero se ejecutó net start &gt; 04_usuarios_activos.txt, y después query user sobrescribió el mismo archivo. El historial de PowerShell es más largo porque se conserva entre sesiones: incluye comandos de desarrollo (node Index.js, cd jasper-bot, pip install PyQt5, pymysql, matplotlib y pynput, ejecución de scripts de Python desde Visual Studio Code y desde Downloads), winget upgrade, wsl --install y, al final, los comandos de esta práctica.
+    </p>
+    <p>
+      Importancia y análisis. Es una de las fuentes que mejor describe la intención de un usuario. Aquí es coherente con un equipo de estudio y desarrollo: los comandos corresponden a trabajos de programación. El paquete pynput permite capturar el teclado y el ratón, y aunque tiene usos legítimos, en una investigación real se verificaría para qué se usó. También se aprecia que la adquisición contamina el historial: los comandos del investigador quedan mezclados con los del usuario y deben separarse al analizar. Además, el historial puede borrarse (Clear-History o eliminar el archivo), por lo que su ausencia también es un dato.
+    </p>
+
+    <h3>Punto 14. Unidades mapeadas</h3>
+    <p>
+      Las unidades de red mapeadas se consultaron con net use (figura 31):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo19">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo19" class="code-block__code">net use &gt; 14_unidades_mapeadas.txt &amp;&amp; type 14_unidades_mapeadas.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-26.jpg" alt="Resultado de net use sin unidades mapeadas">
+      <figcaption>Figura 31. net use: «No hay entradas en la lista».</figcaption>
+    </figure>
+    <p>
+      Resultado. El comando informa «No hay entradas en la lista»: el equipo no tiene unidades de red mapeadas ni conexiones a recursos remotos. El mensaje «Se registrarán las nuevas conexiones» indica que las conexiones nuevas se recordarán al reiniciar. Importancia: una unidad mapeada (por ejemplo, Z: hacia un servidor) mostraría a dónde se pudo copiar o de dónde se pudo tomar información; su ausencia descarta ese vector en este momento.
+    </p>
+
+    <h3>Punto 15. Recursos compartidos</h3>
+    <p>
+      Los recursos compartidos se consultaron con net share (figura 32):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo20">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo20" class="code-block__code">net share &gt; 15_recursos_compartidos.txt &amp;&amp; type 15_recursos_compartidos.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-27.jpg" alt="Recursos compartidos del sistema">
+      <figcaption>Figura 32. net share: recursos compartidos C$, IPC$ y ADMIN$.</figcaption>
+    </figure>
+    <p>
+      Resultado. Solo existen los recursos administrativos predeterminados de Windows: C$ (todo el disco C:\), IPC$ (comunicación entre procesos remota) y ADMIN$ (la carpeta C:\Windows). No hay carpetas compartidas por el usuario. Importancia: una carpeta compartida creada por el usuario o por un atacante sería una vía de exfiltración. Estos recursos administrativos solo son accesibles con credenciales de administrador, pero junto con el puerto 445 abierto (punto 9) conviene limitarlos con el firewall si no se necesitan.
+    </p>
+
+    <h3>Punto 16. Información del sistema</h3>
+    <p>
+      La información general del equipo se obtuvo con systeminfo (figuras 33 y 34):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo21">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo21" class="code-block__code">systeminfo &gt; 16_info_sistema.txt &amp;&amp; type 16_info_sistema.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-28.jpg" alt="Primera parte de systeminfo">
+      <figcaption>Figura 33. systeminfo: sistema operativo, hardware, zona horaria, dominio y revisiones.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-29.jpg" alt="Segunda parte de systeminfo">
+      <figcaption>Figura 34. systeminfo: revisiones instaladas, tarjetas de red y requisitos de Hyper-V.</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 7. Datos principales de systeminfo.</caption>
+        <thead>
+          <tr><th scope="col">Dato</th><th scope="col">Valor</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Nombre de host</td><td>DESKTOP-A6V0BD7</td></tr>
+          <tr><td>Sistema operativo</td><td>Microsoft Windows 10 Pro, versión 10.0.19045, compilación 19045</td></tr>
+          <tr><td>Propietario / organización</td><td>Usuario / sin organización</td></tr>
+          <tr><td>Fecha de instalación original</td><td>22/11/2023, 10:42:50 a. m.</td></tr>
+          <tr><td>Último arranque</td><td>14/11/2026, 07:51:11 p. m.</td></tr>
+          <tr><td>Fabricante y modelo</td><td>LENOVO 2349EJ6 (x64)</td></tr>
+          <tr><td>Procesador</td><td>Intel64 Family 6 Model 58, 1 procesador, ~2601 MHz</td></tr>
+          <tr><td>BIOS</td><td>LENOVO G1ETB8WW (2.78), 19/09/2018</td></tr>
+          <tr><td>Memoria física total / disponible</td><td>16,082 MB / 8,682 MB</td></tr>
+          <tr><td>Zona horaria</td><td>(UTC-06:00) Guadalajara, Ciudad de México, Monterrey</td></tr>
+          <tr><td>Dominio / servidor de inicio de sesión</td><td>WORKGROUP / \\DESKTOP-A6V0BD7</td></tr>
+          <tr><td>Revisiones (hotfixes)</td><td>32 instaladas (de KB5066130 a KB5001405)</td></tr>
+          <tr><td>Tarjetas de red</td><td>3 (Intel 82579LM, Intel Centrino Advanced-N 6205, VirtualBox Host-Only)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Resultado. El equipo es una laptop Lenovo con Windows 10 Pro instalado el 22/11/2023 y reiniciado el 14/11/2026 a las 07:51:11 p. m. (unas 1.5 horas antes de empezar la adquisición). Pertenece a un grupo de trabajo (WORKGROUP), no a un dominio, y el mensaje «Se detectó un hipervisor» concuerda con la presencia de VirtualBox, Hyper-V y WSL vistos en servicios y comandos.
+    </p>
+    <p>
+      Importancia. Es el resumen de identidad del equipo: sirve para describirlo en el informe (marca, modelo, versión y fecha de instalación), calcular cuánto tiempo llevaba encendido, ver el nivel de parches y confirmar la zona horaria con la que interpretar las marcas de tiempo. Windows 10 llegó al fin de su soporte estándar el 14 de octubre de 2025, de modo que un equipo con esta versión (19045) sin actualizaciones extendidas queda más expuesto a vulnerabilidades nuevas; es un factor de riesgo a considerar, no una prueba de compromiso.
+    </p>
+
+    <h3>Punto 17. Tareas programadas</h3>
+    <p>
+      Las tareas programadas se listaron con schtasks. Los parámetros /query pide la consulta, /fo LIST da formato de lista y /v agrega el detalle completo (figuras 35 a 38):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo22">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo22" class="code-block__code">schtasks /query /fo LIST /v &gt; 17_tareas_programadas.txt &amp;&amp; type 17_tareas_programadas.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-30.jpg" alt="Comando schtasks /query en ejecución">
+      <figcaption>Figura 35. Ejecución de schtasks /query /fo LIST /v (el resultado se despliega en las siguientes capturas).</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-30-1.jpg" alt="Tarea programada de Active Directory Rights Management">
+      <figcaption>Figura 36. Tareas de la carpeta Active Directory Rights Management Services Client.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-30-2.jpg" alt="Tareas TouchpadSyncDataAvailable y ScanForUpdates">
+      <figcaption>Figura 37. Tareas TouchpadSyncDataAvailable y ScanForUpdates.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-30-3.jpg" alt="Tarea XblGameSaveTask">
+      <figcaption>Figura 38. Tarea XblGameSaveTask (carpeta Microsoft\XblGameSave).</figcaption>
+    </figure>
+    <p>
+      Resultado. El archivo de salida pesa unos 687 KB, por la gran cantidad de tareas propias de Windows 10. En las capturas se observan las tareas de la tabla 8, todas del propio sistema operativo (autor Microsoft o carpeta \Microsoft\Windows).
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 8. Tareas programadas observadas.</caption>
+        <thead>
+          <tr><th scope="col">Tarea</th><th scope="col">Estado</th><th scope="col">Última / próxima ejecución</th><th scope="col">Observación</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>AD RMS Rights Policy Template Management (Automated)</td><td>Deshabilitado</td><td>Nunca ejecutada (30/11/1999)</td><td>Tarea de Microsoft, sin ejecutarse</td></tr>
+          <tr><td>Input\TouchpadSyncDataAvailable</td><td>Listo</td><td>Nunca ejecutada (30/11/1999)</td><td>Sin horario definido</td></tr>
+          <tr><td>InstallService\ScanForUpdates</td><td>Listo</td><td>14/11/2026 08:06:23 p. m. / 16/11/2026 04:51:17 a. m.</td><td>Resultado 0 (correcto)</td></tr>
+          <tr><td>XblGameSave\XblGameSaveTask</td><td>Listo</td><td>Nunca ejecutada (30/11/1999)</td><td>Se ejecuta como SYSTEM, en espera</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Interpretación. Varias tareas muestran como último tiempo de ejecución el 30/11/1999 y como último resultado 267011: es el valor que Windows usa para indicar que la tarea todavía no se ha ejecutado (SCHED_S_TASK_HAS_NOT_RUN, 0x41303), y no una fecha real. En cambio, ScanForUpdates sí tiene una ejecución reciente con resultado 0 (éxito) y una próxima programada.
+    </p>
+    <p>
+      Importancia. Las tareas programadas son un mecanismo clásico de persistencia: un atacante crea una tarea para que su programa se ejecute en cada inicio o cada cierto tiempo. En una revisión real se buscan las tareas cuyo autor no es Microsoft, las que ejecutan programas desde carpetas de usuario o temporales, scripts de PowerShell, y las que se ejecutan con privilegios SYSTEM. En las capturas revisadas no aparece ninguna de ese tipo; el archivo completo se puede filtrar, por ejemplo, con schtasks /query /fo CSV /v y findstr /v &quot;Microsoft&quot;.
+    </p>
+
+    <h3>Punto 18. Exportación de registros de eventos</h3>
+    <p>
+      Los registros de eventos son el diario del sistema. Se exportaron con wevtutil epl (export-log) al Escritorio del usuario en estudio, en formato nativo .evtx para analizarlos después (figura 39):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo23">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo23" class="code-block__code">wevtutil epl System &quot;C:\Users\Usuario\Desktop\System_Logs.evtx&quot;</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-31.jpg" alt="Exportación del registro System al Escritorio con wevtutil">
+      <figcaption>Figura 39. wevtutil epl System: el archivo System_Logs.evtx aparece en el Escritorio.</figcaption>
+    </figure>
+    <p>
+      Resultado. El comando terminó sin errores (no muestra mensaje cuando tiene éxito) y en el Escritorio apareció el archivo System_Logs.evtx. El formato .evtx conserva la estructura completa de los eventos, lo que permite abrirlo después en el Visor de eventos o con herramientas de análisis.
+    </p>
+    <p>
+      Importancia. El registro System contiene, por ejemplo, el arranque y apagado del sistema, la instalación de servicios y los errores de controladores, y es la base para reconstruir qué pasó y cuándo. Se exportó el registro System; en un caso real también se exportan Application y, sobre todo, Security (inicios de sesión, creación de procesos y cuentas) y los registros de PowerShell y de Windows Defender.
+    </p>
+
+    <h3>Punto 19. Archivo hosts</h3>
+    <p>
+      El archivo hosts permite asociar manualmente nombres de dominio con direcciones IP y se consulta antes que el DNS. Se copió a la carpeta de evidencia y se mostró (figura 40):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo24">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo24" class="code-block__code">copy C:\Windows\System32\drivers\etc\hosts 19_hosts.txt &amp;&amp; type 19_hosts.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-32.jpg" alt="Contenido del archivo hosts">
+      <figcaption>Figura 40. Archivo hosts: solo contiene los comentarios de ejemplo de Microsoft.</figcaption>
+    </figure>
+    <p>
+      Resultado. El archivo solo tiene líneas de comentario (las que empiezan con #) con la explicación y ejemplos de Microsoft; no hay ninguna entrada activa, ni siquiera la de localhost, que ya resuelve el DNS. Además, la copia conserva la fecha de modificación del original: en la carpeta de trabajo, 19_hosts.txt aparece con fecha 07/12/2019 03:12 a. m. (figura 46), anterior a la instalación del sistema, lo que indica que el archivo no se ha modificado desde que se creó con la imagen de Windows.
+    </p>
+    <p>
+      Importancia. El malware modifica el archivo hosts para redirigir sitios (por ejemplo, de un banco hacia un sitio falso) o para bloquear los servidores de actualización de los antivirus. Un archivo sin entradas y sin modificaciones recientes descarta esa técnica en este equipo. Se usó copy en lugar de solo type para conservar el archivo como evidencia con su fecha original.
+    </p>
+
+    <h3>Punto 20. Árbol de directorios por fecha de creación</h3>
+    <p>
+      Para listar los directorios y archivos con su fecha de creación se usó dir con la opción /s (recursivo, incluye subcarpetas) y /t:c (muestra la fecha de creación en lugar de la de modificación). La salida se guardó en un archivo y se abrió en el Bloc de notas (figuras 41 a 44):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo25">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo25" class="code-block__code">dir C:\ /s /t:c &gt; 20_arbol_directorios.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-33.jpg" alt="Árbol de directorios, raíz de C:\ en el Bloc de notas">
+      <figcaption>Figura 41. Inicio del listado: carpetas y archivos de la raíz C:\ con su fecha de creación.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-33-1.jpg" alt="Árbol de directorios, carpetas de Visual Studio Code">
+      <figcaption>Figura 42. Parte del listado: carpetas de Microsoft VS Code, creadas el 14/11/2026.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-33-2.jpg" alt="Árbol de directorios, carpetas de WinSxS">
+      <figcaption>Figura 43. Parte del listado: carpetas de C:\Windows\WinSxS, creadas en 2019 y 2023.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-33-3.jpg" alt="Árbol de directorios, final del listado con totales">
+      <figcaption>Figura 44. Final del listado: carpeta C:\xampp\webdav y totales de archivos y directorios.</figcaption>
+    </figure>
+    <p>
+      Resultado. Al final del listado, el sistema reporta un total de 714,723 archivos (171,209,699,619 bytes, unos 171 GB) y 670,912 directorios, con 57,320,013,824 bytes libres (unos 57 GB). El archivo de salida pesa 131,609 KB (128 MB). En la raíz de C:\ se observan carpetas como Windows y Users (07/12/2019), Intel, RocketDock y Programs (22/11/2023), Wacom (20/12/2023), inetpub y xampp (10/04/2025 y 20/05/2025), Python314 (22/03/2026), Wincupl (18/09/2026), Gowin (22/10/2026) y common_attachment (02/11/2026). La carpeta de la Papelera del usuario (C:\$Recycle.Bin\S-1-5-21-...-1001) contiene un archivo creado el 14/11/2026 a las 10:06 p. m., es decir, durante la adquisición (figura 41).
+    </p>
+    <p>
+      Importancia. Con las fechas de creación se arma una línea de tiempo de la instalación de programas y de la creación de archivos: una carpeta o ejecutable nuevo, creado cerca del momento de un incidente, es un indicio. También ayuda a descubrir software que el usuario no declaró (aquí, servidores web locales como xampp e inetpub). La Papelera conserva los archivos eliminados, y que haya elementos creados durante la adquisición indica que se eliminaron archivos mientras se recolectaba la evidencia, lo que se debe documentar y revisar.
+    </p>
+    <p>
+      Alcance. dir /s lista cada carpeta en orden alfabético dentro de sí misma; para ordenar cronológicamente dentro de cada carpeta se agrega la opción /o:d (dir C:\ /s /t:c /o:d). Si se necesita un orden global por fecha en todo el disco, es mejor usar PowerShell (Get-ChildItem C:\ -Recurse -Force | Sort-Object CreationTime) o una herramienta de línea de tiempo del sistema de archivos (MFT).
+    </p>
+
+    <h3>Integridad de la evidencia: hashes SHA-256</h3>
+    <p>
+      Para proteger la integridad de la evidencia se calculó el hash SHA-256 de cada archivo generado, con la orden Get-FileHash de PowerShell. Un hash es una huella digital del contenido: si el archivo cambia, aunque sea un solo carácter, su hash cambia por completo, y así se puede demostrar después que la evidencia no se alteró (figura 45):
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo26">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo26" class="code-block__code">Get-FileHash .\*.txt -Algorithm SHA256 | Out-File 21_hashes.txt
+Get-FileHash &quot;$env:USERPROFILE\Desktop\System_Logs.evtx&quot; -Algorithm SHA256 | Out-File -Append 21_hashes.txt
+Get-Content 21_hashes.txt</code></pre>
+    </div>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-37.jpg" alt="Hashes SHA-256 de los archivos de evidencia con Get-FileHash">
+      <figcaption>Figura 45. Get-FileHash: SHA-256 de los archivos .txt y del archivo System_Logs.evtx.</figcaption>
+    </figure>
+    <p>
+      Resultado. Se obtuvieron 24 hashes SHA-256: uno por cada uno de los 23 archivos .txt de la carpeta Act19 (incluidos 05_perfiles_registro.txt y las dos versiones de 05_usuarios_historicos) y uno para System_Logs.evtx. Los valores están guardados en el archivo 21_hashes.txt. El primer comando mostró un error en rojo: «No se puede leer el archivo 21_hashes.txt: el proceso no puede obtener acceso al archivo porque está siendo utilizado en otro proceso». Ocurrió porque el comodín *.txt también incluyó al propio archivo de salida, que estaba abierto para escritura; no afectó a los demás archivos, y 21_hashes.txt no queda hasheado a sí mismo, como es normal.
+    </p>
+    <p>
+      Importancia y límites. Estos hashes sirven como referencia para la cadena de custodia: si más adelante se vuelven a calcular y coinciden, la evidencia se mantiene íntegra. En esta práctica los hashes se calcularon el 15/11/2026 a las 10:57 a. m., unas 12 horas después de haber creado los archivos (la mayoría, entre las 09:24 y las 10:16 p. m. del día anterior), por lo que existe un lapso en el que no se puede demostrar que no hubo cambios. La práctica recomendada es calcular el hash de cada archivo inmediatamente después de crearlo y copiar archivos y hashes a un medio externo.
+    </p>
+    <p>
+      Como cierre, el Explorador de archivos muestra la carpeta de trabajo con los archivos de evidencia numerados (figuras 46 y 47); en la segunda, desplazada hacia abajo, aparece 21_hashes.txt. Las fechas de modificación van desde las 09:24 p. m. del 14/11/2026 (01_fecha_hora) hasta las 10:16 p. m. (20_arbol_directorios), de modo que la adquisición principal duró alrededor de una hora; los archivos del punto 5 complementario y de los hashes son del 15/11/2026, por la mañana. La copia del archivo hosts conserva su fecha original (07/12/2019, 03:12 a. m.) y el registro System_Logs.evtx se guardó aparte, en el Escritorio, tal como pide la actividad.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-38.jpg" alt="Carpeta Act19 con los archivos de evidencia, parte superior">
+      <figcaption>Figura 46. Carpeta Act19 (25 elementos): carpeta NetUsers y archivos de evidencia 01 a 20.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act19-39.jpg" alt="Carpeta Act19 desplazada para mostrar 21_hashes.txt">
+      <figcaption>Figura 47. Carpeta Act19 desplazada: se observa 21_hashes.txt (11 KB), creado a las 10:57 a. m.</figcaption>
+    </figure>
+  </section>
+
+  <section id="resultados">
+    <h2>Resultados</h2>
+
+    <h3>Tabla de hallazgos</h3>
+    <p>
+      La tabla 9 consolida las respuestas de los 20 puntos con la evidencia que las sustenta.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 9. Hallazgos de la adquisición en caliente.</caption>
+        <thead>
+          <tr><th scope="col">Punto</th><th scope="col">Dato</th><th scope="col">Hallazgo</th><th scope="col">Figura</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Fecha y hora</td><td>14/11/2026, 09:24 p. m. (UTC-06:00)</td><td>4</td></tr>
+          <tr><td>2</td><td>Procesos</td><td>Procesos normales de Windows y del usuario (Chrome, Recorte); además cmd, PowerShell y tasklist del analista</td><td>4–6</td></tr>
+          <tr><td>3</td><td>Servicios</td><td>sc query solo muestra activos; Get-Service también los detenidos; WinDefend activo, WSL y Hyper-V presentes</td><td>7, 8</td></tr>
+          <tr><td>4</td><td>Usuarios activos</td><td>Una sesión local: «usuario», consola, desde las 07:52 p. m.</td><td>9</td></tr>
+          <tr><td>5</td><td>Usuarios históricos</td><td>NetUsers (actual e historial) sin entradas; con WMI y el Registro: único usuario «Usuario» (SID -1001)</td><td>10–13</td></tr>
+          <tr><td>6</td><td>Red</td><td>192.168.1.141 por Wi-Fi, puerta de enlace 192.168.1.254, DNS 8.8.8.8 y 8.8.4.4</td><td>14, 15</td></tr>
+          <tr><td>7</td><td>NetBIOS</td><td>DESKTOP-A6V0BD7 (&lt;00&gt;, &lt;20&gt;) y grupo WORKGROUP</td><td>16, 17</td></tr>
+          <tr><td>8</td><td>Conexiones</td><td>Conexiones externas todas al puerto 443; locales al 8009 de 192.168.1.161</td><td>18–20</td></tr>
+          <tr><td>9</td><td>Puertos y programas</td><td>Puertos en escucha vinculados a su ejecutable; servicios web de terceros en 3582 y 8080</td><td>21–23</td></tr>
+          <tr><td>10</td><td>Dominios</td><td>Dominios de Delivery Optimization de Microsoft y mshome.net</td><td>24, 25</td></tr>
+          <tr><td>11</td><td>ARP</td><td>Router 192.168.1.254 y dos equipos más (192.168.1.161 y 192.168.1.182)</td><td>26</td></tr>
+          <tr><td>12</td><td>WiFi</td><td>18 perfiles guardados; la clave se puede ver en texto claro con key=clear</td><td>27, 28</td></tr>
+          <tr><td>13</td><td>Historial</td><td>CMD con los comandos de la adquisición; PowerShell con comandos de desarrollo</td><td>29, 30</td></tr>
+          <tr><td>14</td><td>Unidades mapeadas</td><td>Ninguna</td><td>31</td></tr>
+          <tr><td>15</td><td>Recursos compartidos</td><td>Solo C$, IPC$ y ADMIN$ (administrativos)</td><td>32</td></tr>
+          <tr><td>16</td><td>Sistema</td><td>Lenovo 2349EJ6, Windows 10 Pro 19045, instalado el 22/11/2023, WORKGROUP</td><td>33, 34</td></tr>
+          <tr><td>17</td><td>Tareas programadas</td><td>Solo tareas de Microsoft en las capturas revisadas</td><td>35–38</td></tr>
+          <tr><td>18</td><td>Registros de eventos</td><td>System exportado como System_Logs.evtx en el Escritorio</td><td>39</td></tr>
+          <tr><td>19</td><td>Archivo hosts</td><td>Sin entradas activas, sin modificar desde 2019</td><td>40</td></tr>
+          <tr><td>20</td><td>Árbol de directorios</td><td>714,723 archivos y 670,912 directorios, con fecha de creación</td><td>41–44</td></tr>
+          <tr><td>—</td><td>Hashes</td><td>24 hashes SHA-256 (23 .txt y System_Logs.evtx) en 21_hashes.txt</td><td>45–47</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Análisis e indicios de actividad maliciosa</h3>
+    <p>
+      Los datos recolectados no muestran un compromiso evidente del equipo: no se observan procesos de nombre sospechoso, conexiones a puertos inusuales, entradas en hosts ni tareas programadas de terceros. Sí hay hallazgos que se deben verificar y que, en un caso real, se tratarían como indicios a investigar. La tabla 10 los resume.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 10. Observaciones y posibles indicios.</caption>
+        <thead>
+          <tr><th scope="col">N.º</th><th scope="col">Observación</th><th scope="col">Evidencia</th><th scope="col">Lectura y acción</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Servicios web y de red de terceros escuchando en 0.0.0.0 (puertos 2343, 3580, 3582, 8080 y 59110)</td><td>netstat -anob</td><td>Probable software legítimo (National Instruments); verificar ruta, firma y regla de firewall</td></tr>
+          <tr><td>2</td><td>SMB (445), NetBIOS (139) y recursos administrativos C$, IPC$ y ADMIN$</td><td>netstat, net share</td><td>Configuración normal, pero amplía la superficie de ataque; restringir con el firewall</td></tr>
+          <tr><td>3</td><td>Contraseñas WiFi recuperables en texto claro por un administrador</td><td>netsh ... key=clear</td><td>Tratar como información confidencial; cambiar contraseñas si hubo un acceso no autorizado</td></tr>
+          <tr><td>4</td><td>Paquete pynput (captura de teclado y ratón) en el historial de PowerShell</td><td>Historial de PowerShell</td><td>Uso probable en una práctica de programación; confirmar con el usuario</td></tr>
+          <tr><td>5</td><td>DNS manual (8.8.8.8 y 8.8.4.4)</td><td>ipconfig /all</td><td>Configuración legítima frecuente; verificar que no la cambiara un malware</td></tr>
+          <tr><td>6</td><td>Elementos creados en la Papelera durante la adquisición</td><td>dir /s /t:c</td><td>Documentar qué se eliminó y por qué</td></tr>
+          <tr><td>7</td><td>Windows 10 sin soporte estándar desde octubre de 2025</td><td>systeminfo</td><td>Riesgo de vulnerabilidades sin parche; migrar o activar las actualizaciones extendidas</td></tr>
+          <tr><td>8</td><td>Los comandos del analista aparecen en procesos e historial</td><td>tasklist, doskey, PSReadLine</td><td>Efecto del investigador; documentar y distinguir de la actividad del usuario</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Correlación entre evidencias. Varios datos se confirman entre sí: las IP 72.145.35.x de netstat coinciden con los dominios de Microsoft de la caché DNS; los PID de netstat -anob coinciden con los de tasklist; la dirección 192.168.1.254 coincide en ipconfig, ARP y la puerta de enlace; el grupo WORKGROUP coincide en nbtstat y systeminfo; y la hora de inicio de la concesión DHCP coincide con el arranque del sistema. Esas coincidencias dan consistencia a la adquisición.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 11. Línea de tiempo de la adquisición (14/11/2026).</caption>
+        <thead>
+          <tr><th scope="col">Hora</th><th scope="col">Evento</th><th scope="col">Fuente</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>07:51:11 p. m.</code></td><td>Arranque del sistema</td><td>systeminfo</td></tr>
+          <tr><td><code>07:51:25 p. m.</code></td><td>Se obtiene la concesión DHCP de la red Wi-Fi</td><td>ipconfig /all</td></tr>
+          <tr><td><code>07:52 p. m.</code></td><td>Inicia sesión el usuario «usuario» (consola)</td><td>query user</td></tr>
+          <tr><td><code>09:24 p. m.</code></td><td>Inicio de la adquisición: fecha y hora, y procesos</td><td>date, time, tasklist</td></tr>
+          <tr><td><code>09:26 p. m. a 09:44 p. m.</code></td><td>Servicios, usuarios, información de red y NetBIOS</td><td>sc query, Get-Service, query user, ipconfig, nbtstat</td></tr>
+          <tr><td><code>09:46 p. m. a 09:57 p. m.</code></td><td>Conexiones, puertos, caché DNS, ARP y perfiles WiFi</td><td>netstat, ipconfig, arp, netsh</td></tr>
+          <tr><td><code>09:58 p. m. a 10:00 p. m.</code></td><td>Historial de comandos de CMD y PowerShell</td><td>doskey, PSReadLine</td></tr>
+          <tr><td><code>10:01 p. m. a 10:09 p. m.</code></td><td>Unidades, recursos compartidos, información del sistema y tareas</td><td>net use, net share, systeminfo, schtasks</td></tr>
+          <tr><td><code>10:11 p. m.</code></td><td>Exportación del registro System y copia de hosts</td><td>wevtutil, copy</td></tr>
+          <tr><td><code>10:16 p. m. a 10:19 p. m.</code></td><td>Árbol de directorios y revisión de la carpeta de evidencia</td><td>dir /s /t:c</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Orden de volatilidad, integridad y limitaciones</h3>
+    <p>
+      Orden de volatilidad. La RFC 3227 indica recolectar primero lo más volátil. La adquisición siguió ese criterio: primero la fecha y hora, los procesos, los servicios, las sesiones, la configuración y las conexiones de red, la caché DNS y la tabla ARP (datos en memoria que cambian en segundos o minutos); después, el historial de comandos, la configuración del sistema y las tareas; y al final los registros de eventos, el archivo hosts y el árbol de archivos del disco (datos persistentes). El orden respeta el criterio, con una excepción: no se capturó la memoria RAM, que en un caso real se adquiere antes que todo lo demás, con una herramienta especializada.
+    </p>
+    <p>
+      Integridad y cadena de custodia. Los archivos se guardaron en la misma unidad del sistema analizado, y no en un medio externo, de modo que la propia recolección modifica el disco. Los hashes SHA-256 se calcularon hasta el 15/11/2026 a las 10:57 a. m., unas 12 horas después de crear la mayoría de los archivos; lo recomendable es calcular el hash de cada archivo inmediatamente después de crearlo y registrarlo en la cadena de custodia con quién, cuándo y con qué herramienta se obtuvo.
+    </p>
+    <p>
+      Limitaciones. Los resultados describen un instante (14/11/2026, desde las 09:24 p. m.); el sistema no estaba aislado de la red, de modo que los datos cambiaron durante la hora que duró la recolección. Las capturas muestran partes de salidas largas, y el contenido completo está en los archivos .txt. Los comandos usados son del propio sistema, que un malware con privilegios podría manipular (rootkits), por lo que en un caso real se usarían binarios de confianza desde un medio externo y se compararía con una imagen de memoria. Además, el punto 5 quedó limitado por el alcance de NetUsers sin la opción de historial. Por último, la identificación de las IP remotas y de algunos programas es una hipótesis a confirmar con WHOIS y con la verificación de firmas digitales.
+    </p>
+
+    <h3>Siguientes pasos de la investigación</h3>
+    <p>
+      Con base en los hallazgos y en las limitaciones, se proponen los siguientes pasos para una investigación forense real (tabla 12).
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 12. Siguientes pasos de la investigación.</caption>
+        <thead>
+          <tr><th scope="col">N.º</th><th scope="col">Línea</th><th scope="col">Acción propuesta</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Preservar la evidencia</td><td>Calcular el SHA-256 de los archivos .txt y del .evtx, copiarlos a un medio externo y registrar la cadena de custodia.</td></tr>
+          <tr><td>2</td><td>Capturar la memoria</td><td>Adquirir la RAM con una herramienta especializada y analizarla con Volatility para ver procesos ocultos, conexiones y credenciales; después, hacer una imagen forense del disco.</td></tr>
+          <tr><td>3</td><td>Analizar los registros de eventos</td><td>Abrir System_Logs.evtx y exportar también Security y Application, para revisar inicios de sesión (eventos 4624 y 4625), creación de procesos (4688), instalación de servicios (7045) y cambios de cuentas.</td></tr>
+          <tr><td>4</td><td>Verificar procesos y servicios</td><td>Comprobar la ruta, el editor y la firma digital de los programas de terceros (lkads, nisvcloc, nidmsrv, SystemWebServer, ApplicationWebServer) y obtener el hash de sus ejecutables para consultarlo en VirusTotal.</td></tr>
+          <tr><td>5</td><td>Identificar las IP remotas</td><td>Hacer WHOIS y geolocalización de las IP con conexión establecida, y comprobar si hay IP en listas de reputación.</td></tr>
+          <tr><td>6</td><td>Revisar persistencia</td><td>Examinar el Registro (Run y RunOnce), las carpetas de Inicio, los servicios y las tareas no pertenecientes a Microsoft con Autoruns, y filtrar el archivo de tareas.</td></tr>
+          <tr><td>7</td><td>Reconstruir la línea de tiempo</td><td>Construir una línea de tiempo con la MFT, los registros, el historial del navegador y los archivos recientes; revisar el contenido de la Papelera de reciclaje.</td></tr>
+          <tr><td>8</td><td>Reducir la exposición</td><td>Restringir los puertos 445 y 139 y los servicios web de terceros con el firewall, cambiar las contraseñas WiFi expuestas y actualizar o migrar el sistema operativo.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="conclusion">
+    <h2>Conclusión</h2>
+    <p>
+      La adquisición en caliente permitió recolectar, con comandos del propio sistema, la información volátil y de configuración de un equipo Windows 10 Pro: fecha y hora, 20 puntos de evidencia en archivos de texto, un registro de eventos exportado y el árbol de archivos del disco. Cada comando se explicó, se ejecutó y se interpretó. La comparación entre CMD y PowerShell mostró que ambos leen el mismo administrador de servicios, pero sc query solo muestra los servicios activos, mientras que Get-Service muestra también los detenidos y entrega objetos que se pueden filtrar y exportar, por lo que ambos se complementan.
+    </p>
+    <p>
+      El análisis no encontró indicios claros de actividad maliciosa: los procesos, servicios, conexiones y tareas observados corresponden a Windows y a programas de uso normal. Se señalaron observaciones para verificar, como los servicios web de terceros que escuchan en todas las interfaces, los recursos administrativos compartidos, las contraseñas WiFi recuperables y el fin del soporte de Windows 10. Como limitaciones, la recolección modifica el sistema, los archivos se guardaron en el mismo disco, no se capturó la RAM, los hashes se calcularon horas después de crear los archivos, y NetUsers no mostró historial ni con /history, por lo que el punto 5 se completó con WMI y el Registro. Esta práctica mostró la importancia de documentar cada paso y de seguir el orden de volatilidad desde los primeros minutos de una escena digital.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>Brezinski, D., &amp; Killalea, T. (2002). Guidelines for evidence collection and archiving (RFC 3227). Internet Engineering Task Force. https://www.rfc-editor.org/rfc/rfc3227</li>
+      <li>Carvey, H. (2014). Windows forensic analysis toolkit: Advanced analysis techniques for Windows 8 (4.ª ed.). Syngress.</li>
+      <li>Kent, K., Chevalier, S., Grance, T., &amp; Dang, H. (2006). Guide to integrating forensic techniques into incident response (NIST Special Publication 800-86). National Institute of Standards and Technology. https://csrc.nist.gov/pubs/sp/800/86/final</li>
+      <li>Microsoft. (s. f.). arp. Microsoft Learn. https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/arp</li>
+      <li>Microsoft. (s. f.). Get-Service. Microsoft Learn. https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-service</li>
+      <li>Microsoft. (s. f.). netstat. Microsoft Learn. https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netstat</li>
+      <li>Microsoft. (s. f.). sc query. Microsoft Learn. https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/sc-query</li>
+      <li>Microsoft. (s. f.). schtasks. Microsoft Learn. https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks</li>
+      <li>Microsoft. (s. f.). Task Scheduler error and success constants. Microsoft Learn. https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-error-and-success-constants</li>
+      <li>Microsoft. (s. f.). tasklist. Microsoft Learn. https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/tasklist</li>
+      <li>Microsoft. (s. f.). wevtutil. Microsoft Learn. https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wevtutil</li>
+      <li>Microsoft. (s. f.). Windows 10 Home and Pro lifecycle. Microsoft Learn. https://learn.microsoft.com/en-us/lifecycle/products/windows-10-home-and-pro</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+  <a class="btn btn--pdf" href="../../assets/parcial-3/LARZ ACT19.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
