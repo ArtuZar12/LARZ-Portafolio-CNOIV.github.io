@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-18 · La huella digital de un cibercriminal — Portafolio</title>
+
+<!-- Aplica el tema guardado ANTES de pintar la página, para evitar parpadeo -->
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem("portfolio-theme");
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+
+<div class="statusbar" role="status" aria-label="Estado del sitio">
+  <div class="statusbar__inner">
+    <span class="statusbar__item"><span class="dot dot--live" aria-hidden="true"></span>ESTADO: EN LÍNEA</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">ACCESO: PÚBLICO</span>
+    <span class="statusbar__sep" aria-hidden="true">·</span>
+    <span class="statusbar__item">SSL: <span data-ssl-check>VERIFICANDO…</span></span>
+  </div>
+</div>
+
+<nav class="activity-page__crumb">
+  <a href="../../index.html#parciales">&larr; Volver al portafolio</a>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Cambiar a tema oscuro">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</nav>
+
+<header class="activity-header">
+  <div class="activity-header__tags">
+    <span class="tag">Parcial 3</span>
+    <span class="tag">ACT-18</span>
+  </div>
+  <h1>La investigación forense: la huella digital de un cibercriminal</h1>
+  <div class="activity-header__meta">
+    <span><strong>Asignatura:</strong> CNO IV — Seguridad Informática</span>
+    <span><strong>Fecha de entrega:</strong> 14/11/2026</span>
+    <span><strong>Estudiante:</strong> Luis Arturo Rocha Zarazúa</span>
+  </div>
+</header>
+
+<main class="activity-body">
+
+  <section id="objetivo">
+    <h2>Objetivo</h2>
+    <p>
+      Este reporte documenta la Actividad 18, «La investigación forense: la huella digital de un cibercriminal». El objetivo es familiarizarse con la herramienta Autopsy para analizar una imagen forense, aplicar una metodología estructurada de investigación, cuidar la integridad de la evidencia y relacionar los hallazgos con el caso. Cada paso se documenta con su captura de pantalla, el resultado obtenido y la razón técnica por la que se realiza.
+    </p>
+    <p>
+      Hechos del caso. El 20 de septiembre de 2004 se encontró abandonada una computadora portátil Dell CPi (número de serie VLQLW) junto con una tarjeta PCMCIA inalámbrica y una antena externa 802.11b casera. Se sospecha que se usó con fines de piratería, pero no existe un vínculo directo con un sospechoso: Greg Schardt, conocido en línea como «Mr. Evil». Según sus asociados, estacionaba su vehículo al alcance de puntos de acceso inalámbricos (cafeterías y otros hotspots) para interceptar tráfico de Internet y obtener números de tarjetas de crédito, nombres de usuario y contraseñas (fraude conocido como carding). La imagen forense del disco proviene del caso «Hacking Case» de NIST (CFReDS), que se usa para entrenamiento forense.
+    </p>
+    <p>
+      De las 31 preguntas del escenario se responden las que indica la actividad. La tabla 1 muestra cada pregunta y dónde se resolvió en Autopsy.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 1. Preguntas de la actividad y fuente de la respuesta.</caption>
+        <thead>
+          <tr><th scope="col">Pregunta</th><th scope="col">Dónde se responde</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Tipos de origen «Logical Files» y «Local Disk»</td><td>Asistente Add Data Source (conocimiento de la herramienta)</td></tr>
+          <tr><td>Hash de la imagen y coincidencia</td><td>Resumen del contenedor (Summary → Container)</td></tr>
+          <tr><td>Sistema operativo</td><td>Data Artifacts → Operating System Information</td></tr>
+          <tr><td>Fecha de instalación</td><td>Hive SOFTWARE, llave CurrentVersion (InstallDate)</td></tr>
+          <tr><td>Zona horaria</td><td>Hive SYSTEM, llave TimeZoneInformation</td></tr>
+          <tr><td>Propietario registrado</td><td>Operating System Information y llave CurrentVersion</td></tr>
+          <tr><td>Nombre de la cuenta de la computadora</td><td>Hive SYSTEM, llaves ComputerName y Tcpip</td></tr>
+          <tr><td>Nombre de dominio principal</td><td>Hive SYSTEM, llaves Tcpip\Parameters y lanmanworkstation</td></tr>
+          <tr><td>Último apagado del equipo</td><td>Hive SYSTEM, llave Control\Windows (ShutdownTime)</td></tr>
+          <tr><td>Número total de cuentas</td><td>Hive SAM (Users\Names) y vista OS Accounts</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="desarrollo">
+    <h2>Desarrollo</h2>
+
+    <h3>Obtención de la evidencia</h3>
+    <p>
+      Se descargó la evidencia del enlace indicado en la actividad (https://cfreds-archive.nist.gov/Hacking_Case.html). Está compuesta por 8 partes (SCHARDT.001 a SCHARDT.008) de una sola imagen en formato RAW dividida en segmentos, que se guardaron en una misma carpeta: Escritorio\Act18\Evidencias. Para el proyecto se creó, en la misma carpeta Act18, la carpeta Caso, que se usará como directorio base y que está vacía al inicio (figura 1).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-1.jpg" alt="Carpetas Caso (vacía) y Evidencias con las 8 partes de la imagen">
+      <figcaption>Figura 1. Carpeta Caso vacía y carpeta Evidencias con las 8 partes de la imagen (8 elementos).</figcaption>
+    </figure>
+    <p>
+      Windows oculta la extensión de los tipos de archivo que reconoce, por eso las partes .001 y .003 aparecen solo como «SCHARDT»; la ruta que muestra Autopsy más adelante (figura 8) confirma que el primer fragmento es SCHARDT.001. Se mantienen todos los fragmentos juntos porque Autopsy los une automáticamente al abrir la primera parte.
+    </p>
+
+    <h3>Configuración del caso en Autopsy</h3>
+    <p>
+      Se ejecutó Autopsy 4.23.1 y en la ventana de bienvenida se eligió «New Case» (figura 2).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-2.jpg" alt="Ventana de bienvenida de Autopsy 4.23.1">
+      <figcaption>Figura 2. Ventana de bienvenida de Autopsy: New Case, Open Recent Case y Open Case.</figcaption>
+    </figure>
+    <p>
+      En la primera pestaña (Case Information) se capturó el nombre del caso INV01UPSLP y como directorio base la carpeta Caso creada en el escritorio. El tipo de caso es Single-User, porque el análisis lo hace una sola persona en un solo equipo. Autopsy muestra la ruta final en la que guardará todos los datos del caso (figura 3).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-3.jpg" alt="Pestaña Case Information con el nombre INV01UPSLP">
+      <figcaption>Figura 3. Case Information: nombre del caso, directorio base y tipo de caso.</figcaption>
+    </figure>
+    <p>
+      En la segunda pestaña (Optional Information) se registró el número de caso 01, los datos del examinador (nombre, correo institucional y teléfono vacío) y las notas «Fraude (carding) Greg Schardt» (figura 4). Estos datos quedan almacenados en el caso y aparecen en los reportes, lo que ayuda a la trazabilidad: indican quién realizó el análisis y sobre qué asunto.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-4.jpg" alt="Pestaña Optional Information con número de caso, examinador y notas">
+      <figcaption>Figura 4. Optional Information: número de caso, examinador y notas del caso.</figcaption>
+    </figure>
+    <p>
+      Con «Manage Organizations» se creó una nueva organización y se seleccionó para el caso (figura 5). Sus datos se resumen en la tabla 2 junto con los demás datos de configuración.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-5.jpg" alt="Ventana Manage Organizations con la organización creada">
+      <figcaption>Figura 5. Manage Organizations: organización Universidad Politécnica de San Luis Potosí.</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 2. Datos de configuración del caso.</caption>
+        <thead>
+          <tr><th scope="col">Campo</th><th scope="col">Valor</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Case Name</td><td>INV01UPSLP</td></tr>
+          <tr><td>Base Directory</td><td>C:\Users\Usuario\Desktop\Act18\Caso</td></tr>
+          <tr><td>Case Type</td><td>Single-User</td></tr>
+          <tr><td>Number</td><td>01</td></tr>
+          <tr><td>Examiner (nombre / correo)</td><td>Luis Arturo Rocha Zarazúa / 185050@upslp.edu.mx</td></tr>
+          <tr><td>Notes</td><td>Fraude (carding) Greg Schardt</td></tr>
+          <tr><td>Organization Name</td><td>Universidad Politécnica de San Luis Potosí</td></tr>
+          <tr><td>Contacto de la organización</td><td>CNO IV – Seguridad Informática (teléfono xxxxxx)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Importación de la imagen forense</h3>
+    <p>
+      Al terminar la configuración, Autopsy creó la estructura del caso y abrió el asistente Add Data Source. En el primer paso se dejó la opción «Generate new host name based on data source name», con la que Autopsy crea un host nuevo a partir del nombre de la fuente de datos (figura 6). Un host sirve para organizar las fuentes de datos que pertenecen a un mismo equipo.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-6.jpg" alt="Asistente Add Data Source, paso Select Host">
+      <figcaption>Figura 6. Select Host: generar un nombre de host nuevo según la fuente de datos.</figcaption>
+    </figure>
+    <p>
+      En el segundo paso se seleccionó «Disk Image or VM File», porque la evidencia es una imagen de disco en formato RAW (figura 7).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-7.jpg" alt="Paso Select Data Source Type con Disk Image or VM File seleccionado">
+      <figcaption>Figura 7. Select Data Source Type: Disk Image or VM File.</figcaption>
+    </figure>
+    <p>
+      En el tercer paso se indicó la ubicación de los archivos: el primer fragmento, SCHARDT.001, de la carpeta Evidencias. La zona horaria de la importación es America/Mexico_City (GMT-6:00) y el tamaño de sector se dejó en detección automática; los campos de hash se dejaron vacíos porque son opcionales y no se validan al agregar la fuente (figura 8).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-8.jpg" alt="Paso Select Data Source con la ruta de SCHARDT.001">
+      <figcaption>Figura 8. Select Data Source: ruta de SCHARDT.001, zona horaria y tamaño de sector.</figcaption>
+    </figure>
+    <p>
+      En el cuarto paso (Configure Ingest) se ejecutaron los módulos sobre «All Files, Directories, and Unallocated Space» y se marcaron todos los módulos disponibles con «Select All», entre ellos Recent Activity, Hash Lookup, File Type Identification, Extension Mismatch Detector, Embedded File Extractor, Picture Analyzer, Keyword Search, Email Parser, Encryption Detection, Interesting Files Identifier, Central Repository, PhotoRec Carver y Virtual Machine Extractor (figura 9). Activar todos los módulos permite que Autopsy extraiga automáticamente artefactos del sistema, del navegador y del correo, además de buscar archivos eliminados en el espacio no asignado.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-9.jpg" alt="Paso Configure Ingest con todos los módulos marcados">
+      <figcaption>Figura 9. Configure Ingest: todos los módulos de búsqueda seleccionados.</figcaption>
+    </figure>
+    <p>
+      Por último, el asistente informó que la fuente de datos se agregó a la base de datos local y que los archivos se estaban analizando; se pulsó Finish y la importación continuó en segundo plano (figura 10). En el panel izquierdo ya aparecen los árboles de Data Sources, File Views y Data Artifacts.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-10.jpg" alt="Paso Add Data Source con el mensaje de que los archivos se están analizando">
+      <figcaption>Figura 10. Add Data Source: la fuente se agregó y los archivos se están analizando.</figcaption>
+    </figure>
+
+    <h3>Tipos de origen de datos</h3>
+    <p>
+      Pregunta: ¿a qué se refiere el tipo de origen «Logical Files»? Se refiere a archivos o carpetas individuales que se agregan al caso tal como existen en el sistema de archivos de un equipo o de un medio: por ejemplo, una carpeta de documentos, una carpeta copiada de un equipo o archivos recolectados por otra herramienta. Autopsy los trata como un conjunto lógico de archivos, así que solo se analizan su contenido y sus metadatos visibles. No hay estructura del disco, ni espacio no asignado, ni archivos eliminados que recuperar.
+    </p>
+    <p>
+      Pregunta: ¿a qué se refiere el tipo de origen «Local Disk»? Se refiere a un disco o volumen físico conectado al equipo del analista (una unidad interna o externa, una memoria USB) que se lee directamente, sector por sector. Como se analiza el medio completo, se pueden revisar particiones, archivos eliminados, espacio no asignado y espacio sobrante (slack). Para no alterar la evidencia, el disco debe conectarse mediante un bloqueador de escritura (write blocker). Para este caso se eligió «Disk Image or VM File» y no «Local Disk», porque la evidencia ya es una copia forense en archivo y no se debe trabajar sobre el disco original. La tabla 3 compara los tres tipos.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 3. Comparación de tipos de origen de datos de Autopsy.</caption>
+        <thead>
+          <tr><th scope="col">Aspecto</th><th scope="col">Disk Image or VM File</th><th scope="col">Local Disk</th><th scope="col">Logical Files</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Qué es</td><td>Imagen de disco en archivo (RAW, E01, VMDK…)</td><td>Disco o volumen conectado al equipo</td><td>Archivos o carpetas individuales</td></tr>
+          <tr><td>Archivos eliminados</td><td>Sí</td><td>Sí</td><td>No</td></tr>
+          <tr><td>Espacio no asignado</td><td>Sí</td><td>Sí</td><td>No</td></tr>
+          <tr><td>Modifica la evidencia</td><td>No (se trabaja sobre la copia)</td><td>Riesgo si no hay write blocker</td><td>No</td></tr>
+          <tr><td>Uso en esta actividad</td><td>Sí (SCHARDT.001–.008)</td><td>No</td><td>No</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Hash de la imagen</h3>
+    <p>
+      Una vez agregada la fuente, en la pestaña Summary → Container se revisaron los datos de la imagen. Autopsy la identifica como «Raw Single» (las 8 partes se leen como una sola imagen) de 4.87 GB (4,871,301,120 bytes), con 3.08 GB de espacio no asignado y sectores de 512 bytes. Al inicio, los campos MD5, SHA1 y SHA256 estaban vacíos, igual que «Acquisition Details»: una imagen RAW no guarda metadatos de adquisición ni hashes dentro del archivo (figura 11).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-11.jpg" alt="Pestaña Container del resumen sin hashes calculados">
+      <figcaption>Figura 11. Summary → Container: la imagen aún no muestra hashes y no tiene detalles de adquisición.</figcaption>
+    </figure>
+    <p>
+      El módulo de ingest «Data Source Integrity» calcula los hashes de la imagen completa y, por el tamaño del archivo, tarda varios minutos. En la barra inferior se ve su avance (31 %, figura 12) y, al terminar, los tres hashes aparecen en el resumen (figura 13).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-12.jpg" alt="Barra de progreso de Data Source Integrity al 31 %">
+      <figcaption>Figura 12. Barra de progreso del módulo «Data Source Integrity» (31 %).</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-13.jpg" alt="Resumen del contenedor con los hashes MD5, SHA1 y SHA256">
+      <figcaption>Figura 13. Resumen del contenedor con los hashes calculados por Autopsy.</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 4. Hashes de la imagen y comparación con el hash de adquisición.</caption>
+        <thead>
+          <tr><th scope="col">Algoritmo</th><th scope="col">Hash calculado por Autopsy (verificación)</th><th scope="col">Hash de adquisición</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>MD5</td><td><code>aee4fcd9301c03b3b054623ca261959a</code></td><td>Coincide</td></tr>
+          <tr><td>SHA-1</td><td><code>da2fe30fe21711edf42310873af475859a68f300</code></td><td>Línea base</td></tr>
+          <tr><td>SHA-256</td><td><code>65e2002fed0b286f49541c7e97dcec0dda913d51a063ceeed86782bdacda2312</code></td><td>Línea base</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> el hash de la imagen es MD5 aee4fcd9301c03b3b054623ca261959a. Coincide con el hash de adquisición (el MD5 publicado por NIST para la imagen completa del caso Hacking Case), por lo que la copia analizada es idéntica a la original y no se alteró en la descarga ni al importarla. Los hashes SHA-1 y SHA-256 se calcularon como respaldo y se conservan como línea base: no se compararon porque la referencia publica solo el MD5.
+    </div>
+    <p>
+      Por qué es importante. El hash es una huella digital del contenido: si cambia un solo bit de la imagen, el resultado es totalmente distinto. Comparar el hash de adquisición con el de verificación demuestra que la evidencia se mantiene íntegra, requisito de la cadena de custodia para que los hallazgos tengan valor probatorio. Como MD5 es débil frente a colisiones, se recomienda apoyarse además en SHA-256.
+    </p>
+
+    <h3>Sistema operativo</h3>
+    <p>
+      Para identificar el sistema operativo se usó el árbol Data Artifacts → Operating System Information, que Autopsy llena con el módulo Recent Activity (figura 14).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-14.jpg" alt="Operating System Information con Microsoft Windows XP y propietario">
+      <figcaption>Figura 14. Operating System Information: Microsoft Windows XP, x86, propietario Greg Schardt.</figcaption>
+    </figure>
+    <p>
+      Resultado. Autopsy reporta Program Name «Microsoft Windows XP», arquitectura x86 (32 bits), ruta de instalación C:\WINDOWS, directorio temporal %SystemRoot%\TEMP y Product ID 55274-640-0147306-23684. Los datos coinciden con la llave CurrentVersion del hive SOFTWARE (figura 15): ProductName «Microsoft Windows XP», CurrentVersion 5.1 y CurrentBuildNumber 2600, que corresponden a la familia Windows XP.
+    </p>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> el sistema operativo de la computadora era Microsoft Windows XP de 32 bits (versión 5.1, compilación 2600).
+    </div>
+
+    <h3>Fecha de instalación</h3>
+    <p>
+      La fecha de instalación se obtuvo del Registro. Con el visor de Autopsy (pestaña Application) se abrió el archivo software, ubicado en /Windows/system32/config, y se navegó a SOFTWARE\Microsoft\Windows NT\CurrentVersion (figura 15).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-16.jpg" alt="Llave CurrentVersion con el valor InstallDate">
+      <figcaption>Figura 15. Llave CurrentVersion: InstallDate 0x41252e3b (1092955707) y RegisteredOwner.</figcaption>
+    </figure>
+    <p>
+      Resultado. El valor InstallDate es un REG_DWORD con 0x41252e3b, es decir, 1,092,955,707 segundos desde el 1 de enero de 1970 (tiempo Unix). Se convirtió con Python para comprobarlo:
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo1">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo1" class="code-block__code">python3 -c &quot;import datetime as d; print(d.datetime(1970,1,1)+d.timedelta(seconds=0x41252e3b))&quot;
+2004-08-19 22:48:27</code></pre>
+    </div>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> la fecha de instalación fue el 19 de agosto de 2004 a las 22:48:27 UTC, que equivale a las 17:48:27 hora central de verano (CDT, UTC-5).
+    </div>
+    <p>
+      Observación. Los archivos de la carpeta config tienen fecha de creación del 19/08/2004 a las 11:56 CDT, anterior a la hora de InstallDate. Es esperable porque la instalación de Windows XP tiene varias fases (copia de archivos y modo gráfico), InstallDate se escribe al final y el reloj puede ajustarse durante el proceso. Por eso se reporta el valor InstallDate del Registro como fecha oficial de instalación.
+    </p>
+
+    <h3>Zona horaria</h3>
+    <p>
+      La zona horaria está en el hive SYSTEM, llave Control\TimeZoneInformation (figura 16).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-17.jpg" alt="Llave TimeZoneInformation con Central Standard Time">
+      <figcaption>Figura 16. Llave TimeZoneInformation: Central Standard Time y Central Daylight Time.</figcaption>
+    </figure>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 5. Valores de la llave TimeZoneInformation y su significado.</caption>
+        <thead>
+          <tr><th scope="col">Valor</th><th scope="col">Dato</th><th scope="col">Significado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>StandardName</code></td><td><code>Central Standard Time</code></td><td>Hora estándar central</td></tr>
+          <tr><td><code>Bias</code></td><td><code>0x168 (360)</code></td><td>UTC = hora local + 360 min, es decir, UTC-6</td></tr>
+          <tr><td><code>DaylightName</code></td><td><code>Central Daylight Time</code></td><td>Hora de verano central</td></tr>
+          <tr><td><code>DaylightBias</code></td><td><code>0xffffffc4 (-60)</code></td><td>En verano se adelanta 1 hora: UTC-5</td></tr>
+          <tr><td><code>StandardStart</code></td><td><code>00 00 0A 00 05 00 02 00…</code></td><td>Cambio a hora estándar: último domingo de octubre, 02:00</td></tr>
+          <tr><td><code>DaylightStart</code></td><td><code>00 00 04 00 01 00 02 00…</code></td><td>Cambio a hora de verano: primer domingo de abril, 02:00</td></tr>
+          <tr><td><code>ActiveTimeBias</code></td><td><code>0x12c (300)</code></td><td>Desfase activo: 300 min, es decir, UTC-5 (horario de verano)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> la computadora estaba configurada en la zona horaria Central Standard Time (hora central de Estados Unidos y Canadá, UTC-6), con horario de verano (Central Daylight Time, UTC-5). El ActiveTimeBias de 300 minutos indica que se estaba usando el horario de verano.
+    </div>
+    <p>
+      Importancia. Todas las marcas de tiempo del Registro se guardan en UTC y la zona horaria permite convertirlas a la hora local del equipo. En agosto de 2004, la zona America/Mexico_City que se eligió en la importación (figura 8) también estaba en UTC-5, por lo que las fechas que Autopsy muestra en CDT coinciden con las del equipo analizado. Las llaves del visor de Registro se muestran en GMT+00:00 y las del sistema de archivos en CDT, así que se convierten a una sola zona antes de compararlas.
+    </p>
+
+    <h3>Propietario registrado</h3>
+    <p>
+      El propietario aparece en dos lugares: en Operating System Information, campo Owner (figura 14), y en la llave CurrentVersion, valor RegisteredOwner (figura 15). Ambos coinciden, y RegisteredOrganization es «N/A».
+    </p>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> el propietario registrado es Greg Schardt, el nombre del sospechoso del caso.
+    </div>
+    <p>
+      Importancia. Es el primer vínculo entre la computadora y el sospechoso. Este valor es el nombre que se escribió al instalar Windows, así que prueba a nombre de quién se registró el sistema, pero no demuestra por sí solo quién lo usó; debe corroborarse con otras evidencias.
+    </p>
+
+    <h3>Nombre de la cuenta de la computadora</h3>
+    <p>
+      El nombre de la computadora está en el hive SYSTEM, llave Control\ComputerName\ComputerName (figura 17), y coincide con el campo Name de Operating System Information (figura 14).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-19.jpg" alt="Llave ComputerName con el valor N-1A9ODN6ZXK4LQ">
+      <figcaption>Figura 17. Llave ComputerName: valor N-1A9ODN6ZXK4LQ.</figcaption>
+    </figure>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> el nombre de la cuenta de la computadora es N-1A9ODN6ZXK4LQ. Esta llave se modificó por última vez el 19/08/2004 a las 22:20:03 UTC, poco antes de la fecha de instalación, lo que indica que el nombre se asignó durante la instalación. También aparece como NV Hostname y Hostname (en minúsculas) en la configuración TCP/IP.
+    </div>
+
+    <h3>Nombre de dominio principal</h3>
+    <p>
+      Para el dominio se revisó la configuración TCP/IP, en SYSTEM\Services\Tcpip\Parameters (figura 18), y la de la estación de trabajo, en Services\lanmanworkstation\parameters (figura 19).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-18.jpg" alt="Llave Tcpip Parameters con Domain sin valor">
+      <figcaption>Figura 18. Tcpip\Parameters: Domain (value not set) y Hostname n-1a9odn6zxk4lq.</figcaption>
+    </figure>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-20.jpg" alt="Llave lanmanworkstation parameters con OtherDomains vacío">
+      <figcaption>Figura 19. lanmanworkstation\parameters: OtherDomains sin valor.</figcaption>
+    </figure>
+    <p>
+      Resultado. En Tcpip\Parameters el valor Domain aparece como «(value not set)» y el Hostname es n-1a9odn6zxk4lq; en lanmanworkstation el valor OtherDomains está vacío. No hay un dominio DNS configurado ni dominios adicionales.
+    </p>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> la computadora no pertenecía a ningún dominio: era un equipo independiente, que funcionaba solo con cuentas locales. Su único identificador de red es el nombre N-1A9ODN6ZXK4LQ, que en un equipo independiente es también el «dominio» con el que se inicia sesión local.
+    </div>
+
+    <h3>Último apagado del equipo</h3>
+    <p>
+      La fecha del último apagado se guarda en SYSTEM\...\Control\Windows, valor ShutdownTime (figura 20).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-21.jpg" alt="Llave Windows con el valor ShutdownTime en hexadecimal">
+      <figcaption>Figura 20. Llave Windows: ShutdownTime = C4 FC 00 07 4D 8C C4 01.</figcaption>
+    </figure>
+    <p>
+      Resultado. ShutdownTime es un valor REG_BIN de 8 bytes que contiene una estructura FILETIME de Windows: el número de intervalos de 100 nanosegundos transcurridos desde el 1 de enero de 1601, guardado en orden little-endian. Los bytes C4 FC 00 07 4D 8C C4 01 se leen como 0x01C48C4D0700FCC4. Se decodificó con Python:
+    </p>
+    <div class="code-block">
+      <div class="code-block__bar">
+        <span class="code-block__lang">bash</span>
+        <button class="code-block__copy" type="button" data-copy-target="codigo2">Copiar</button>
+      </div>
+      <pre class="code-block__pre"><code id="codigo2" class="code-block__code">python3 -c &quot;import datetime as d; v=int.from_bytes(bytes.fromhex(&#x27;C4FC00074D8CC401&#x27;),&#x27;little&#x27;); print(d.datetime(1601,1,1)+d.timedelta(microseconds=v//10))&quot;
+2004-08-27 15:46:33.109216</code></pre>
+    </div>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> el último apagado registrado fue el 27 de agosto de 2004 a las 15:46:33 UTC, es decir, 10:46:33 hora central de verano (CDT, UTC-5).
+    </div>
+    <p>
+      Verificación cruzada. La propia llave Windows tiene como fecha de modificación 2004-08-27 15:46:33 UTC, y los hives system y software del listado de archivos (figuras 15 y 16) tienen fecha de modificación del 27/08/2004 a las 10:46:33 CDT, que es la misma hora. Tres fuentes independientes coinciden, lo que da confianza en el resultado. Además, la computadora fue apagada correctamente el 27 de agosto, unos 24 días antes de que fuera encontrada, el 20 de septiembre de 2004. ShutdownTime solo se actualiza en un apagado ordenado del sistema.
+    </p>
+
+    <h3>Cuentas registradas</h3>
+    <p>
+      Para contar las cuentas se abrió el hive SAM (Security Account Manager), la base de datos donde Windows guarda las cuentas locales, y se revisó la llave SAM\Domains\Account\Users\Names (figura 21).
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-22.jpg" alt="Llave Names del SAM con las cinco cuentas">
+      <figcaption>Figura 21. SAM\...\Users\Names: Administrator, Guest, HelpAssistant, Mr. Evil y SUPPORT_388945a0.</figcaption>
+    </figure>
+    <p>
+      Resultado. Bajo Users hay cinco identificadores de cuenta (RID) y la llave Names lista cinco nombres, descritos en la tabla 6.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 6. Cuentas registradas en el SAM.</caption>
+        <thead>
+          <tr><th scope="col">Cuenta</th><th scope="col">Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Administrator</td><td>Cuenta de administrador integrada de Windows (RID 500)</td></tr>
+          <tr><td>Guest</td><td>Cuenta de invitado integrada de Windows (RID 501)</td></tr>
+          <tr><td>HelpAssistant</td><td>Cuenta creada por Windows XP para la Asistencia remota</td></tr>
+          <tr><td>SUPPORT_388945a0</td><td>Cuenta del servicio de Ayuda y soporte técnico de Windows XP</td></tr>
+          <tr><td>Mr. Evil</td><td>Cuenta de usuario creada en el equipo; coincide con el alias del sospechoso</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="activity-callout">
+      <strong>Respuesta:</strong> hay 5 cuentas registradas. Solo una, «Mr. Evil», es una cuenta de usuario creada por una persona; las otras cuatro las genera Windows XP.
+    </div>
+    <p>
+      Contraste con la vista OS Accounts. Autopsy muestra 4 resultados en OS Accounts (figura 22): una cuenta de usuario con SID terminado en -1003 (login «mr», que probablemente es una versión truncada de «Mr. Evil») y tres SID de servicio del sistema (LOCAL SERVICE, NETWORK SERVICE y SYSTEM), que no son cuentas del SAM. Esa vista mezcla fuentes distintas y no contiene todas las cuentas locales, por lo que el total de cuentas registradas se toma del SAM: 5.
+    </p>
+    <figure class="activity-figure">
+      <img src="../../assets/parcial-3/act18-15.jpg" alt="Vista OS Accounts de Autopsy con cuatro resultados">
+      <figcaption>Figura 22. OS Accounts: cuenta de usuario -1003 (mr) y SID LOCAL SERVICE, NETWORK SERVICE y SYSTEM.</figcaption>
+    </figure>
+  </section>
+
+  <section id="resultados">
+    <h2>Resultados</h2>
+
+    <h3>Tabla de hallazgos</h3>
+    <p>
+      La tabla 7 consolida las respuestas de la actividad con la evidencia que las sustenta.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 7. Hallazgos del análisis de la imagen SCHARDT.</caption>
+        <thead>
+          <tr><th scope="col">Pregunta</th><th scope="col">Respuesta</th><th scope="col">Evidencia</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Hash de la imagen</td><td>MD5 aee4fcd9301c03b3b054623ca261959a; coincide con la adquisición</td><td>Summary → Container; figuras 11–13</td></tr>
+          <tr><td>Sistema operativo</td><td>Microsoft Windows XP, x86 (5.1, compilación 2600)</td><td>Operating System Information; figuras 14–15</td></tr>
+          <tr><td>Fecha de instalación</td><td>19/08/2004 22:48:27 UTC (17:48:27 CDT)</td><td>SOFTWARE\...\CurrentVersion; figura 15</td></tr>
+          <tr><td>Zona horaria</td><td>Central Standard Time (UTC-6), con horario de verano (UTC-5)</td><td>SYSTEM\...\TimeZoneInformation; figura 16</td></tr>
+          <tr><td>Propietario registrado</td><td>Greg Schardt</td><td>OS Information y CurrentVersion; figuras 14–15</td></tr>
+          <tr><td>Nombre de la computadora</td><td>N-1A9ODN6ZXK4LQ</td><td>ComputerName y Tcpip; figuras 17–18</td></tr>
+          <tr><td>Dominio principal</td><td>Ninguno (equipo independiente)</td><td>Tcpip y lanmanworkstation; figuras 18–19</td></tr>
+          <tr><td>Último apagado</td><td>27/08/2004 15:46:33 UTC (10:46:33 CDT)</td><td>SYSTEM\...\Windows; figura 20</td></tr>
+          <tr><td>Cuentas registradas</td><td>5 (Administrator, Guest, HelpAssistant, SUPPORT_388945a0, Mr. Evil)</td><td>SAM\...\Names; figura 21</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Análisis y correlación con el sospechoso</h3>
+    <p>
+      Los hallazgos se refuerzan entre sí y vinculan la computadora con el sospechoso:
+    </p>
+    <p>
+      <strong>Identidad.</strong> El propietario registrado de Windows es Greg Schardt, el nombre del sospechoso, y existe una cuenta de usuario llamada «Mr. Evil», el apodo en línea que los asociados le atribuyen. Ambos datos se encuentran en archivos distintos del sistema (la llave CurrentVersion y el SAM), por lo que no son una sola evidencia repetida.
+    </p>
+    <p>
+      <strong>Perfil del equipo.</strong> El equipo es una computadora independiente (sin dominio), con su propia cuenta de usuario, configurada en la zona horaria central y con la hora de verano activa. Este perfil encaja con un equipo personal que se usaba en distintos lugares, como describe el escenario, pero no demuestra por sí mismo el uso de puntos de acceso ajenos.
+    </p>
+    <p>
+      <strong>Línea de tiempo.</strong> La instalación del sistema (19 de agosto de 2004) y el último apagado (27 de agosto de 2004) delimitan el periodo de uso conocido, de unos ocho días, y el último apagado ocurrió unos 24 días antes de que se encontrara el equipo abandonado (20 de septiembre de 2004), tal como muestra la tabla 8.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 8. Línea de tiempo reconstruida (hora local CDT, UTC-5).</caption>
+        <thead>
+          <tr><th scope="col">Fecha y hora</th><th scope="col">Evento</th><th scope="col">Fuente</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>19/08/2004 17:20:03</code></td><td>Se asigna el nombre del equipo (ComputerName)</td><td>Registro</td></tr>
+          <tr><td><code>19/08/2004 17:48:27</code></td><td>Fecha de instalación de Windows XP (InstallDate)</td><td>Registro</td></tr>
+          <tr><td><code>27/08/2004 10:46:33</code></td><td>Último apagado ordenado del equipo</td><td>Registro</td></tr>
+          <tr><td><code>20/09/2004</code></td><td>La computadora se encuentra abandonada</td><td>Enunciado</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      El analizador de Autopsy ya extrajo otros artefactos que todavía no se han revisado y que son la continuación natural del caso: 32 programas instalados, 81 programas ejecutados, 51 ShellBags, 8 documentos recientes, 1 dispositivo USB conectado y actividad web (887 entradas de historial, 24 cookies, 6 marcadores y 4 búsquedas).
+    </p>
+
+    <h3>Consideraciones legales y cadena de custodia</h3>
+    <p>
+      Un análisis forense debe poder repetirse y defenderse ante una autoridad. Para ello se siguieron estas prácticas, que se resumen a continuación.
+    </p>
+    <p>
+      <strong>Integridad.</strong> La imagen se trabajó siempre como copia (imagen RAW en archivo), nunca sobre el disco original. Autopsy abre la evidencia en modo de solo lectura y no la modifica. Con un disco físico se necesitaría un bloqueador de escritura.
+    </p>
+    <p>
+      <strong>Verificación.</strong> Se calcularon hashes MD5, SHA-1 y SHA-256 de la imagen y se comparó el MD5 con el de adquisición (tabla 4). Si el hash cambia, la evidencia deja de ser confiable.
+    </p>
+    <p>
+      <strong>Documentación.</strong> Cada paso quedó documentado con capturas de pantalla, y el caso conserva el nombre del examinador, la fecha y las notas. Se registra qué se hizo, cuándo y con qué herramienta, para que otro analista pueda reproducir los resultados.
+    </p>
+    <p>
+      <strong>Aspectos legales.</strong> La cadena de custodia debe registrar quién tuvo la evidencia, cuándo y para qué, desde la recolección hasta su presentación. Además, el análisis solo debe realizarse con la autorización legal correspondiente (por ejemplo, orden judicial o consentimiento del propietario) y conforme a la ley de la jurisdicción; en México, el acceso ilícito a sistemas y equipos de informática se tipifica en los artículos 211 bis 1 a 211 bis 7 del Código Penal Federal. Las conclusiones deben presentarse como indicios y no como una acusación: Greg Schardt es un presunto responsable y se presume inocente mientras no se demuestre lo contrario.
+    </p>
+    <p>
+      Además, el uso de filtros y de módulos de búsqueda ayuda a encontrar evidencia relevante entre miles de archivos, y correlacionar varias fuentes (Registro, sistema de archivos y artefactos de Autopsy) hace más sólido el caso.
+    </p>
+
+    <h3>Líneas de investigación a seguir</h3>
+    <p>
+      Con la evidencia obtenida y los artefactos pendientes se proponen las líneas de investigación de la tabla 9.
+    </p>
+    <div class="activity-table-wrap">
+      <table class="activity-table">
+        <caption>Tabla 9. Líneas de investigación y recomendaciones.</caption>
+        <thead>
+          <tr><th scope="col">N.º</th><th scope="col">Línea</th><th scope="col">Acción propuesta</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Software de intercepción</td><td>Revisar Installed Programs (32) y Run Programs (81) para identificar herramientas de captura de tráfico, escaneo de redes inalámbricas o robo de contraseñas, y su fecha de instalación y de uso.</td></tr>
+          <tr><td>2</td><td>Actividad en Internet</td><td>Analizar el historial web (887 entradas), búsquedas, cookies y marcadores para ver qué sitios y redes visitó el usuario Mr. Evil.</td></tr>
+          <tr><td>3</td><td>Datos de tarjetas y credenciales</td><td>Buscar con Keyword Search números de tarjetas de crédito, nombres de usuario y contraseñas, y revisar los documentos recientes y los archivos eliminados del espacio no asignado.</td></tr>
+          <tr><td>4</td><td>Comunicaciones y correo</td><td>Revisar las cuentas y mensajes de correo (Email Parser) y las comunicaciones para identificar asociados o víctimas.</td></tr>
+          <tr><td>5</td><td>Dispositivos externos</td><td>Examinar el dispositivo USB conectado y las carpetas visitadas (ShellBags) para saber a dónde se copió información.</td></tr>
+          <tr><td>6</td><td>Hardware inalámbrico</td><td>Documentar la tarjeta PCMCIA y la antena 802.11b halladas junto con la computadora, y buscar en el sistema redes inalámbricas a las que se conectó.</td></tr>
+          <tr><td>7</td><td>Vínculo con la persona</td><td>Corroborar con testigos, cámaras y registros de los puntos de acceso que el usuario del equipo era Greg Schardt, ya que el registro y el nombre de cuenta no bastan por sí solos.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="conclusion">
+    <h2>Conclusión</h2>
+    <p>
+      La imagen forense SCHARDT se cargó en Autopsy y se verificó su integridad: el hash MD5 de la imagen es aee4fcd9301c03b3b054623ca261959a y coincide con el hash de adquisición. El análisis del Registro permitió responder todas las preguntas: la computadora tenía Windows XP de 32 bits, instalado el 19 de agosto de 2004 a las 22:48:27 UTC, configurado en la zona horaria central de Estados Unidos y Canadá, a nombre de Greg Schardt, con el nombre N-1A9ODN6ZXK4LQ, sin dominio, apagada por última vez el 27 de agosto de 2004 a las 15:46:33 UTC y con 5 cuentas, una de ellas llamada «Mr. Evil».
+    </p>
+    <p>
+      Estos datos vinculan la computadora con el sospechoso mediante evidencia independiente: el propietario registrado y el nombre de la cuenta de usuario. Sin embargo, que un equipo esté registrado a nombre de una persona no prueba quién lo usó; hacen falta los artefactos de uso (programas, navegación, correo, archivos) para demostrar las actividades de interceptación y fraude. Como limitaciones, las horas del Registro (UTC) y del sistema de archivos (CDT) deben convertirse a una misma zona; la vista OS Accounts de Autopsy no muestra todas las cuentas del SAM; y el hash de adquisición se tomó de la referencia publicada por NIST. Esta actividad mostró la importancia de seguir una metodología: preservar, verificar, analizar, correlacionar y documentar.
+    </p>
+  </section>
+
+  <section id="referencias">
+    <h2>Referencias bibliográficas</h2>
+    <ol class="activity-references">
+      <li>Brezinski, D., &amp; Killalea, T. (2002). Guidelines for evidence collection and archiving (RFC 3227). Internet Engineering Task Force. https://www.rfc-editor.org/rfc/rfc3227</li>
+      <li>Carvey, H. (2014). Windows forensic analysis toolkit: Advanced analysis techniques for Windows 8 (4.ª ed.). Syngress.</li>
+      <li>Carrier, B. (s. f.). Autopsy and The Sleuth Kit documentation. Basis Technology. https://sleuthkit.org/autopsy/docs.php</li>
+      <li>Cámara de Diputados del H. Congreso de la Unión. (s. f.). Código Penal Federal, título noveno, arts. 211 bis 1 a 211 bis 7. https://www.diputados.gob.mx/LeyesBiblio/pdf/CPF.pdf</li>
+      <li>Kent, K., Chevalier, S., Grance, T., &amp; Dang, H. (2006). Guide to integrating forensic techniques into incident response (NIST Special Publication 800-86). National Institute of Standards and Technology. https://csrc.nist.gov/pubs/sp/800/86/final</li>
+      <li>Microsoft. (s. f.). FILETIME structure. Microsoft Learn. https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime</li>
+      <li>Microsoft. (s. f.). TIME_ZONE_INFORMATION structure. Microsoft Learn. https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/ns-timezoneapi-time_zone_information</li>
+      <li>National Institute of Standards and Technology. (s. f.). Hacking Case. Computer Forensic Reference Data Sets (CFReDS). https://cfreds-archive.nist.gov/Hacking_Case.html</li>
+      <li>Shekhar, S. (s. f.). CFReDS Project: Hacking Case challenge writeup. Medium. https://medium.com/@sshekhar01/cfreds-project-hacking-case-challenge-writeup-6a52883eac0b</li>
+    </ol>
+  </section>
+
+</main>
+
+<div class="activity-download">
+  <a class="btn btn--pdf" href="../../assets/parcial-3/LARZ ACT18.pdf" download>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Descargar PDF
+  </a>
+  <p class="activity-download__note">Documento entregable en formato PDF.</p>
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="footer-brand">
+      <span class="brand__mark" aria-hidden="true">◈</span>
+      <span data-student-name>Luis Arturo Rocha Zarazúa</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="../../index.html#inicio">Inicio</a>
+      <a href="../../index.html#parciales">Parciales</a>
+      <a href="../../index.html#contacto">Contacto</a>
+    </nav>
+    <p class="footer-copy">© <span data-current-year>2026</span> — Portafolio académico. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="../../js/script.js"></script>
+</body>
+</html>
