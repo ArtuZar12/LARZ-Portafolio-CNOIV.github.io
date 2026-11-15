@@ -84,6 +84,12 @@ const PARCIALES = [
          status: "disponible", 
          href: "templates/parcial-3/act17-P3.html" 
       },
+      { 
+         code: "ACT-18", 
+         title: "La huella digital de un cibercriminal", 
+         status: "disponible", 
+         href: "templates/parcial-3/act18-P3.html" 
+      },
     ],
   },
 ];
