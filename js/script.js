@@ -96,6 +96,12 @@ const PARCIALES = [
          status: "disponible", 
          href: "templates/parcial-3/act19-P3.html" 
       },
+      { 
+         code: "PR03", 
+         title: "Operación narcos: expediente Kowhai", 
+         status: "disponible", 
+         href: "templates/parcial-3/pr03-P3.html" 
+      },
     ],
   },
 ];
